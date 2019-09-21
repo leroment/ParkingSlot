@@ -6,7 +6,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ParkingSlotAPI.Models;
-using ParkingSlotAPI.Services;
+using ParkingSlotAPI.Repository;
 
 namespace ParkingSlotAPI.Controllers
 {
@@ -15,19 +15,23 @@ namespace ParkingSlotAPI.Controllers
     public class ParkingController : ControllerBase
     {
 
-        private readonly IParkingInfoServices _services;
+        private readonly IParkingRepository _parkingRepository;
         private readonly IMapper _mapper;
 
-        public ParkingController(IParkingInfoServices services, IMapper mapper)
+        public ParkingController(IParkingRepository parkingRepository, IMapper mapper)
         {
-            _services = services;
+            _parkingRepository = parkingRepository;
             _mapper = mapper;
         }
 
         [HttpGet]
         public IActionResult GetCarparks()
         {
-            return Ok();
+            var caparksFromRepo = _parkingRepository.GetCarparks();
+
+            var carparks = _mapper.Map<IEnumerable<CarparkDto>>(caparksFromRepo);
+
+            return Ok(carparks);
         }
 
     }

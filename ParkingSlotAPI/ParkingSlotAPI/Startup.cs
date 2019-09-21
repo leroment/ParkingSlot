@@ -15,7 +15,8 @@ using Microsoft.Extensions.Options;
 using ParkingSlotAPI.Database;
 using ParkingSlotAPI.Entities;
 using ParkingSlotAPI.Models;
-using ParkingSlotAPI.Services;
+using ParkingSlotAPI.Profiles;
+using ParkingSlotAPI.Repository;
 
 namespace ParkingSlotAPI
 {
@@ -33,19 +34,19 @@ namespace ParkingSlotAPI
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
-            services.AddScoped<IParkingInfoServices, ParkingInfoServices>();
+            services.AddScoped<IParkingRepository, ParkingRepository>();
 
             var connectionString = Configuration["connectionStrings:parkingDBConnectionString"];
             services.AddDbContext<ParkingContext>(o => o.UseSqlServer(connectionString));
             
 
             // Auto Mapper Configurations
-            var mappingConfig = new MapperConfiguration(mc =>
+            var config = new MapperConfiguration(cfg =>
             {
-                mc.AddProfile(new ParkingInfoProfile());
+                cfg.AddProfile(new MappingProfile());
             });
 
-            IMapper mapper = mappingConfig.CreateMapper();
+            IMapper mapper = config.CreateMapper();
             services.AddSingleton(mapper);
         }
 

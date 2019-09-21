@@ -5,27 +5,27 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace ParkingSlotAPI.Services
+namespace ParkingSlotAPI.Repository
 {
-    public interface IParkingRepository
+    public interface IUserRepository
     {
-        IEnumerable<Carpark> GetCarparks();
+        IEnumerable<User> GetUsers();
         User GetUser(Guid userId);
         void AddUser(User user);
         void DeleteUser(User user);
     }
 
-    public class ParkingRepository : IParkingRepository
+    public class UserRepository : IUserRepository
     {
         private ParkingContext _context;
-        public ParkingRepository(ParkingContext context)
+        public UserRepository(ParkingContext context)
         {
             _context = context;
         }
 
-        public IEnumerable<Carpark> GetCarparks()
+        public IEnumerable<User> GetUsers()
         {
-            return _context.Carparks.OrderBy(a => a.CarparkId);
+            return _context.Users.OrderBy(a => a.FirstName);
         }
 
         public User GetUser(Guid userId)
