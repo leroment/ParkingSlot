@@ -1,0 +1,16 @@
+/* navbar */
+.tb-title {
+  margin-left: 24px;
+  font-size: 22px;
+  font-weight: 300;
+}
+
+/* Google Maps */
+.vue-map-container {
+  width: 100%;
+  height: 100%;
+}
+.vue-map-container .vue-map {
+  width: 100%;
+  height: 100%;
+}

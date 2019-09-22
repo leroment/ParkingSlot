@@ -1,26 +1,36 @@
-// The Vue build version to load with the `import` command
-// (runtime-only or standalone) has been set in webpack.base.conf with an alias.
-import Vue from 'vue';
-import App from './App';
-import router from './router/index.js';
+import Vue from 'vue'
+import App from './App.vue'
+import router from './router'
 
-// Initialise all the Javascript framework here
-import Vuetify from 'vuetify';
+//Initialize all the Javascript Libraries here
+/* 1. Promise based HHTP client for the browser */
+import axios from 'axios'
+import VueAxios from 'vue-axios'
+/* 2. Vue Material Design Component Framework*/
+import vuetify from './plugins/vuetify';
+/* 3. Vuex state management */
+import store from './stores/store'
+/* 4. Vue2-google-maps */
+import * as VueGoogleMaps from 'vue2-google-maps'
 
-// Styling
-import 'vuetify/dist/vuetify.min.css';
+// Install Javascript Libraries
+// Must be called before new Vue()
+Vue.use(VueAxios, axios);
+Vue.use(VueGoogleMaps, {
+  installComponents: true,
+  load: {
+    key: 'AIzaSyAAk9uEClxQmeGLldigxnQjobFi0nb3DV4',
+    libraries: 'places'
+  }
+})
 
-// Use the plugin
-// Must be called before new Vue() function
-Vue.use(Vuetify);
+axios.defaults.baseURL = 'http://localhost8081/api/';
 
-// Development mode
-Vue.config.productionTip = false;
+Vue.config.productionTip = false
 
-/* eslint-disable no-new */
 new Vue({
-  el: '#app',
   router,
-  components: { App },
-  template: '<App/>'
-});
+  vuetify,
+  store,
+  render: h => h(App)
+}).$mount('#app')

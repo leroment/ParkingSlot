@@ -1,21 +1,35 @@
 # parkingslot
 
-> Smart parking app
-
-## Build Setup
-
-``` bash
-# install dependencies
-npm install
-
-# serve with hot reload at localhost:8080
-npm run dev
-
-# build for production with minification
-npm run build
-
-# build for production and view the bundle analyzer report
-npm run build --report
+## Project setup
+Make sure to install NodeJS & Npm first. Then run this command on the terminal/cmd 
+```
+npm install -g @vue/cli #Standard Tooling for VueJS
 ```
 
-For a detailed explanation on how things work, check out the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
+Also, you will need to either clone it to your disk or download the zip
+Afterwards, just cd into the project and run 'npm install' to install the necessary node_nodules for this to work
+
+```
+cd parkingslot
+npm install
+npm run serve # run the dev server
+```
+
+## Additional Information (Frameworks)
+- Axios/Vue-Axios # Promise based http client to communicate with backend [https://github.com/axios/axios]
+- Vuetify # Material Design Framework for VueJS [https://vuetifyjs.com/en/]
+- Vuex # State Management Pattern + Library for VueJS [https://vuex.vuejs.org/]
+- Vue2-Google-Maps [https://www.npmjs.com/package/vue2-google-maps]
+
+### Compiles and hot-reloads for development
+```
+npm run serve
+```
+
+### Compiles and minifies for production
+```
+npm run build
+```
+
+### Customize configuration
+See [Configuration Reference](https://cli.vuejs.org/config/).

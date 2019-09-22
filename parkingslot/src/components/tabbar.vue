@@ -1,0 +1,22 @@
+<template>
+  <div class="tabbar">
+    <v-bottom-navigation dark fixed grow background-color="primary" color="white">
+      <v-btn to="/home">
+        <span>Home</span>
+        <v-icon>mdi-home</v-icon>
+      </v-btn>
+      <v-btn to="/map">
+        <span>Nearby</span>
+        <v-icon>mdi-map-marker</v-icon>
+      </v-btn>
+      <v-btn to="/favourite">
+        <span>Favorites</span>
+        <v-icon>mdi-heart</v-icon>
+      </v-btn>
+      <v-btn to="/profile">
+        <span>Profile</span>
+        <v-icon>mdi-face</v-icon>
+      </v-btn>
+    </v-bottom-navigation>
+  </div>
+</template>
