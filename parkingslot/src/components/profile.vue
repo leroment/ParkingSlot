@@ -1,0 +1,83 @@
+<template>
+  <v-container fluid>
+    <v-layout column>
+      <v-card>
+        <v-alert :value="notifyStatus" dismissible type="success">{{notifyText}}</v-alert>
+        <v-card-text v-show="updateAccount">
+          <v-flex class="mb-6">
+            <v-avatar size="96" class="mr-4">
+              <img src="https://randomuser.me/api/portraits/men/81.jpg" alt="Avatar" />
+            </v-avatar>
+          </v-flex>
+          <v-text-field name="name" label="Name" v-model="userProfile.Name"></v-text-field>
+          <v-text-field name="email" label="Email Address" v-model="userProfile.Email"></v-text-field>
+          <v-text-field name="contact" label="Contact Number" v-model="userProfile.Contact"></v-text-field>
+          <v-text-field name="vehtype" label="Vehicle Type" v-model="userProfile.Vehicle"></v-text-field>
+        </v-card-text>
+        <v-card-text v-show="!updateAccount">
+          <v-text-field name="password" label="New password" type="password"></v-text-field>
+          <v-text-field
+            name="cfmpassword"
+            label="Confirm new password"
+            type="password"
+          ></v-text-field>
+        </v-card-text>
+        <v-card-actions v-show="updateAccount">
+          <v-btn color="primary" @click="updateProfile">
+            <v-icon left dark>mdi-check</v-icon>Save Changes
+          </v-btn>
+          <v-btn color="warning" @click="reset">
+            <v-icon left dark>mdi-lock-reset</v-icon>Change Password
+          </v-btn>
+        </v-card-actions>
+        <v-card-actions v-show="!updateAccount">
+          <v-btn color="primary" @click="updatePassword">
+            <v-icon left dark>mdi-check</v-icon>Update Password
+          </v-btn>
+          <v-btn color="warning" @click="reset">
+            <v-icon left dark>mdi-arrow-left</v-icon>Back
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-layout>
+  </v-container>
+</template>
+
+<script>
+export default {
+  pageTitle: "My Profile",
+  data() {
+    return {
+      userProfile: {
+        Name: "John Doe",
+        Email: "JohnDoe@gmail.com",
+        Contact: "98765432",
+        Vehicle: "Mitsubishi Lancer"
+      },
+      updateAccount: true,
+      notifyStatus: false,
+      notifyText: ""
+    };
+  },
+  methods: {
+    updateProfile() {
+      /* Axios Post Req to update */
+      /* change state back to*/
+      /* update vuex state for username */
+      this.notifyStatus = true;
+      this.notifyText = "Profile have been successfully updated!";
+    },
+    updatePassword() {
+      /* Axios Post Req to update */
+      /* change state back to*/
+      this.notifyStatus = true;
+      this.notifyText = "Password have been successfully updated!";
+      this.updateAccount = true;
+    },
+    reset() {
+      this.updateAccount = !this.updateAccount;
+      this.notifyStatus = false;
+    }
+  }
+};
+</script>
