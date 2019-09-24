@@ -20,6 +20,7 @@ using ParkingSlotAPI.Entities;
 using ParkingSlotAPI.Helpers;
 using ParkingSlotAPI.Models;
 using ParkingSlotAPI.Profiles;
+using ParkingSlotAPI.PublicAPI;
 using ParkingSlotAPI.Repository;
 
 namespace ParkingSlotAPI
@@ -67,6 +68,7 @@ namespace ParkingSlotAPI
 
             services.AddScoped<IParkingRepository, ParkingRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IFetchPublicAPI, FetchPublicAPI>(); 
 
             var connectionString = Configuration["connectionStrings:parkingDBConnectionString"];
             services.AddDbContext<ParkingContext>(o => o.UseSqlServer(connectionString));

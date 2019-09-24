@@ -9,17 +9,17 @@ namespace ParkingSlotAPI.Entities
 {
     public class Carpark
     {
-        [Key]
         public Guid Id { get; set; }
 
         [Required]
+        [Key]
         public string CarparkId { get; set; }
 
         [Required]
         public string CarparkName { get; set; }
 
-        [Required]
-        public string LotType { get; set; }
+        //[Required]
+        //public string LotType { get; set; }
 
         public string Area { get; set; }
 
@@ -30,6 +30,7 @@ namespace ParkingSlotAPI.Entities
 
         public string XCoord { get; set; }
         public string YCoord { get; set; }
+        public int Available { get; set; }
 
 
 

@@ -16,6 +16,6 @@ namespace ParkingSlotAPI.Database
 
         public DbSet<User> Users { get; set; }
         public DbSet<Carpark> Carparks { get; set; }
-        // public DbSet<CarparkRate> CarparkRates { get; set; }
+        public DbSet<CarparkRate> CarparkRates { get; set; }
     }
 }

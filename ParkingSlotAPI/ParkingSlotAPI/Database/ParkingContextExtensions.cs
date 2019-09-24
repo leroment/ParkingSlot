@@ -12,11 +12,12 @@ namespace ParkingSlotAPI.Database
 
         public static void EnsureSeedDataForContext(this ParkingContext context )
         {
+
             if (!context.Carparks.Any())
             {
-                var carparks = new List<Carpark>();
-
                 FetchPublicAPI publicAPI = new FetchPublicAPI();
+
+                var carparks = new List<Carpark>();
 
                 var task = Task.Run(async () => await publicAPI.GetParkingInfoAsync());
 
@@ -25,6 +26,22 @@ namespace ParkingSlotAPI.Database
                 context.Carparks.AddRange(carparks);
 
                 context.SaveChanges();
+            }
+
+            if (!context.CarparkRates.Any())
+            {
+                FetchPublicAPI publicAPI = new FetchPublicAPI();
+
+                var carparkRates = new List<CarparkRate>();
+
+                var task = Task.Run(async () => await publicAPI.GetURAParkingRateAsync());
+
+                carparkRates = task.Result;
+
+                context.CarparkRates.AddRange(carparkRates);
+
+                context.SaveChanges();
+
             }
         }
 

@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using ParkingSlotAPI.Entities;
 using ParkingSlotAPI.Models;
+using ParkingSlotAPI.PublicAPIEntities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,6 +18,8 @@ namespace ParkingSlotAPI.Profiles
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => $"{src.FirstName} {src.LastName}"));
 
             CreateMap<UserForCreationDto, User>();
+
+
         }
     }
 }
