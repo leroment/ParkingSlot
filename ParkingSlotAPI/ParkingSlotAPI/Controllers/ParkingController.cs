@@ -27,11 +27,32 @@ namespace ParkingSlotAPI.Controllers
         [HttpGet]
         public IActionResult GetCarparks()
         {
-            var caparksFromRepo = _parkingRepository.GetCarparks();
+            var carparksFromRepo = _parkingRepository.GetCarparks();
 
-            var carparks = _mapper.Map<IEnumerable<CarparkDto>>(caparksFromRepo);
+            if (carparksFromRepo == null)
+            {
+                return NotFound();
+            }
+
+            var carparks = _mapper.Map<IEnumerable<CarparkDto>>(carparksFromRepo);
 
             return Ok(carparks);
+        }
+
+
+        [HttpGet("{id}")]
+        public IActionResult GetCarpark(Guid id)
+        {
+            var carparkFromRepo = _parkingRepository.GetCarpark(id);
+
+            if (carparkFromRepo == null)
+            {
+                return NotFound();
+            }
+
+            var carpark = _mapper.Map<CarparkDto>(carparkFromRepo);
+
+            return Ok(carpark);
         }
 
     }

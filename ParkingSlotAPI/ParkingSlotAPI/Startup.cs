@@ -38,7 +38,6 @@ namespace ParkingSlotAPI
 
             var connectionString = Configuration["connectionStrings:parkingDBConnectionString"];
             services.AddDbContext<ParkingContext>(o => o.UseSqlServer(connectionString));
-            
 
             // Auto Mapper Configurations
             var config = new MapperConfiguration(cfg =>

@@ -10,9 +10,9 @@ namespace ParkingSlotAPI.Repository
     public interface IParkingRepository
     {
         IEnumerable<Carpark> GetCarparks();
-        User GetUser(Guid userId);
-        void AddUser(User user);
-        void DeleteUser(User user);
+        Carpark GetCarpark(Guid carparkId);
+        void AddCarpark(Carpark carpark);
+        void DeleteCarpark(Carpark carpark);
     }
 
     public class ParkingRepository : IParkingRepository
@@ -28,20 +28,20 @@ namespace ParkingSlotAPI.Repository
             return _context.Carparks.OrderBy(a => a.CarparkId);
         }
 
-        public User GetUser(Guid userId)
+        public Carpark GetCarpark(Guid carparkId)
         {
-            return _context.Users.FirstOrDefault(a => a.Id == userId);
+            return _context.Carparks.FirstOrDefault(a => a.Id == carparkId);
         }
 
-        public void AddUser(User user)
+        public void AddCarpark(Carpark carpark)
         {
-            user.Id = Guid.NewGuid();
-            _context.Users.Add(user);
+            carpark.Id = Guid.NewGuid();
+            _context.Carparks.Add(carpark);
         }
 
-        public void DeleteUser(User user)
+        public void DeleteCarpark(Carpark carpark)
         {
-            _context.Users.Remove(user);
+            _context.Carparks.Remove(carpark);
         }
     }
 }
