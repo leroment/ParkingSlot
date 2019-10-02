@@ -18,4 +18,10 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="4.0.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="SVY21">
+      <HintPath>..\..\..\SVY21\csharp\svy21\bin\Debug\SVY21.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>

@@ -33,6 +33,11 @@ namespace ParkingSlotAPI.Repository
             return _context.Carparks.FirstOrDefault(a => a.Id == carparkId);
         }
 
+        public Carpark GetCarparkById(string carparkId)
+        {
+            return _context.Carparks.FirstOrDefault(a => a.CarparkId == carparkId);
+        }
+
         public void AddCarpark(Carpark carpark)
         {
             carpark.Id = Guid.NewGuid();

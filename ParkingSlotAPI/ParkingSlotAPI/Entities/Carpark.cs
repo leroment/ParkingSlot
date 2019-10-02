@@ -17,23 +17,15 @@ namespace ParkingSlotAPI.Entities
 
         [Required]
         public string CarparkName { get; set; }
-
-        //[Required]
-        //public string LotType { get; set; }
-
-        public string Area { get; set; }
-
+        public string ParkingSystem { get; set; }
+        public int TotalAvailableLots { get; set; }
+        public int TotalLots { get; set; }
         [Required]
         public string AgencyType { get; set; }
-
         public string Address { get; set; }
-
         public string XCoord { get; set; }
         public string YCoord { get; set; }
-        public int Available { get; set; }
-
-
-
-
+        public bool IsCentral { get; set; }
+        public string LotType { get; set; }
     }
 }

@@ -5,14 +5,15 @@ using System.Threading.Tasks;
 
 namespace ParkingSlotAPI.PublicAPIEntities
 {
-    public class URACarparkRatesEntity
+
+    public class URACarparkInfo
     {
         public string Status { get; set; }
         public string Message { get; set; }
-        public Result[] Result { get; set; }
+        public Results[] Result { get; set; }
     }
 
-    public class Result
+    public class Results
     {
         public string weekdayMin { get; set; }
         public string weekdayRate { get; set; }

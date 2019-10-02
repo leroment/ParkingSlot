@@ -2,8 +2,11 @@
 using ParkingSlotAPI.Entities;
 using ParkingSlotAPI.Helpers;
 using ParkingSlotAPI.PublicAPIEntities;
+using ParkingSlotAPI.Repository;
+using SVY21;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -11,86 +14,99 @@ namespace ParkingSlotAPI.PublicAPI
 {
     public interface IFetchPublicAPI
     {
-        Task<List<Carpark>> GetParkingInfoAsync();
-        Task<List<CarparkRate>> GetHDBParkingInfoAsync();
-        Task<List<CarparkRate>> GetURAParkingRateAsync();
+        // Task<List<Carpark>> GetParkingInfoAsync();
+        Task<List<Carpark>> GetHDBParkingInfoAsync();
+        Task<List<Carpark>> GetURAParkingInfoAsync();
     }
 
 
     public class FetchPublicAPI : IFetchPublicAPI
     {
-
         public FetchPublicAPI()
         {
         }
 
-        public async Task<List<Carpark>> GetParkingInfoAsync()
+        //public async Task<List<Carpark>> GetParkingInfoAsync()
+        //{
+        //    List<Carpark> carParks = new List<Carpark>();
+
+        //    for (int i = 0; i <= 2000; i += 500)
+        //    {
+        //        var responseBody = await HttpHelpers.GetResource($"http://datamall2.mytransport.sg/ltaodataservice/CarParkAvailabilityv2?$skip={i}", "AccountKey", "pZIQovINS3+Z2fs9oLqWkg==");
+
+        //        DataMallEntity dataMallEntity = JsonConvert.DeserializeObject<DataMallEntity>(responseBody);
+
+        //        foreach (var value in dataMallEntity.value)
+        //        {
+        //            // Split location coordinates
+        //            string[] coordinates = { "", "" };
+
+        //            // If there is no location, XCoord and YCoord should be blank
+        //            if (value.Location == "")
+        //            {
+        //                coordinates[0] = "";
+        //                coordinates[1] = "";
+        //            }
+        //            // Otherwise, split location into XCoord and YCoord
+        //            else
+        //            {
+        //                coordinates = value.Location.Split(" ");
+        //            }
+
+        //            Carpark carpark =
+        //                new Carpark
+        //                {
+        //                    Id = Guid.NewGuid(),
+        //                    CarparkId = value.CarParkID,
+        //                    CarparkName = value.Development,
+        //                    AgencyType = value.Agency,
+        //                    Address = value.Agency != "LTA" ? value.Development : "",
+        //                    XCoord = coordinates[0],
+        //                    YCoord = coordinates[1],
+        //                };
+
+        //            if (carParks.Count == 0)
+        //            {
+        //                carParks.Add(carpark);
+        //            }
+
+        //            if (carParks.Count > 0)
+        //            {
+        //                if (carpark.CarparkId == carParks[carParks.Count - 1].CarparkId)
+        //                {
+
+        //                }
+        //                else
+        //                {
+        //                    carParks.Add(carpark);
+        //                }
+        //            }
+
+        //        }
+        //    }
+
+        //    return carParks;
+        //}
+
+        public async Task<List<Carpark_Data>> GetHDBAvailabilityAsync()
         {
-            List<Carpark> carParks = new List<Carpark>();
+            var responseBody = await HttpHelpers.GetResourceNoHeader("https://api.data.gov.sg/v1/transport/carpark-availability");
 
-            for (int i = 0; i <= 2000; i += 500)
+            HDBAvailabilityEntity hDBAvailability = JsonConvert.DeserializeObject<HDBAvailabilityEntity>(responseBody);
+
+            List<Carpark_Data> carparkData = new List<Carpark_Data>();
+
+            foreach (var value in hDBAvailability.items[0].carpark_data)
             {
-                var responseBody = await HttpHelpers.GetResource($"http://datamall2.mytransport.sg/ltaodataservice/CarParkAvailabilityv2?$skip={i}", "AccountKey", "pZIQovINS3+Z2fs9oLqWkg==");
-
-                DataMallEntity dataMallEntity = JsonConvert.DeserializeObject<DataMallEntity>(responseBody);
-
-                foreach (var value in dataMallEntity.value)
-                {
-                    // Split location coordinates
-                    string[] coordinates = { "", "" };
-
-                    // If there is no location, XCoord and YCoord should be blank
-                    if (value.Location == "")
-                    {
-                        coordinates[0] = "";
-                        coordinates[1] = "";
-                    }
-                    // Otherwise, split location into XCoord and YCoord
-                    else
-                    {
-                        coordinates = value.Location.Split(" ");
-                    }
-
-                    Carpark carpark =
-                        new Carpark
-                        {
-                            Id = Guid.NewGuid(),
-                            CarparkId = value.CarParkID,
-                            CarparkName = value.Development,
-                            Area = value.Area,
-                            AgencyType = value.Agency,
-                            Address = value.Agency != "LTA" ? value.Development : "",
-                            XCoord = coordinates[0],
-                            YCoord = coordinates[1],
-                            Available = value.AvailableLots
-                        };
-
-                    if (carParks.Count == 0)
-                    {
-                        carParks.Add(carpark);
-                    }
-
-                    if (carParks.Count > 0)
-                    {
-                        if (carpark.CarparkId == carParks[carParks.Count - 1].CarparkId)
-                        {
-
-                        }
-                        else
-                        {
-                            carParks.Add(carpark);
-                        }
-                    }
-
-                }
+                carparkData.Add(value);
             }
 
-            return carParks;
+            return carparkData;
         }
 
-        public async Task<List<CarparkRate>> GetHDBParkingInfoAsync()
-        {
 
+        public async Task<List<Carpark>> GetHDBParkingInfoAsync()
+        {
             try
             {
                 using (var client = new HttpClient())
@@ -102,10 +118,49 @@ namespace ParkingSlotAPI.PublicAPI
 
                     string responseBody = response.Content.ReadAsStringAsync().Result;
 
-                    HDBEntity hdbEntity = JsonConvert.DeserializeObject<HDBEntity>(responseBody);
+                    HDBEntity HdbEntity = JsonConvert.DeserializeObject<HDBEntity>(responseBody);
 
+                    List<Carpark> carparks = new List<Carpark>();
 
-                    return null;
+                    foreach (var c in HdbEntity.result.records)
+                    {
+                        Svy21Coordinate svy21 = new Svy21Coordinate(double.Parse(c.x_coord), double.Parse(c.y_coord));
+
+                        LatLongCoordinate latLong = svy21.ToLatLongCoordinate();
+
+                        bool isCentral = false;
+
+                        if (c.car_park_no.Contains("HLM")
+                            || c.car_park_no.Contains("KAB")
+                            || c.car_park_no.Contains("KAM")
+                            || c.car_park_no.Contains("KAS")
+                            || c.car_park_no.Contains("PRM")
+                            || c.car_park_no.Contains("SLS")
+                            || c.car_park_no.Contains("SR1")
+                            || c.car_park_no.Contains("SR2")
+                            || c.car_park_no.Contains("TPM")
+                            || c.car_park_no.Contains("UCS")
+                            )
+                        {
+                            isCentral = true;
+                        }
+
+                        Carpark carpark = new Carpark()
+                        {
+                           Id = Guid.NewGuid(),
+                           Address = c.address,
+                           AgencyType = "HDB",
+                           CarparkId = c.car_park_no,
+                           XCoord = latLong.Latitude.ToString(),
+                           YCoord = latLong.Longitude.ToString(),
+                           CarparkName = c.address,
+                           IsCentral = isCentral,
+                           ParkingSystem = c.type_of_parking_system
+                        };
+
+                        carparks.Add(carpark);
+                    }
+                    return carparks;
                 }
             }
             catch (HttpRequestException e)
@@ -115,51 +170,62 @@ namespace ParkingSlotAPI.PublicAPI
                 return null;
             }
         }
-        
-        public async Task<List<CarparkRate>> GetURAParkingRateAsync()
+
+        public async Task<List<Carpark>> GetURAParkingInfoAsync()
         {
             try
             {
                 using (var client = new HttpClient())
                 {
-                    client.BaseAddress = new Uri("https://www.ura.gov.sg/uraDataService/invokeUraDS?service=Car_Park_Details");
-                    client.DefaultRequestHeaders.Add("AccessKey", "942ba181-3f0a-4e37-bb3e-6f66093945d3");
-                    client.DefaultRequestHeaders.Add("Token", "b44N3a4aG3j4a3K7rEEUWK4Atb-9TF--f4Ha3664kwe9H3cbkfej41w3Aa7e5dG+hEFatv00P5qD@QRexa4nbHT34-evenzm6465");
+                    var responseBody = await HttpHelpers.GetResourceTwoHeaders("https://www.ura.gov.sg/uraDataService/invokeUraDS?service=Car_Park_Details", "AccessKey", "942ba181-3f0a-4e37-bb3e-6f66093945d3", "Token", "fuXwX4Q9azjt2N9zKdcjfXN0+-8Y-7ba-5hmS6d5Q411epK31b1xKdBnPK6efxBgZJ19jZd97v1-qHEtuH6-8eee-nue-6we-QRe");
 
-                    HttpResponseMessage response = await client.GetAsync(client.BaseAddress);
-                    response.EnsureSuccessStatusCode();
+                    URACarparkInfo result = JsonConvert.DeserializeObject<URACarparkInfo>(responseBody);
 
-                    string responseBody = response.Content.ReadAsStringAsync().Result;
 
-                    URACarparkRatesEntity _URACarparkRatesEntity = JsonConvert.DeserializeObject<URACarparkRatesEntity>(responseBody);
+                    List<Carpark> carparks = new List<Carpark>();
 
-                    // _mapper.Map<IEnumerable<CarparkRate>>(_URACarparkRatesEntity);
+                    var carparkNo = "";
 
-                    List<CarparkRate> carparkRates = new List<CarparkRate>();
-
-                    foreach (var value in _URACarparkRatesEntity.Result)
+                    foreach (var value in result.Result)
                     {
-                        CarparkRate carparkRate = new CarparkRate()
+                        double xcoord = 0.00, ycoord = 0.00;
+
+                        if (value.geometries != null)
+                        {
+                            var uncooord = value.geometries[0].coordinates.Split(",");
+                            var x = uncooord[0];
+                            var y = uncooord[1];
+
+                            Svy21Coordinate svy21 = new Svy21Coordinate(double.Parse(x), double.Parse(y));
+
+                            LatLongCoordinate latLong = svy21.ToLatLongCoordinate();
+
+                            xcoord = latLong.Latitude;
+                            ycoord = latLong.Longitude;
+                        }
+
+                        Carpark carpark = new Carpark()
                         {
                             Id = Guid.NewGuid(),
                             CarparkId = value.ppCode,
                             CarparkName = value.ppName,
-                            EndTime = value.endTime,
-                            SatdayMin = value.satdayMin,
-                            SatdayRate = value.satdayRate,
-                            Remarks = value.remarks,
-                            SunPHMin = value.sunPHMin,
-                            SunPHRate = value.sunPHRate,
-                            StartTime = value.startTime,
-                            VehicleType = value.vehCat,
-                            WeekdayMin = value.weekdayMin,
-                            WeekdayRate = value.weekdayRate
+                            Address = value.ppName,
+                            AgencyType = "URA",
+                            IsCentral = false,
+                            XCoord = xcoord.ToString(),
+                            YCoord = ycoord.ToString(),
+                            ParkingSystem = "",
+                            LotType = ""
                         };
 
-                        carparkRates.Add(carparkRate);
+                        carparks.Add(carpark);
                     }
 
-                    return carparkRates;
+                 
+                    
+                    
+
+                    return carparks;
                 }
             }
             catch (HttpRequestException e)
@@ -169,5 +235,9 @@ namespace ParkingSlotAPI.PublicAPI
                 return null;
             }
         }
+
+
+
+
     }
 }
