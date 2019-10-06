@@ -5,9 +5,9 @@ using ParkingSlotAPI.Entities;
 using ParkingSlotAPI.Database;
 using System.Threading.Tasks;
 
-namespace ParkingSlotAPI.Respository
+namespace ParkingSlotAPI.Repository
 {
-    public interface IFavoriteRespository
+    public interface IFavoriteRepository
     {
         IEnumerable<Favorite> GetFavorites();
         Favorite GetFavorite(Guid favoriteId);
@@ -15,25 +15,26 @@ namespace ParkingSlotAPI.Respository
         void DeleteFavorite(Favorite favorite);
         bool Save();
     }
-    public class FavoriteRespository : IFavoriteRespository
+    public class FavoriteRepository : IFavoriteRepository
     {
         private FavoriteContext _context;
-        public FavoriteRespository(FavoriteContext context)
+        public FavoriteRepository(FavoriteContext context)
         {
             _context = context;
         }
 
         //User Entity has collection of favorite list.
         // So use Users database to store the favorite lists.
+        //Supposedly to use favorite database...
 
         public IEnumerable<Favorite> GetFavorites()
         {
-            return _context.Users.OrderBy(a => a.Favorites);
+            return _context.Favorites.OrderBy(a => a.Favorites);
         }
 
         public Favorite GetFavourite(Guid favoriteId)
         {
-            return _context.Users.FirstOrDefault(a => a.Id == favoriteId);
+            return _context.Favorites.FirstOrDefault(a => a.Id == favoriteId);
         }
 
         public void SaveFavorite(Favorite favorite)

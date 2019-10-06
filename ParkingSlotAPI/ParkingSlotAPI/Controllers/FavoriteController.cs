@@ -6,7 +6,7 @@ using Sytem.Threading.Task;
 using AutoMapper;
 using ParkingSlotAPI.Entities;
 using ParkingSlotAPI.Models;
-using ParkingSlotAPI.Respository;
+using ParkingSlotAPI.Repository;
 
 namespace ParkingSlotAPI.Controllers
 {
@@ -14,19 +14,20 @@ namespace ParkingSlotAPI.Controllers
     [ApiController]
     public class FavoriteController : ControllerBase
     {
-        private readonly IFavoriteRespository _favoriteRespository;
+
+        private readonly IFavoriteRepository _favoriteRepository;
         private readonly IMapper _mapper;
         
-        public FavoriteController(IFavoriteRespository favoriteRespository, IMapper mapper)
+        public FavoriteController(IFavoriteRepository favoriteRepository, IMapper mapper)
         {
-            _favoriteRespository = favoriteRespository;
+            _favoriteRepository = favoriteRpository;
             _mapper = mapper;
         }
 
         [HttpGet]
         public IActionResult GetFavorites()
         {
-            var favoritesFromRepo = _favoriteRespository.GetFavorites();
+            var favoritesFromRepo = _favoriteRepository.GetFavorites();
 
             if(favoritesFromRepo == null)
             {
@@ -41,7 +42,7 @@ namespace ParkingSlotAPI.Controllers
         [HttpGet("{id}", Name = "GetFavorite")]
         public IActionResult GetFavorite(Guid id)
         {
-            var favoriteFromRepo = _favoriteRespository.GetFavorite(id);
+            var favoriteFromRepo = _favoriteRepository.GetFavorite(id);
 
             if(favoriteFromRepo == null)
             {
@@ -63,8 +64,8 @@ namespace ParkingSlotAPI.Controllers
 
             var favoriteEntity = _mapper.Map<Favorite>(favorite);
 
-            _favoriteRespository.SaveFavorite(favoriteEntity);
-            if (!_favoriteRespository.Save())
+            _favoriteRepository.SaveFavorite(favoriteEntity);
+            if (!_favoriteRepository.Save())
             {
                 throw new Exception("Adding a favorite failed on save.");
             }
@@ -74,18 +75,18 @@ namespace ParkingSlotAPI.Controllers
             return CreatedAtRoute("GetFavorite", new { id = favoriteToReturn.Id }, favoriteToReturn);
         }
 
-        [HttpPost]
+        [HttpDelete("{id}")]
         public IActionResult DeleteFavorite(Guid id)
         {
-            var favoriteFromRepo = _favoriteRespository.GetFavorite(id);
+            var favoriteFromRepo = _favoriteRepository.GetFavorite(id);
             if(favoriteFromRepo == null)
             {
                 return NotFound();
             }
 
-            _favoriteRespository.DeleteFavorite(favoriteFromRepo);
+            _favoriteRepository.DeleteFavorite(favoriteFromRepo);
 
-            if(!_favoriteRespository.Save())
+            if(!_favoriteRepository.Save())
             {
                 throw new Exception($"Deleting favorite {id} failed on save");
             }

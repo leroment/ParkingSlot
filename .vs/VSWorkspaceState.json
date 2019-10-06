@@ -1,0 +1,12 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\ParkingSlotAPI",
+    "\\ParkingSlotAPI\\ParkingSlotAPI",
+    "\\ParkingSlotAPI\\ParkingSlotAPI\\Controllers",
+    "\\ParkingSlotAPI\\ParkingSlotAPI\\Entities",
+    "\\ParkingSlotAPI\\ParkingSlotAPI\\Repository"
+  ],
+  "SelectedNode": "\\ParkingSlotAPI\\ParkingSlotAPI\\Entities\\Favorite.cs",
+  "PreviewInSolutionExplorer": false
+}
