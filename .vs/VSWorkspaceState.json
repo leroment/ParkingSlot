@@ -3,10 +3,10 @@
     "",
     "\\ParkingSlotAPI",
     "\\ParkingSlotAPI\\ParkingSlotAPI",
-    "\\ParkingSlotAPI\\ParkingSlotAPI\\Controllers",
+    "\\ParkingSlotAPI\\ParkingSlotAPI\\Database",
     "\\ParkingSlotAPI\\ParkingSlotAPI\\Entities",
-    "\\ParkingSlotAPI\\ParkingSlotAPI\\Repository"
+    "\\ParkingSlotAPI\\ParkingSlotAPI\\Models"
   ],
-  "SelectedNode": "\\ParkingSlotAPI\\ParkingSlotAPI\\Entities\\Favorite.cs",
+  "SelectedNode": "\\ParkingSlotAPI\\ParkingSlotAPI\\Models\\FavouriteDto.cs",
   "PreviewInSolutionExplorer": false
 }

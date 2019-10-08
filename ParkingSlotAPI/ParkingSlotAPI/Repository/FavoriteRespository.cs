@@ -40,12 +40,12 @@ namespace ParkingSlotAPI.Repository
         public void SaveFavorite(Favorite favorite)
         {
             favorite = Guid.NewGuid();
-            _context.Users.Add(favorite);
+            _context.Favorites.Add(favorite);
         }
 
         public void DeleteFavorite(Favorite favorite)
         {
-            _context.Users.Remove(favorite);
+            _context.Favorites.Remove(favorite);
         }
 
         public bool Save()
