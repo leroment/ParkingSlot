@@ -11,44 +11,44 @@ namespace ParkingSlotAPI.Repository
     {
 	    IEnumerable<Feedback> GetFeedbacks();
         Feedback GetFeedback(Guid feedbackId);
-        void SaveFeedback(Feedback feedback);
+        void AddFeedback(Feedback feedback);
         void DeleteFeedback(Feedback feedback);
         bool Save();
     }
 
     public class FeedbackRepository : IFeedbackRepository
     {
-        private FeedbackContext _context;
-        public FeedbackRepository(FeedbackContext context)
+        private ParkingContext _context;
+        public FeedbackRepository(ParkingContext context)
         {
-            context = _context;
+            _context = context;
         }
-    }
 
-    public IEnumerable<Feedback> GetFeedbacks()
-    {
-        return _context.Feedbacks.OrderBy(a => a.Feedbacks);
-    }
+        public IEnumerable<Feedback> GetFeedbacks()
+        {
+            return _context.Feedbacks.OrderBy(a => a.Name);
+        }
 
-    public Feedback GetFeedback(Guid feedbackId)
-    {
-        return _context.Feedbacks.FirstOrDefault(a => a.Id == feedbackId);
-    }
+        public Feedback GetFeedback(Guid feedbackId)
+        {
+            return _context.Feedbacks.FirstOrDefault(a => a.Id == feedbackId);
+        }
 
-    public void SaveFeedback(Feedback feedback)
-    {
-        feedback = Guid.NewGuid();
-        _context.Feedbacks.Add(feedback);
-    }
+        public void AddFeedback(Feedback feedback)
+        {
+            feedback.Id = Guid.NewGuid();
+            _context.Feedbacks.Add(feedback);
+        }
 
-    public void DeleteFeedback(Feedback feedback)
-    {
-        _context.Feedbacks.Remove(feedback);
-    }
+        public void DeleteFeedback(Feedback feedback)
+        {
+            _context.Feedbacks.Remove(feedback);
+        }
 
-    public bool Save()
-    {
-        return (_context.SaveChanges() >= 0);
+        public bool Save()
+        {
+            return (_context.SaveChanges() >= 0);
+        }
     }
 }
 

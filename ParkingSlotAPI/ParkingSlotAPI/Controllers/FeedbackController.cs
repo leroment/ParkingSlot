@@ -2,7 +2,7 @@
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
-using Sytem.Threading.Task;
+using System.Threading.Tasks;
 using AutoMapper;
 using ParkingSlotAPI.Entities;
 using ParkingSlotAPI.Models;
@@ -33,9 +33,9 @@ namespace ParkingSlotAPI.Controllers
                 return NotFound();
             }
 
-            var feedbacks = _mapper.Map<IEnumberable<FeedbackDto>>(feedbacksFromRepo);
+            var feedbacks = _mapper.Map<System.Collections.Generic.IEnumerable<FeedbackDto>>(feedbacksFromRepo);
 
-            return ok(feedbacks);
+            return Ok(feedbacks);
         }
 
         [HttpGet("{id}", Name = "GetFeedback")]
@@ -50,7 +50,7 @@ namespace ParkingSlotAPI.Controllers
 
             var feedback = _mapper.Map<FeedbackDto>(feedbackFromRepo);
 
-            return ok(feedback);
+            return Ok(feedback);
         }
 
         [HttpPost]
@@ -63,15 +63,15 @@ namespace ParkingSlotAPI.Controllers
 
             var feedbackEntity = _mapper.Map<Feedback>(feedback);
 
-            _feedbackRepository.SaveFeedback(feedbackEntity);
+            _feedbackRepository.AddFeedback(feedbackEntity);
             if (!_feedbackRepository.Save())
             {
                 throw new Exception("Adding a feedback failed on save.");
-
-                var feedbackToReturn = _mapper.Map<FeedbackDto>(feedbackEntity);
-
-                return CreatedAtRoute("GetFeedback", new { id = feedbackToReturn.id }, feedbackToReturn);
             }
+
+            var feedbackToReturn = _mapper.Map<FeedbackDto>(feedbackEntity);
+
+            return CreatedAtRoute("GetFeedback", new { id = feedbackToReturn.Id }, feedbackToReturn);
         }
 
         [HttpDelete("{id}")]

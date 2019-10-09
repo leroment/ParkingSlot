@@ -2,11 +2,12 @@
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
-using Sytem.Threading.Task;
+using System.Threading.Tasks;
 using AutoMapper;
 using ParkingSlotAPI.Entities;
 using ParkingSlotAPI.Models;
 using ParkingSlotAPI.Repository;
+using System.Collections.Generic;
 
 namespace ParkingSlotAPI.Controllers
 {
@@ -20,7 +21,7 @@ namespace ParkingSlotAPI.Controllers
         
         public FavoriteController(IFavoriteRepository favoriteRepository, IMapper mapper)
         {
-            _favoriteRepository = favoriteRpository;
+            _favoriteRepository = favoriteRepository;
             _mapper = mapper;
         }
 
@@ -34,9 +35,9 @@ namespace ParkingSlotAPI.Controllers
                 return NotFound();
             }
 
-            var favorites = _mapper.Map<IEnumberable<FavoriteDto>>(favoritesFromRepo);
+            var favorites = _mapper.Map<IEnumerable<FavoriteDto>>(favoritesFromRepo);
 
-            return ok(favorites);
+            return Ok(favorites);
         }
 
         [HttpGet("{id}", Name = "GetFavorite")]

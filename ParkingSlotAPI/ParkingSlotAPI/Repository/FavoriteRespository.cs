@@ -17,8 +17,8 @@ namespace ParkingSlotAPI.Repository
     }
     public class FavoriteRepository : IFavoriteRepository
     {
-        private FavoriteContext _context;
-        public FavoriteRepository(FavoriteContext context)
+        private ParkingContext _context;
+        public FavoriteRepository(ParkingContext context)
         {
             _context = context;
         }
@@ -29,17 +29,17 @@ namespace ParkingSlotAPI.Repository
 
         public IEnumerable<Favorite> GetFavorites()
         {
-            return _context.Favorites.OrderBy(a => a.Favorites);
+            return _context.Favorites.OrderBy(a => a.carpark);
         }
 
-        public Favorite GetFavourite(Guid favoriteId)
+        public Favorite GetFavorite(Guid favoriteId)
         {
             return _context.Favorites.FirstOrDefault(a => a.Id == favoriteId);
         }
 
         public void SaveFavorite(Favorite favorite)
         {
-            favorite = Guid.NewGuid();
+            favorite.Id = Guid.NewGuid();
             _context.Favorites.Add(favorite);
         }
 

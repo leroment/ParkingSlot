@@ -10,7 +10,7 @@ namespace ParkingSlotAPI.Entities
     public class Feedback
     {
         [Key]
-        public Guid id { get; set; }
+        public Guid Id { get; set; }
 
         [ForeignKey("UserId")]
         public User user { get; set; }
