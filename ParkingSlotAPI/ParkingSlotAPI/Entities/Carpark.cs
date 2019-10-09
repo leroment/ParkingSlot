@@ -27,5 +27,12 @@ namespace ParkingSlotAPI.Entities
         public string YCoord { get; set; }
         public bool IsCentral { get; set; }
         public string LotType { get; set; }
+        public int CarAvailability { get; set; }
+        public int HVAvailability { get; set; }
+        public int MAvailability { get; set; }
+        public int CarCapacity { get; set; }
+        public int HVCapacity { get; set; }
+        public int MCapacity { get; set; }
+
     }
 }

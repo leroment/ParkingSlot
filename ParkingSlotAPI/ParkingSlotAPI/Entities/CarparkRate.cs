@@ -24,8 +24,11 @@ namespace ParkingSlotAPI.Entities
         public string SunPHRate { get; set; }
         public string SunPHMin { get; set; }
         public string VehicleType { get; set; }
-        public int VehAvailability { get; set; }
         public string Remarks { get; set; }
         public bool isShortTerm { get; set; }
+        public string PHDays { get; set; }
+        public string PHRate { get; set; }
+        public string PHStartTime { get; set; }
+        public string PHEndTime { get; set; }
     }
 }
