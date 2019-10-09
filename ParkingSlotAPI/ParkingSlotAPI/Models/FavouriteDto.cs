@@ -8,8 +8,8 @@ namespace ParkingSlotAPI.Models
     public class FavoriteDto
     {
         public Guid Id { get; set; }
-        public String CarparkId { get; set; }
-        public String CarparkName { get; set; }
+        public string CarparkId { get; set; }
+        public string CarparkName { get; set; }
     }
 }
 
