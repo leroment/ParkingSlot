@@ -4,6 +4,7 @@ using ParkingSlotAPI.PublicAPIEntities;
 using SVY21;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -32,9 +33,12 @@ namespace ParkingSlotAPI.Database
             else
             {
 
+
+                // ConvertDateTimeFormat(context);
+
                 //var carparks = new List<Carpark>();
 
-
+                // FixShoppingMallCarparkRates(context);
                 // FixHDBCarparkRates(context);
 
                 // FixURACarparkRatesData(context);
@@ -624,5 +628,81 @@ namespace ParkingSlotAPI.Database
             context.SaveChanges();
         }
 
+        public static void FixShoppingMallCarparkRates(ParkingContext context)
+        {
+            FetchPublicAPI publicAPI = new FetchPublicAPI();
+
+            var task = Task.Run(async () => await publicAPI.GetShoppingMallAsync());
+
+            var result = task.Result;
+
+            var x = "";
+
+            foreach (var v in result)
+            {
+                var h = context.Carparks.FirstOrDefault(a => a.CarparkName == v.carpark);
+
+                if (h != null)
+                {
+                    x += $"Weekdays Rate: {v.weekdays_rate_1}, {v.weekdays_rate_2}, Saturday Rate: {v.saturday_rate}, Sunday / Public Holiday Rate: {v.sunday_publicholiday_rate}";
+
+                    CarparkRate carparkRate = new CarparkRate
+                    {
+                        Id = Guid.NewGuid(),
+                        CarparkId = h.CarparkId,
+                        Remarks = x
+                    };
+
+                    context.CarparkRates.Add(carparkRate);
+                }
+
+                x = "";
+            }
+
+            context.SaveChanges();
+        }
+
+        public static void ConvertDateTimeFormat(ParkingContext context)
+        {
+            string s = "";
+            foreach (var v in context.CarparkRates)
+            {
+
+                if (v.PHEndTime2 == null || v.PHEndTime2 == "")
+                {
+                }
+                else
+                {
+                    s = "";
+
+                    if (v.PHEndTime2.Contains("PM"))
+                    {
+                        var t4hr = int.Parse(v.PHEndTime2.Substring(0, 2)) + 12;
+
+                        var x = v.PHEndTime2.Substring(3, 3);
+                        x = x.Replace(" ", string.Empty);
+
+                        s = t4hr + ":" + x;
+                    }
+                    else
+                    {
+                        var x = v.PHEndTime2.Substring(3, 3);
+                        x = x.Replace(" ", string.Empty);
+
+                        s = v.PHEndTime2.Substring(0, 2) + ":" + x;
+                    }
+                    s += ":00";
+
+                    //var result = Convert.ToDateTime(s);
+                    // string TimeDateFormat = result.ToString("hh:mm:ss", CultureInfo.CurrentCulture);
+
+                    v.PHEndTime2 = s;
+                }
+
+                context.CarparkRates.Update(v);
+            }
+
+            context.SaveChanges();
+        }
     }
 }
