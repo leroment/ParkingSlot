@@ -12,13 +12,12 @@ namespace ParkingSlotAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ParkingController : ControllerBase
+    public class CarparkController : ControllerBase
     {
-
         private readonly IParkingRepository _parkingRepository;
         private readonly IMapper _mapper;
 
-        public ParkingController(IParkingRepository parkingRepository, IMapper mapper)
+        public CarparkController(IParkingRepository parkingRepository, IMapper mapper)
         {
             _parkingRepository = parkingRepository;
             _mapper = mapper;
@@ -54,6 +53,5 @@ namespace ParkingSlotAPI.Controllers
 
             return Ok(carpark);
         }
-
     }
 }

@@ -600,10 +600,10 @@ namespace ParkingSlotAPI.Database
                         VehicleType = vehType,
                         WeekdayMin = weekDayMin,
                         WeekdayRate = weekDayRate,
-                        PHDays = phDays,
-                        PHEndTime = phEndTime,
-                        PHRate = phRate,
-                        PHStartTime = phStartTime
+                        //PHDays = phDays,
+                        //PHEndTime = phEndTime,
+                        //PHRate = phRate,
+                        //PHStartTime = phStartTime
                     };
 
                     context.CarparkRates.Add(carparkRate);
@@ -662,47 +662,47 @@ namespace ParkingSlotAPI.Database
             context.SaveChanges();
         }
 
-        public static void ConvertDateTimeFormat(ParkingContext context)
-        {
-            string s = "";
-            foreach (var v in context.CarparkRates)
-            {
+        //public static void ConvertDateTimeFormat(ParkingContext context)
+        //{
+        //    string s = "";
+        //    foreach (var v in context.CarparkRates)
+        //    {
 
-                if (v.PHEndTime2 == null || v.PHEndTime2 == "")
-                {
-                }
-                else
-                {
-                    s = "";
+        //        if (v.PHEndTime2 == null || v.PHEndTime2 == "")
+        //        {
+        //        }
+        //        else
+        //        {
+        //            s = "";
 
-                    if (v.PHEndTime2.Contains("PM"))
-                    {
-                        var t4hr = int.Parse(v.PHEndTime2.Substring(0, 2)) + 12;
+        //            if (v.PHEndTime2.Contains("PM"))
+        //            {
+        //                var t4hr = int.Parse(v.PHEndTime2.Substring(0, 2)) + 12;
 
-                        var x = v.PHEndTime2.Substring(3, 3);
-                        x = x.Replace(" ", string.Empty);
+        //                var x = v.PHEndTime2.Substring(3, 3);
+        //                x = x.Replace(" ", string.Empty);
 
-                        s = t4hr + ":" + x;
-                    }
-                    else
-                    {
-                        var x = v.PHEndTime2.Substring(3, 3);
-                        x = x.Replace(" ", string.Empty);
+        //                s = t4hr + ":" + x;
+        //            }
+        //            else
+        //            {
+        //                var x = v.PHEndTime2.Substring(3, 3);
+        //                x = x.Replace(" ", string.Empty);
 
-                        s = v.PHEndTime2.Substring(0, 2) + ":" + x;
-                    }
-                    s += ":00";
+        //                s = v.PHEndTime2.Substring(0, 2) + ":" + x;
+        //            }
+        //            s += ":00";
 
-                    //var result = Convert.ToDateTime(s);
-                    // string TimeDateFormat = result.ToString("hh:mm:ss", CultureInfo.CurrentCulture);
+        //            var result = Convert.ToDateTime(s);
+        //            string TimeDateFormat = result.ToString("hh:mm:ss", CultureInfo.CurrentCulture);
 
-                    v.PHEndTime2 = s;
-                }
+        //            v.PHEndTime2 = s;
+        //        }
 
-                context.CarparkRates.Update(v);
-            }
+        //        context.CarparkRates.Update(v);
+        //    }
 
-            context.SaveChanges();
-        }
+        //    context.SaveChanges();
+        //}
     }
 }
