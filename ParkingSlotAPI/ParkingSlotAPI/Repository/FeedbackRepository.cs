@@ -26,7 +26,7 @@ namespace ParkingSlotAPI.Repository
 
         public IEnumerable<Feedback> GetFeedbacks()
         {
-            return _context.Feedbacks.OrderBy(a => a.Name);
+            return _context.Feedbacks.OrderBy(a => a.Id);
         }
 
         public Feedback GetFeedback(Guid feedbackId)
