@@ -1,4 +1,4 @@
-﻿using System;
+﻿    using System;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
@@ -7,6 +7,7 @@ using AutoMapper;
 using ParkingSlotAPI.Entities;
 using ParkingSlotAPI.Models;
 using ParkingSlotAPI.Repository;
+using System.Collections.Generic;
 
 namespace ParkingSlotAPI.Controllers
 {
@@ -33,7 +34,7 @@ namespace ParkingSlotAPI.Controllers
                 return NotFound();
             }
 
-            var feedbacks = _mapper.Map<System.Collections.Generic.IEnumerable<FeedbackDto>>(feedbacksFromRepo);
+            var feedbacks = _mapper.Map<IEnumerable<FeedbackDto>>(feedbacksFromRepo);
 
             return Ok(feedbacks);
         }
