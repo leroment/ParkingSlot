@@ -14,8 +14,8 @@ namespace ParkingSlotAPI.Profiles
         public MappingProfile()
         {
             CreateMap<Carpark, CarparkDto>();
-            CreateMap<User, UserDto>()
-                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => $"{src.FirstName} {src.LastName}"));
+            CreateMap<User, UserDto>();
+          
 
             CreateMap<UserForCreationDto, User>();
 
