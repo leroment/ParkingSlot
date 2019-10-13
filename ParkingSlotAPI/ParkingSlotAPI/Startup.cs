@@ -23,6 +23,7 @@ using ParkingSlotAPI.Models;
 using ParkingSlotAPI.Profiles;
 using ParkingSlotAPI.PublicAPI;
 using ParkingSlotAPI.Repository;
+using ParkingSlotAPI.Services;
 
 namespace ParkingSlotAPI
 {
@@ -44,6 +45,11 @@ namespace ParkingSlotAPI
 
             var appSettingsSection = Configuration.GetSection("AppSettings");
             services.Configure<AppSettings>(appSettingsSection);
+
+            // requires using Microsoft.AspnetCore.Identity.UI.Services
+            // using WebPWRecover.Services
+            services.AddTransient<IEmailSender, EmailSender>();
+            services.Configure<AuthMessageSenderOptions>(Configuration);
 
             // configure jwt authentication
 
