@@ -70,11 +70,6 @@ namespace ParkingSlotAPI.Repository
             if (_context.Users.Any(x => x.Username == user.Username))
                 throw new AppException("Username \"" + user.Username + "\" is already taken");
 
-            if (user.Role != "Admin" || user.Role != "User")
-            {
-                throw new AppException("Role needs to be either Admin or User");
-            }
-
             byte[] passwordHash, passwordSalt;
             CreatePasswordHash(password, out passwordHash, out passwordSalt);
 
