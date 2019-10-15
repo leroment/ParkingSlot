@@ -5,70 +5,104 @@ import store from '../store';
 export default {
     state: {
         isLoggedIn: false,
-        username: '',
-        email: ''
-
+        firstName: "",
+        lastName: "",
+        username: "",
+        email: "",
+        phoneNo: "",
+        role: "",
+        token: ""
     },
     getters: {
+        FIRSTNAME: (state) => {
+            return state.firstName;
+        },
+        LASTNAME: (state) => {
+            return state.lastName;
+        },
         USERNAME: state => {
             return state.username;
         },
         EMAIL: (state) => {
             return state.email;
         },
+        PHONENO: (state) => {
+            return state.phoneNo;
+        },
+        ROLE: (state) => {
+            return state.role;
+        },
         ISLOGGEDIN:(state) => {
             return state.isLoggedIn;
         },
+        TOKEN:(state) => {
+            return state.token;
+        }
     },
     mutations: {
         SETAUTHSTATUS(state, isLoggedIn) {
             state.isLoggedIn = isLoggedIn;
         },
-        SETEMAIL(state, email) {
-            state.email = email;
+        SETFIRSTNAME(state, firstName) {
+            state.firstName = firstName;
+        },
+        SETLASTNAME(state, lastName) {
+            state.lastName = lastName;
         },
         SETUSERNAME(state, username) {
             state.username = username;
+        },
+        SETEMAIL(state, email) {
+            state.email = email;
+        },
+        SETPHONENO(state, phoneNo) {
+            state.phoneNo = phoneNo;
+        },
+        SETROLE(state, role) {
+            state.role = role;
+        },
+        SETTOKEN(state, token) {
+            state.token = token;
         }
     },
     actions: {
-        LOGIN: ({ commit }, { username, password }) => {
+        LOGIN: ({ commit }, payload) => {
             return new Promise((resolve, reject) => {
                 /* POST to the Web API */
-                /* axios.post(`login`, payload).then(({ data, status }) => {
+                axios.post(`https://localhost:44392/api/users/authenticate`, payload).then(({ data, status }) => {
                     if (status === 200) {
+                        //console.log(data);
+                        store.commit('SETUSERNAME', data.username); 
+                        store.commit('SETEMAIL', data.email);
+                        store.commit('SETFIRSTNAME', data.firstName); 
+                        store.commit('SETLASTNAME', data.lastName); 
+                        store.commit('SETPHONENO', data.phoneNumber); 
+                        store.commit('SETROLE', data.role); 
+                        store.commit('SETTOKEN', data.token);  
+                        store.commit('SETAUTHSTATUS', true);
                         resolve(true);
                     }
                 }).catch(error => {
                     reject(error);
-                })*/
-
-                /* expected data return from axios */
-                var username = "John Doe";
-                var email = "JohnDoe@gmail.com";
-                store.commit('SETAUTHSTATUS', true);
-                store.commit('SETUSERNAME',username);
-                store.commit('SETEMAIL',email);
-                //For testing, resolve(true) for now
-                resolve(true);               
+                })
+             
             });
         },
         REGISTER: ({ commit }, payload) => {
             /* POST to the Web API */
             return new Promise((resolve, reject) => {
-                /* axios
-                    .post(`register`, payload)
+                axios
+                    .post(`https://localhost:44392/api/users`, payload)
                     .then(({ data, status }) => {
-                        if (status === 201) {
+                        if (status === 200) {
                             resolve(true);
                         }
                     })
                     .catch(error => {
+                        //console.log(error.response.data);
+                        //console.log(error.response.status);
                         reject(error);
-                    }); */
-
-                //For testing, resolve(true) for now
-                resolve(true);
+                    });
             });
         },
     }
