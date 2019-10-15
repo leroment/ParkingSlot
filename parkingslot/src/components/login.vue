@@ -70,14 +70,10 @@ export default {
       /* Redirect the user into the app */
       this.$store
         .dispatch("LOGIN", {
-          username: this.username,
-          password: this.password
+          Username: this.username,
+          Password: this.password
         })
         .then(success => {
-          //Test to see if data is returned
-          /* console.log(this.$store.getters.USERNAME);
-          console.log(this.$store.getters.EMAIL);
-          console.log(this.$store.getters.ISLOGGEDIN);*/
           this.$router.push("/home");
         })
         .catch(error => {
