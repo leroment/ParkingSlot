@@ -23,10 +23,6 @@ namespace ParkingSlotAPI.Repository
             _context = context;
         }
 
-        //User Entity has collection of favorite list.
-        // So use Users database to store the favorite lists.
-        //Supposedly to use favorite database...
-
         public IEnumerable<Favorite> GetFavorites()
         {
             return _context.Favorites.OrderBy(a => a.carpark);

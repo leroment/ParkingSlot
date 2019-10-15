@@ -13,6 +13,7 @@ namespace ParkingSlotAPI.Repository
         Feedback GetFeedback(Guid feedbackId);
         void AddFeedback(Feedback feedback);
         void DeleteFeedback(Feedback feedback);
+        void UpdatedFeedback(Feedback feedback);
         bool Save();
     }
 
@@ -43,6 +44,11 @@ namespace ParkingSlotAPI.Repository
         public void DeleteFeedback(Feedback feedback)
         {
             _context.Feedbacks.Remove(feedback);
+        }
+
+        public void UpdatedFeedback(Feedback feedback)
+        {
+            // no coding
         }
 
         public bool Save()

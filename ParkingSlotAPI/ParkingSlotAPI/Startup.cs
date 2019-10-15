@@ -68,7 +68,11 @@ namespace ParkingSlotAPI
 
             services.AddScoped<IParkingRepository, ParkingRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IFeedbackRepository, FeedbackRepository>();
+            services.AddScoped<IFavoriteRepository, FavoriteRepository>();
+            services.AddScoped<ICarparkRatesRepository, CarparkRatesRepository>();
             services.AddScoped<IFetchPublicAPI, FetchPublicAPI>(); 
+
 
             var connectionString = Configuration["connectionStrings:parkingDBConnectionString"];
             services.AddDbContext<ParkingContext>(o => o.UseSqlServer(connectionString));

@@ -11,7 +11,7 @@ using System.Collections.Generic;
 
 namespace ParkingSlotAPI.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/users/{UserId}/favorites")]
     [ApiController]
     public class FavoriteController : ControllerBase
     {
@@ -41,7 +41,7 @@ namespace ParkingSlotAPI.Controllers
         }
 
         [HttpGet("{id}", Name = "GetFavorite")]
-        public IActionResult GetFavorite(Guid id)
+        public IActionResult GetFavorite(Guid UserId, Guid id)
         {
             var favoriteFromRepo = _favoriteRepository.GetFavorite(id);
 
@@ -56,7 +56,7 @@ namespace ParkingSlotAPI.Controllers
         }
 
         [HttpPost]
-        public IActionResult AddFavorite([FromBody] FavoriteDto favorite)
+        public IActionResult AddFavorite(Guid UserId,[FromBody] FavoriteForCreationDto favorite)
         {
             if (favorite == null)
             {

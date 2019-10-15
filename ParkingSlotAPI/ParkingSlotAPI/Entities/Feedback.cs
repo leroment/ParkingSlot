@@ -30,7 +30,7 @@ namespace ParkingSlotAPI.Entities
         public bool IsResolved { get; set; }
 
         [Required]
-        [MaxLength(500)]
+        [MaxLength(50)]
         public string Comments { get; set; }
     }
 }
