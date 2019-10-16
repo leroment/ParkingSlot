@@ -11,7 +11,8 @@ export default {
         email: "",
         phoneNo: "",
         role: "",
-        token: ""
+        token: "",
+        userid: ""
     },
     getters: {
         FIRSTNAME: (state) => {
@@ -37,6 +38,9 @@ export default {
         },
         TOKEN:(state) => {
             return state.token;
+        },
+        USERID:(state) => {
+            return state.userid;
         }
     },
     mutations: {
@@ -63,6 +67,9 @@ export default {
         },
         SETTOKEN(state, token) {
             state.token = token;
+        },
+        SETUSERID(state, userid) {
+            state.userid = userid;
         }
     },
     actions: {
@@ -71,14 +78,15 @@ export default {
                 /* POST to the Web API */
                 axios.post(`https://localhost:44392/api/users/authenticate`, payload).then(({ data, status }) => {
                     if (status === 200) {
-                        //console.log(data);
+                        //Add user info to store
                         store.commit('SETUSERNAME', data.username); 
                         store.commit('SETEMAIL', data.email);
                         store.commit('SETFIRSTNAME', data.firstName); 
                         store.commit('SETLASTNAME', data.lastName); 
                         store.commit('SETPHONENO', data.phoneNumber); 
                         store.commit('SETROLE', data.role); 
-                        store.commit('SETTOKEN', data.token);  
+                        store.commit('SETTOKEN', data.token);
+                        store.commit('SETUSERID', data.id);    
                         store.commit('SETAUTHSTATUS', true);
                         resolve(true);
                     }
