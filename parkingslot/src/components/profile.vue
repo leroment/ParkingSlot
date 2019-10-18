@@ -9,10 +9,11 @@
               <img src="https://randomuser.me/api/portraits/men/81.jpg" alt="Avatar" />
             </v-avatar>
           </v-flex>
-          <v-text-field name="name" label="Name" v-model="userProfile.Name"></v-text-field>
+          <v-text-field name="username" label="Username" v-model="userProfile.username"></v-text-field>
+          <v-text-field name="firstName" label="First Name" v-model="userProfile.firstName"></v-text-field>
+          <v-text-field name="lastName" label="Last Name" v-model="userProfile.lastName"></v-text-field>
           <v-text-field name="email" label="Email Address" v-model="userProfile.Email"></v-text-field>
           <v-text-field name="contact" label="Contact Number" v-model="userProfile.Contact"></v-text-field>
-          <v-text-field name="vehtype" label="Vehicle Type" v-model="userProfile.Vehicle"></v-text-field>
         </v-card-text>
         <v-card-text v-show="!updateAccount">
           <v-text-field name="password" label="New password" type="password"></v-text-field>
@@ -45,14 +46,15 @@
 
 <script>
 export default {
-  pageTitle: "My Profile",
   data() {
     return {
       userProfile: {
-        Name: "John Doe",
-        Email: "JohnDoe@gmail.com",
-        Contact: "98765432",
-        Vehicle: "Mitsubishi Lancer"
+        username: this.$store.getters.USERNAME,
+        firstName: this.$store.getters.FIRSTNAME,
+        lastName:this.$store.getters.LASTNAME,
+        Email: this.$store.getters.EMAIL,
+        Contact: this.$store.getters.PHONENO
+        
       },
       updateAccount: true,
       notifyStatus: false,
