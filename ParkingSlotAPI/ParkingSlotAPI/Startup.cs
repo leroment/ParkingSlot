@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -75,7 +76,7 @@ namespace ParkingSlotAPI
 
             services.AddScoped<IParkingRepository, ParkingRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
-            services.AddScoped<IFetchPublicAPI, FetchPublicAPI>(); 
+            services.AddScoped<IFetchPublicAPI, FetchPublicAPI>();
 
             var connectionString = Configuration["connectionStrings:parkingDBConnectionString"];
             services.AddDbContext<ParkingContext>(o => o.UseSqlServer(connectionString));

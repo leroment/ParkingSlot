@@ -8,7 +8,11 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using ParkingSlotAPI.Entities;
@@ -26,12 +30,14 @@ namespace ParkingSlotAPI.Controllers
         private IUserRepository _userRepository;
         private readonly IMapper _mapper;
         private readonly AppSettings _appSettings;
+        private readonly IEmailSender _emailSender;
 
-        public UsersController(IUserRepository userRepository, IMapper mapper, IOptions<AppSettings> appSettings)
+        public UsersController(IUserRepository userRepository, IMapper mapper, IOptions<AppSettings> appSettings, IEmailSender emailSender)
         {
             _userRepository = userRepository;
             _mapper = mapper;
             _appSettings = appSettings.Value;
+            _emailSender = emailSender;
         }
 
         [AllowAnonymous]
@@ -150,6 +156,108 @@ namespace ParkingSlotAPI.Controllers
             }
 
             return NoContent();
+        }
+
+        [AllowAnonymous]
+        [HttpPost("ResetPassword")]
+        public async Task<IActionResult> ResetPasswordAsync([FromBody] UserForUpdatePasswordDto userForUpdatePasswordDto)
+        {
+            if (userForUpdatePasswordDto.OldPassword == null)
+            {
+                var user = _userRepository.GetUserByEmail(userForUpdatePasswordDto.Email);
+
+                if (user == null)
+                    return BadRequest(new { message = "Cannot find user. Please check the username." });
+
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var key = Encoding.ASCII.GetBytes(_appSettings.Secret);
+                var tokenDescriptor = new SecurityTokenDescriptor
+                {
+                    Subject = new ClaimsIdentity(new Claim[]
+                    {
+                    new Claim(ClaimTypes.Name, user.Id.ToString()),
+                    new Claim(ClaimTypes.Role, user.Role)
+                    }),
+                    Expires = DateTime.UtcNow.AddDays(1),
+                    SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+                };
+                var token = tokenHandler.CreateToken(tokenDescriptor);
+
+                var userFromRepo = _mapper.Map<UserDto>(user);
+
+                var tokenString = tokenHandler.WriteToken(token);
+
+                string url = HttpContext.Request.Scheme + "://" + HttpContext.Request.Host + "/resetpassword/" + user.Id + "/" + tokenString;
+
+                await _emailSender.SendEmailAsync(user.Email, "ParkingSlot Password Reset Link", "Please reset your password by clicking <a href=\"" + url + "\">here</a>");
+
+                return Ok(userFromRepo);
+            }
+            else
+            {
+                if (userForUpdatePasswordDto.username == null)
+                {
+                    return BadRequest("Please provide a username");
+                }
+
+                var user = _userRepository.Authenticate(userForUpdatePasswordDto.username, userForUpdatePasswordDto.OldPassword);
+
+                if (user == null)
+                {
+                    return BadRequest("User does not exist.");
+                }
+
+                _userRepository.UpdatePassword(user, userForUpdatePasswordDto.NewPassword);
+
+                return Ok();
+
+                
+
+                return Ok();
+            }
+        }
+
+        [AllowAnonymous]
+        [HttpPost("ConfirmPassword")]
+        public IActionResult ConfirmPassword([FromBody] UserForUpdatePasswordDto userForUpdatePasswordDto)
+        {
+            var jwt = userForUpdatePasswordDto.Token;
+            var handler = new JwtSecurityTokenHandler();
+            var userId = "";
+            try
+            {
+                var token = handler.ReadToken(jwt) as JwtSecurityToken;
+
+                if (token == null)
+                {
+                    throw new AppException("Token is null.");
+                }
+
+                foreach (var payload in token.Payload)
+                {
+                    if (payload.Key == "unique_name")
+                    {
+                        userId = payload.Value.ToString();
+                        break;
+                    }
+                }
+
+                var user = _userRepository.GetUser(Guid.Parse(userId));
+
+                if (user == null)
+                {
+                    return NotFound();
+                }
+
+                _userRepository.UpdatePassword(user, userForUpdatePasswordDto.NewPassword);
+
+                return Ok();
+            }
+            catch (AppException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            
         }
     }
 }

@@ -19,8 +19,10 @@ namespace ParkingSlotAPI.Repository
         IEnumerable<User> GetUsers();
         User Create(User user, string password);
         User GetUser(Guid userId);
+        User GetUserByEmail(string Email);
         void AddUser(User user);
         void UpdateUser(User userParam);
+        void UpdatePassword(User user, string password);
         void DeleteUser(User user);
         bool Save();
     }
@@ -66,9 +68,21 @@ namespace ParkingSlotAPI.Repository
             // validation
             if (string.IsNullOrWhiteSpace(password))
                 throw new AppException("Password is required");
-
+            
             if (_context.Users.Any(x => x.Username == user.Username))
                 throw new AppException("Username \"" + user.Username + "\" is already taken");
+
+            if (user.Email != null)
+            {
+                if (_context.Users.Any(x => x.Email == user.Email))
+                    throw new AppException("Email \"" + user.Email + "\" is already taken");
+            }
+
+            if (user.PhoneNumber != null)
+            {
+                if (_context.Users.Any(x => x.PhoneNumber == user.PhoneNumber))
+                    throw new AppException("Phone number \"" + user.PhoneNumber + "\" is already taken");
+            }
 
             byte[] passwordHash, passwordSalt;
             CreatePasswordHash(password, out passwordHash, out passwordSalt);
@@ -90,6 +104,11 @@ namespace ParkingSlotAPI.Repository
         public User GetUser(Guid userId)
         {
             return _context.Users.FirstOrDefault(a => a.Id == userId);
+        }
+
+        public User GetUserByEmail(string Email)
+        {
+            return _context.Users.FirstOrDefault(a => a.Email == Email);
         }
 
         public void AddUser(User user)
@@ -115,6 +134,22 @@ namespace ParkingSlotAPI.Repository
 
             _context.Users.Update(user);
             _context.SaveChanges();
+        }
+
+        public void UpdatePassword(User user, string password)
+        {
+            byte[] passwordHash, passwordSalt;
+
+            if (string.IsNullOrWhiteSpace(password))
+                throw new AppException("Password is required");
+
+            CreatePasswordHash(password, out passwordHash, out passwordSalt);
+
+            user.PasswordHash = passwordHash;
+            user.PasswordSalt = passwordSalt;
+
+            _context.Users.Update(user);
+            _context.SaveChanges(); 
         }
 
         public void DeleteUser(User user)

@@ -15,8 +15,6 @@ namespace ParkingSlotAPI.Models
 
         public string LotType { get; set; }
 
-        public string Area { get; set; }
-
         public string AgencyType { get; set; }
 
         public string Address { get; set; }
