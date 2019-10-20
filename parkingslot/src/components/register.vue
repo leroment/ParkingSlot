@@ -4,8 +4,8 @@
       <v-flex style="overflow:auto" xs12 sm8 md4>
         <v-card>
           <v-card-text>
-            <v-alert dismissible type="error" :value="passwordError">The password does not match</v-alert>
-            <v-alert dismissible type="error" :value="usernameError">This username is already taken</v-alert>
+            <v-alert dismissible type="error" :value="passwordError">Password does not match</v-alert>
+            <v-alert dismissible type="error" :value="matchError">{{this.errorMsg}}</v-alert>
             <v-container>
               <form @submit.prevent="register">
                 <v-layout row>
@@ -60,7 +60,7 @@
                   <v-flex xs12>
                     <v-text-field
                       name="phoneNo"
-                      label="Phone Number"
+                      label="Phone Number (8 Digits)"
                       id="phoneNo"
                       v-model="phoneNo"
                       type="tel"
@@ -134,14 +134,15 @@ export default {
       password: "",
       confirmPassword: "",
       passwordError: false,
-      usernameError: false
+      matchError: false,
+      errorMsg: ""
     };
   },
   methods: {
     register() {
       if (this.password != this.confirmPassword){
         this.passwordError = true;
-        this.usernameError = false;
+        this.matchError = false;
         return;
       }
       this.passwordError = false;
@@ -160,9 +161,13 @@ export default {
         })
         .catch(error => {
           if (error.response.status == 400){
-            this.usernameError = true;
+            this.errorMsg = error.response.data.message;
+            this.matchError = true;
           }
-          else this.usernameError = true;
+          else{
+            this.matchError = false;
+            this.passwordError = false;
+          } 
         });
     }
   }
