@@ -1,5 +1,6 @@
 ﻿using ParkingSlotAPI.Database;
 using ParkingSlotAPI.Entities;
+using ParkingSlotAPI.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,7 @@ namespace ParkingSlotAPI.Repository
 {
     public interface IParkingRepository
     {
-        IEnumerable<Carpark> GetCarparks();
+        IEnumerable<Carpark> GetCarparks(CarparkResourceParameters carparkResourceParameters);
         Carpark GetCarpark(Guid carparkId);
         void AddCarpark(Carpark carpark);
         void DeleteCarpark(Carpark carpark);
@@ -23,9 +24,14 @@ namespace ParkingSlotAPI.Repository
             _context = context;
         }
 
-        public IEnumerable<Carpark> GetCarparks()
+        public IEnumerable<Carpark> GetCarparks(CarparkResourceParameters carparkResourceParameters)
         {
-            return _context.Carparks.OrderBy(a => a.CarparkId);
+            return _context.Carparks
+                .OrderBy(a => a.CarparkId)
+                .Skip(carparkResourceParameters.PageSize
+                * (carparkResourceParameters.PageNumber - 1))
+                .Take(carparkResourceParameters.PageSize)
+                .ToList();
         }
 
         public Carpark GetCarpark(Guid carparkId)

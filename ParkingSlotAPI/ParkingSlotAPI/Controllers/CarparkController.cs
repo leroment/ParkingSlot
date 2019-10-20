@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using ParkingSlotAPI.Helpers;
 using ParkingSlotAPI.Models;
 using ParkingSlotAPI.Repository;
 
@@ -17,6 +18,8 @@ namespace ParkingSlotAPI.Controllers
         private readonly IParkingRepository _parkingRepository;
         private readonly IMapper _mapper;
 
+        const int maxParkingPageSize = 20;
+
         public CarparkController(IParkingRepository parkingRepository, IMapper mapper)
         {
             _parkingRepository = parkingRepository;
@@ -24,9 +27,10 @@ namespace ParkingSlotAPI.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetCarparks()
+        public IActionResult GetCarparks([FromQuery] CarparkResourceParameters carparkResourceParameters)
         {
-            var carparksFromRepo = _parkingRepository.GetCarparks();
+
+            var carparksFromRepo = _parkingRepository.GetCarparks(carparkResourceParameters);
 
             if (carparksFromRepo == null)
             {

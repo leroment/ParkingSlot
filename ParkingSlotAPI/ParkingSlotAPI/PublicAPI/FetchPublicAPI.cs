@@ -26,13 +26,22 @@ namespace ParkingSlotAPI.PublicAPI
         {
         }
 
+        public async Task<CoordinatesEntity> GetCoordinates(float xCoord, float yCoord)
+        {
+            var responseBody = await HttpHelpers.GetResourceNoHeader($"https://developers.onemap.sg/commonapi/convert/3414to4326?X={xCoord}&Y={yCoord}");
+
+            CoordinatesEntity coordinatesEntity = JsonConvert.DeserializeObject<CoordinatesEntity>(responseBody);
+
+            return coordinatesEntity;
+        }
+
         public async Task<List<Carpark>> GetParkingInfoAsync()
         {
             List<Carpark> carParks = new List<Carpark>();
 
             for (int i = 0; i <= 2000; i += 500)
             {
-                var responseBody = await HttpHelpers.GetResource($"http://datamall2.mytransport.sg/ltaodataservice/CarParkAvailabilityv2?$skip={i}", "AccountKey", "pZIQovINS3+Z2fs9oLqWkg==");
+                var responseBody = await HttpHelpers.GetResource($"http://datamall2.mytransport.sg/ltaodataservice/CarParkAvailabilityv2?$skip={i}", "AccountKey", "/QfcKQGpSQqaMjxGODUfpQ==");
 
                 DataMallEntity dataMallEntity = JsonConvert.DeserializeObject<DataMallEntity>(responseBody);
 
@@ -56,28 +65,43 @@ namespace ParkingSlotAPI.PublicAPI
                             coordinates = value.Location.Split(" ");
                         }
 
+                        int carAv = 0, HVAv = 0, MAv = 0;
+
+                        if (value.LotType == "C")
+                        {
+                            carAv = value.AvailableLots;
+                        }
+                        else if (value.LotType == "H")
+                        {
+                            HVAv = value.AvailableLots;
+                        }
+                        else if (value.LotType == "Y")
+                        {
+                            MAv = value.AvailableLots;
+                        }
+
                         Carpark carpark =
-                            new Carpark
-                            {
-                                Id = Guid.NewGuid(),
-                                CarparkId = value.CarParkID,
-                                CarparkName = value.Development,
-                                AgencyType = value.Agency,
-                                Address = value.Area,
-                                XCoord = coordinates[0],
-                                YCoord = coordinates[1],
-                                IsCentral = false,
-                                ParkingSystem = "",
-                                CarAvailability = 0,
-                                CarCapacity = 0,
-                                HVCapacity = 0,
-                                LotType = value.LotType,
-                                HVAvailability = 0,
-                                MAvailability = 0,
-                                MCapacity = 0,
-                                TotalAvailableLots = 0,
-                                TotalLots = 0
-                            };
+                        new Carpark
+                        {
+                            Id = Guid.NewGuid(),
+                            CarparkId = value.CarParkID,
+                            CarparkName = value.Development,
+                            AgencyType = value.Agency,
+                            Address = value.Area,
+                            XCoord = coordinates[0],
+                            YCoord = coordinates[1],
+                            IsCentral = false,
+                            ParkingSystem = "ELECTRONIC PARKING",
+                            CarAvailability = carAv,
+                            CarCapacity = 0,
+                            HVCapacity = 0,
+                            LotType = value.LotType,
+                            HVAvailability = HVAv,
+                            MAvailability = MAv,
+                            MCapacity = 0,
+                            TotalAvailableLots = value.AvailableLots,
+                            TotalLots = 0
+                        };
 
                         if (carParks.Count == 0)
                         {
@@ -96,8 +120,6 @@ namespace ParkingSlotAPI.PublicAPI
                             }
                         }
                     }
-                    
-
                 }
             }
 
@@ -120,7 +142,6 @@ namespace ParkingSlotAPI.PublicAPI
             return carparkData;
         }
 
-
         public async Task<List<Carpark>> GetHDBParkingInfoAsync()
         {
             try
@@ -140,9 +161,13 @@ namespace ParkingSlotAPI.PublicAPI
 
                     foreach (var c in HdbEntity.result.records)
                     {
-                        Svy21Coordinate svy21 = new Svy21Coordinate(double.Parse(c.x_coord), double.Parse(c.y_coord));
+                        //Svy21Coordinate svy21 = new Svy21Coordinate(double.Parse(c.x_coord), double.Parse(c.y_coord));
 
-                        LatLongCoordinate latLong = svy21.ToLatLongCoordinate();
+                        // LatLongCoordinate latLong = svy21.ToLatLongCoordinate();
+
+                        var task = Task.Run(async () => await GetCoordinates(float.Parse(c.x_coord), float.Parse(c.y_coord)));
+
+                        var coordinates = task.Result;
 
                         bool isCentral = false;
 
@@ -167,8 +192,8 @@ namespace ParkingSlotAPI.PublicAPI
                            Address = c.address,
                            AgencyType = "HDB",
                            CarparkId = c.car_park_no,
-                           XCoord = latLong.Latitude.ToString(),
-                           YCoord = latLong.Longitude.ToString(),
+                           XCoord = coordinates.latitude.ToString(),
+                           YCoord = coordinates.longitude.ToString(),
                            CarparkName = c.address,
                            IsCentral = isCentral,
                            ParkingSystem = c.type_of_parking_system
@@ -193,7 +218,7 @@ namespace ParkingSlotAPI.PublicAPI
             {
                 using (var client = new HttpClient())
                 {
-                    var responseBody = await HttpHelpers.GetResourceTwoHeaders("https://www.ura.gov.sg/uraDataService/invokeUraDS?service=Car_Park_Details", "AccessKey", "942ba181-3f0a-4e37-bb3e-6f66093945d3", "Token", "Sr@MGME4Nk902EdmuM0J0awYrv8adBwXKZ3y83HfTcne379y34+ZDGv6pbm5-y2Ye7sS3JndQ7eQ3f3+b78AE9nJ1AZN3FYB5veG");
+                    var responseBody = await HttpHelpers.GetResourceTwoHeaders("https://www.ura.gov.sg/uraDataService/invokeUraDS?service=Car_Park_Details", "AccessKey", "942ba181-3f0a-4e37-bb3e-6f66093945d3", "Token", "4591D3B9-Jue-fp031HCb33J276Yt-6EWRMzCA83dN414E4KJ99f+K0H929-fY2xGSaxa6qaXQsfab-ADfe3+4aM35m7vQd7dBta");
 
                     URACarparkInfo result = JsonConvert.DeserializeObject<URACarparkInfo>(responseBody);
 
