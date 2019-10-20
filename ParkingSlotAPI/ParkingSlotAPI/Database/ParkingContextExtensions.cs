@@ -32,7 +32,7 @@ namespace ParkingSlotAPI.Database
             }
             else
             {
-                fixHDBCarparkData(context);
+                // fixHDBCarparkData(context);
                 // fixURACarparkData4(context);
 
                 //var carparks = new List<Carpark>();
