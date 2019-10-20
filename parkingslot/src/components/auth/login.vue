@@ -4,8 +4,8 @@
       <v-flex style="overflow:auto" xs12 sm8 md4>
         <v-card>
           <v-card-text>
-            <v-container>
-              <form @submit.prevent="onLogin">
+            <form @submit.prevent="onLogin">
+              <v-container>
                 <v-layout row>
                   <v-flex xs12>
                     <v-alert
@@ -35,16 +35,14 @@
                     ></v-text-field>
                   </v-flex>
                 </v-layout>
-                <v-layout>
-                  <v-flex xs12>
-                    <v-btn color="primary" type="submit">Login</v-btn>
-                  </v-flex>
-                  <v-flex align-end>
-                    <v-btn color="primary" type="submit" to="/main">Back</v-btn>
-                  </v-flex>
-                </v-layout>
-              </form>
-            </v-container>
+              </v-container>
+              <v-layout>
+                <v-flex xs12>
+                  <v-btn color="primary" type="submit">Login</v-btn>
+                  <v-btn color="primary" class="ml-5" type="submit" to="/main">Back</v-btn>
+                </v-flex>
+              </v-layout>
+            </form>
           </v-card-text>
         </v-card>
       </v-flex>

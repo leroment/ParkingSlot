@@ -1,28 +1,20 @@
 <template>
   <v-app class="grey lighten-4">
     <navbar></navbar>
-    <v-content>
       <router-view></router-view>
-    </v-content>
-    <tabbar v-show="login"></tabbar>
+    <tabbar v-show="this.$store.getters.ISLOGGEDIN"></tabbar>
   </v-app>
 </template>
 <style>
 @import url("./assets/style.css");
 </style>
 <script>
-import navbar from "./components/navbar";
-import tabbar from "./components/tabbar";
+import navbar from "./components/layouts/navbar";
+import tabbar from "./components/layouts/tabbar";
 export default {
   components: {
     navbar,
     tabbar
-  },
-  computed: {
-    login() {
-      let status = this.$store.getters.ISLOGGEDIN;
-      return status;
-    }
   },
 };
 </script>

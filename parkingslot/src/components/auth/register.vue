@@ -3,9 +3,9 @@
     <v-layout align-center justify-center>
       <v-flex style="overflow:auto" xs12 sm8 md4>
         <v-card>
+          <v-alert dismissible type="error" :value="passwordError">Password does not match</v-alert>
+          <v-alert dismissible type="error" :value="matchError">{{this.errorMsg}}</v-alert>
           <v-card-text>
-            <v-alert dismissible type="error" :value="passwordError">Password does not match</v-alert>
-            <v-alert dismissible type="error" :value="matchError">{{this.errorMsg}}</v-alert>
             <v-container>
               <form @submit.prevent="register">
                 <v-layout row>
@@ -64,18 +64,7 @@
                       id="phoneNo"
                       v-model="phoneNo"
                       type="tel"
-                      pattern="[0-9]{8}" required
-                    ></v-text-field>
-                  </v-flex>
-                </v-layout>
-                <v-layout row>
-                  <v-flex xs12>
-                    <v-text-field
-                      name="role"
-                      label="Role"
-                      id="role"
-                      v-model="role"
-                      type="text"
+                      pattern="[0-9]{8}"
                       required
                     ></v-text-field>
                   </v-flex>
@@ -106,9 +95,7 @@
                 <v-layout row>
                   <v-flex xs12>
                     <v-btn color="primary" type="submit">Sign up</v-btn>
-                  </v-flex>
-                  <v-flex align-end>
-                    <v-btn color="primary" type="submit" to="/main">Back</v-btn>
+                    <v-btn color="primary" class="ml-5" type="submit" to="/main">Back</v-btn>
                   </v-flex>
                 </v-layout>
               </form>
@@ -130,7 +117,6 @@ export default {
       username: "",
       email: "",
       phoneNo: "",
-      role: "",
       password: "",
       confirmPassword: "",
       passwordError: false,
@@ -140,7 +126,7 @@ export default {
   },
   methods: {
     register() {
-      if (this.password != this.confirmPassword){
+      if (this.password != this.confirmPassword) {
         this.passwordError = true;
         this.matchError = false;
         return;
@@ -152,22 +138,21 @@ export default {
           LastName: this.lastName,
           Username: this.username,
           Email: this.email,
+          Role: "User",
           PhoneNumber: this.phoneNo,
-          Role: this.role,
           Password: this.password
         })
         .then(success => {
           this.$router.push("/login");
         })
         .catch(error => {
-          if (error.response.status == 400){
+          if (error.response.status == 400) {
             this.errorMsg = error.response.data.message;
             this.matchError = true;
-          }
-          else{
+          } else {
             this.matchError = false;
             this.passwordError = false;
-          } 
+          }
         });
     }
   }

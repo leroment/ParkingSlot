@@ -12,6 +12,8 @@ import vuetify from './plugins/vuetify';
 import store from './stores/store'
 /* 4. Vue2-google-maps */
 import * as VueGoogleMaps from 'vue2-google-maps'
+/* 5. Gmap clusters */
+import GmapCluster from 'vue2-google-maps/dist/components/cluster'
 
 // Install Javascript Libraries
 // Must be called before new Vue()
@@ -19,12 +21,11 @@ Vue.use(VueAxios, axios);
 Vue.use(VueGoogleMaps, {
   installComponents: true,
   load: {
-    key: 'AIzaSyAAk9uEClxQmeGLldigxnQjobFi0nb3DV4',
+    key: 'AIzaSyA78_ixDHcOmN-gmzu5nYVkBcFD0A8vkw8',
     libraries: 'places'
   }
 })
-
-axios.defaults.baseURL = 'http://localhost8081/api/';
+Vue.component('GmapCluster', GmapCluster)
 
 Vue.config.productionTip = false
 

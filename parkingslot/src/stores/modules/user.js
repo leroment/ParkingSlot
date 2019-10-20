@@ -4,14 +4,14 @@ import store from '../store';
 
 export default {
     state: {
-        isLoggedIn: false,
         firstName: "",
         lastName: "",
         username: "",
         email: "",
         phoneNo: "",
         role: "",
-        token: "",
+        token: localStorage.getItem('access_token') || null,
+        isLoggedIn: false,
         userid: ""
     },
     getters: {
@@ -76,7 +76,7 @@ export default {
         LOGIN: ({ commit }, payload) => {
             return new Promise((resolve, reject) => {
                 /* POST to the Web API */
-                axios.post(`https://localhost:44392/api/users/authenticate`, payload).then(({ data, status }) => {
+                axios.post(`https://parkingslotapi.azurewebsites.net/api/users/authenticate`, payload).then(({ data, status }) => {
                     if (status === 200) {
                         //Add user info to store
                         store.commit('SETUSERNAME', data.username); 
@@ -86,8 +86,9 @@ export default {
                         store.commit('SETPHONENO', data.phoneNumber); 
                         store.commit('SETROLE', data.role); 
                         store.commit('SETTOKEN', data.token);
-                        store.commit('SETUSERID', data.id);    
-                        store.commit('SETAUTHSTATUS', true);
+                        store.commit('SETUSERID', data.id);
+                        store.commit('SETAUTHSTATUS', true);    
+                        localStorage.setItem('access_token', data.token);
                         resolve(true);
                     }
                 }).catch(error => {
@@ -100,7 +101,7 @@ export default {
             /* POST to the Web API */
             return new Promise((resolve, reject) => {
                 axios
-                    .post(`https://localhost:44392/api/users`, payload)
+                    .post(`https://parkingslotapi.azurewebsites.net/api/users`, payload)
                     .then(({ data, status }) => {
                         if (status === 200) {
                             resolve(true);

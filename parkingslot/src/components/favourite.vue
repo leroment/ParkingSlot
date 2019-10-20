@@ -1,4 +1,5 @@
 <template>
+<v-content>
   <v-card>
     <v-list two-line>
       <v-list-item-group>
@@ -40,6 +41,7 @@
       </v-card>
     </v-dialog>
   </v-card>
+  </v-content>
 </template>
 
 

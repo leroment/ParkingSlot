@@ -10,12 +10,15 @@
   "dependencies": {
     "axios": "^0.19.0",
     "core-js": "^2.6.5",
+    "marker-clusterer-plus": "^2.1.4",
+    "secure-ls": "^1.2.5",
     "vue": "^2.6.10",
     "vue-axios": "^2.1.4",
     "vue-router": "^3.0.3",
     "vue2-google-maps": "^0.10.7",
     "vuetify": "^2.0.18",
-    "vuex": "^3.0.1"
+    "vuex": "^3.0.1",
+    "vuex-persistedstate": "^2.5.4"
   },
   "devDependencies": {
     "@mdi/font": "^4.4.95",
