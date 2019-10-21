@@ -126,20 +126,22 @@ namespace ParkingSlotAPI.PublicAPI
             return carParks;
         }
 
-        public async Task<List<Carpark_Data>> GetHDBAvailabilityAsync()
+        public async Task<IEnumerable<Carpark_Data>> GetHDBAvailabilityAsync()
         {
             var responseBody = await HttpHelpers.GetResourceNoHeader("https://api.data.gov.sg/v1/transport/carpark-availability");
 
             HDBAvailabilityEntity hDBAvailability = JsonConvert.DeserializeObject<HDBAvailabilityEntity>(responseBody);
 
-            List<Carpark_Data> carparkData = new List<Carpark_Data>();
+            // List<Carpark_Data> carparkData = new List<Carpark_Data>();
 
-            foreach (var value in hDBAvailability.items[0].carpark_data)
-            {
-                carparkData.Add(value);
-            }
+            //foreach (var value in )
+            //{
+            //    carparkData.Add(value);
+            //}
 
-            return carparkData;
+            //return carparkData;
+
+            return hDBAvailability.items[0].carpark_data;
         }
 
         public async Task<List<Carpark>> GetHDBParkingInfoAsync()

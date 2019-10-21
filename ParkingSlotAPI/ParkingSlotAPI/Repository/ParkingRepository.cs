@@ -14,6 +14,8 @@ namespace ParkingSlotAPI.Repository
         Carpark GetCarpark(Guid carparkId);
         void AddCarpark(Carpark carpark);
         void DeleteCarpark(Carpark carpark);
+        void UpdateCarpark(Carpark carpark);
+        void SaveChanges();
     }
 
     public class ParkingRepository : IParkingRepository
@@ -48,6 +50,16 @@ namespace ParkingSlotAPI.Repository
         {
             carpark.Id = Guid.NewGuid();
             _context.Carparks.Add(carpark);
+        }
+
+        public void UpdateCarpark(Carpark carpark)
+        {
+            _context.Carparks.Update(carpark);
+        }
+
+        public void SaveChanges()
+        {
+            _context.SaveChanges();
         }
 
         public void DeleteCarpark(Carpark carpark)
