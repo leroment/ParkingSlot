@@ -47,25 +47,60 @@ namespace ParkingSlotAPI.Controllers
                 return NotFound();
             }
 
-            var carparks = _mapper.Map<IEnumerable<CarparkDto>>(carparksFromRepo);
+            var minutes = (DateTime.Now - Timer.RequestedDT).TotalMinutes;
 
-            return Ok(carparks);
+            if (minutes > 1)
+            {
+                List<Carpark> carparksToAdd = new List<Carpark>();
+
+                foreach (var carparkFromRepo in carparksFromRepo)
+                {
+                    if (carparkFromRepo.AgencyType == "HDB")
+                    {
+                        var c = UpdateHDBAvailability(carparkFromRepo);
+                        carparksToAdd.Add(c);
+                    }
+                    else if (carparkFromRepo.AgencyType == "LTA")
+                    {
+                        var c = UpdateLTAAvailability(carparkFromRepo);
+                        carparksToAdd.Add(c);
+                    }
+                }
+
+                var carparks = _mapper.Map<IEnumerable<CarparkDto>>(carparksToAdd);
+
+                return Ok(carparks);
+            }
+            else
+            {
+                var carparks = _mapper.Map<IEnumerable<CarparkDto>>(carparksFromRepo);
+                return Ok(carparks);
+            }
         }
 
-
-        [HttpGet("{id}")]
-        public IActionResult GetCarpark(Guid id)
+        private Carpark UpdateLTAAvailability(Carpark carparkFromRepo)
         {
-            var carparkFromRepo = _parkingRepository.GetCarpark(id);
+            var task = Task.Run(async () => await publicAPI.GetParkingInfoAsync());
 
-            if (carparkFromRepo == null)
+            var result = task.Result;
+
+            var v = result.FirstOrDefault(a => a.CarparkId == carparkFromRepo.CarparkId);
+
+            if (v != null)
             {
-                return NotFound();
+                carparkFromRepo.CarAvailability = v.CarAvailability;
+                carparkFromRepo.TotalAvailableLots = v.TotalAvailableLots;
+
+                _parkingRepository.UpdateCarpark(carparkFromRepo);
+
+                _parkingRepository.SaveChanges();
+
             }
 
-            var carpark = _mapper.Map<CarparkDto>(carparkFromRepo);
+            Timer.RequestedDT = DateTime.Now;
 
-            return Ok(carpark);
+            return carparkFromRepo;
+       
         }
 
         private Carpark UpdateHDBAvailability(Carpark carparkFromRepo)
@@ -109,8 +144,8 @@ namespace ParkingSlotAPI.Controllers
             return carparkFromRepo;
         }
 
-        [HttpGet("{id}/availability")]
-        public IActionResult GetCarparkAvailability(Guid id)
+        [HttpGet("{id}")]
+        public IActionResult GetCarpark(Guid id)
         {
             var carparkFromRepo = _parkingRepository.GetCarpark(id);
 
@@ -126,6 +161,14 @@ namespace ParkingSlotAPI.Controllers
                 if (carparkFromRepo.AgencyType == "HDB")
                 {
                     carparkFromRepo = UpdateHDBAvailability(carparkFromRepo);
+
+                    var carpark = _mapper.Map<CarparkDto>(carparkFromRepo);
+
+                    return Ok(carpark);
+                }
+                else if (carparkFromRepo.AgencyType == "LTA")
+                {
+                    carparkFromRepo = UpdateLTAAvailability(carparkFromRepo);
 
                     var carpark = _mapper.Map<CarparkDto>(carparkFromRepo);
 

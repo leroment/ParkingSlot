@@ -15,6 +15,7 @@ namespace ParkingSlotAPI.Repository
         void AddCarpark(Carpark carpark);
         void DeleteCarpark(Carpark carpark);
         void UpdateCarpark(Carpark carpark);
+        void UpdateCarparks(List<Carpark> carparks);
         void SaveChanges();
     }
 
@@ -55,6 +56,11 @@ namespace ParkingSlotAPI.Repository
         public void UpdateCarpark(Carpark carpark)
         {
             _context.Carparks.Update(carpark);
+        }
+
+        public void UpdateCarparks(List<Carpark> carparks)
+        {
+            _context.Carparks.AddRange(carparks);
         }
 
         public void SaveChanges()

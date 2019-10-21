@@ -22,9 +22,13 @@ namespace ParkingSlotAPI.Models
         public string XCoord { get; set; }
         public string YCoord { get; set; }
         public int TotalAvailableLots { get; set; }
+        public int TotalLots { get; set; }
         public int CarAvailability { get; set; }
         public int MAvailability { get; set; }
         public int HVAvailability { get; set; }
+        public int CarCapacity { get; set; }
+        public int MCapacity { get; set; }
+        public int HVCapacity { get; set; }
 
 
     }
