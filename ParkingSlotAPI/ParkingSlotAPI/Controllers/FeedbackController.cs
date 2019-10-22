@@ -1,4 +1,4 @@
-﻿    using System;
+﻿using System;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
@@ -9,9 +9,11 @@ using ParkingSlotAPI.Models;
 using ParkingSlotAPI.Repository;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.JsonPatch;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ParkingSlotAPI.Controllers
 {
+    [Authorize(Roles = Role.Admin)]
     [Route("api/[controller]")]
     [ApiController]
     public class FeedbackController : ControllerBase
@@ -25,6 +27,7 @@ namespace ParkingSlotAPI.Controllers
             _mapper = mapper;
         }
 
+        //[AllowAnonymous]
         [HttpGet]
         public IActionResult GetFeedbacks()
         {
