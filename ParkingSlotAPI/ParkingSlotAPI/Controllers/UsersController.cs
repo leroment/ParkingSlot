@@ -210,10 +210,6 @@ namespace ParkingSlotAPI.Controllers
                 _userRepository.UpdatePassword(user, userForUpdatePasswordDto.NewPassword);
 
                 return Ok();
-
-                
-
-                return Ok();
             }
         }
 

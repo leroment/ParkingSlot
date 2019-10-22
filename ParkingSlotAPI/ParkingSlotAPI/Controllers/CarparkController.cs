@@ -36,6 +36,47 @@ namespace ParkingSlotAPI.Controllers
             _mapper = mapper;
         }
 
+        [HttpGet("All")]
+        public IActionResult GetAllCarparks()
+        {
+            var carparksFromRepo = _parkingRepository.GetAllCarparks();
+
+            if (carparksFromRepo == null)
+            {
+                return NotFound();
+            }
+
+            var minutes = (DateTime.Now - Timer.RequestedDT).TotalMinutes;
+
+            if (minutes > 1)
+            {
+                List<Carpark> carparksToAdd = new List<Carpark>();
+
+                foreach (var carparkFromRepo in carparksFromRepo)
+                {
+                    if (carparkFromRepo.AgencyType == "HDB")
+                    {
+                        var c = UpdateHDBAvailability(carparkFromRepo);
+                        carparksToAdd.Add(c);
+                    }
+                    else if (carparkFromRepo.AgencyType == "LTA")
+                    {
+                        var c = UpdateLTAAvailability(carparkFromRepo);
+                        carparksToAdd.Add(c);
+                    }
+                }
+
+                var carparks = _mapper.Map<IEnumerable<CarparkDto>>(carparksToAdd);
+
+                return Ok(carparks);
+            }
+            else
+            {
+                var carparks = _mapper.Map<IEnumerable<CarparkDto>>(carparksFromRepo);
+                return Ok(carparks);
+            }
+        }
+
         [HttpGet]
         public IActionResult GetCarparks([FromQuery] CarparkResourceParameters carparkResourceParameters)
         {

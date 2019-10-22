@@ -12,6 +12,7 @@ namespace ParkingSlotAPI.Repository
     {
         IEnumerable<Carpark> GetCarparks(CarparkResourceParameters carparkResourceParameters);
         Carpark GetCarpark(Guid carparkId);
+        IEnumerable<Carpark> GetAllCarparks();
         void AddCarpark(Carpark carpark);
         void DeleteCarpark(Carpark carpark);
         void UpdateCarpark(Carpark carpark);
@@ -25,6 +26,11 @@ namespace ParkingSlotAPI.Repository
         public ParkingRepository(ParkingContext context)
         {
             _context = context;
+        }
+
+        public IEnumerable<Carpark> GetAllCarparks()
+        {
+            return _context.Carparks.OrderBy(a => a.CarparkId);
         }
 
         public IEnumerable<Carpark> GetCarparks(CarparkResourceParameters carparkResourceParameters)
