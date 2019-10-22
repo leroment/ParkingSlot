@@ -166,9 +166,9 @@ export default {
     fetchCaparks: function() {
       let cur = this;
       this.axios
-        .get("https://parkingslotapi.azurewebsites.net/api/carpark")
+        .get("https://parkingslotapi.azurewebsites.net/api/carpark/all")
         .then(function(response) {
-          //console.log(response);
+          console.log(response);
           for (var i = 0; i < response.data.length; i++) {
             var userloc = {
               position: {
@@ -218,7 +218,8 @@ export default {
       //To change the polyline color
       //polylineOptions:{strokeColor:"#4a4a4a",strokeWeight:5},
       var directionsDisplay = new google.maps.DirectionsRenderer({
-        suppressMarkers: true
+        suppressMarkers: true,
+        polylineOptions:{strokeColor:"green",strokeWeight:5}
       });
       //Remove previous routing
       directionsDisplay.setMap(this.$refs.mapRef.$mapObject);
