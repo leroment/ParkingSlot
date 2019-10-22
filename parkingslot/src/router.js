@@ -33,20 +33,21 @@ const redirect = (to, from, next) => {
     next('/home')
     return
   }
+  next('/main')
 }
 
 export default new Router({
   routes: [
     {
       name: 'default',
-      path: '/main',
+      path: '',
+      component: Main,
       beforeEnter: redirect
     },
     {
       name: 'main',
       path: '/main',
       component: Main,
-      beforeEnter: ifNotAuthenticated,
     },
     {
       name: 'login',
