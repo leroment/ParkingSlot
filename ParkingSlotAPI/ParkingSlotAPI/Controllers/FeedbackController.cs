@@ -27,7 +27,7 @@ namespace ParkingSlotAPI.Controllers
             _mapper = mapper;
         }
 
-        //[AllowAnonymous]
+       
         [HttpGet]
         public IActionResult GetFeedbacks()
         {
@@ -58,6 +58,7 @@ namespace ParkingSlotAPI.Controllers
             return Ok(feedback);
         }
 
+        [AllowAnonymous]
         [HttpPost]
         public IActionResult AddFeedback([FromBody] FeedbackForCreationDto feedback)
         {

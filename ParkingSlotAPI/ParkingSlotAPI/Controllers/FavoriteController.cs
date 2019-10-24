@@ -8,10 +8,11 @@ using ParkingSlotAPI.Entities;
 using ParkingSlotAPI.Models;
 using ParkingSlotAPI.Repository;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ParkingSlotAPI.Controllers
 {
-    [Route("api/users/{UserId}/favorites")]
+    [Route("api/users/{UserId}/[controller]")]
     [ApiController]
     public class FavoriteController : ControllerBase
     {
@@ -41,7 +42,7 @@ namespace ParkingSlotAPI.Controllers
         }
 
         [HttpGet("{id}", Name = "GetFavorite")]
-        public IActionResult GetFavorite(Guid UserId, Guid id)
+        public IActionResult GetFavorite(Guid id)
         {
             var favoriteFromRepo = _favoriteRepository.GetFavorite(id);
 
@@ -56,7 +57,7 @@ namespace ParkingSlotAPI.Controllers
         }
 
         [HttpPost]
-        public IActionResult AddFavorite(Guid UserId,[FromBody] FavoriteForCreationDto favorite)
+        public IActionResult AddFavorite(Guid userId,[FromBody] FavoriteForCreationDto favorite)
         {
             if (favorite == null)
             {
@@ -73,7 +74,7 @@ namespace ParkingSlotAPI.Controllers
 
             var favoriteToReturn = _mapper.Map<FavoriteDto>(favoriteEntity);
 
-            return CreatedAtRoute("GetFavorite", new { id = favoriteToReturn.Id }, favoriteToReturn);
+            return CreatedAtRoute("GetFavorite", new {userId = favoriteToReturn.UserId, id = favoriteToReturn.Id }, favoriteToReturn);
         }
 
         [HttpDelete("{id}")]
