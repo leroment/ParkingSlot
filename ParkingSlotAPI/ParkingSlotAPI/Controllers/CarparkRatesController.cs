@@ -16,9 +16,9 @@ namespace ParkingSlotAPI.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetCarparkRates()
+        public IActionResult GetCarparkRatesForCarpark()
         {
-
+            
             return Ok();
         }
     }

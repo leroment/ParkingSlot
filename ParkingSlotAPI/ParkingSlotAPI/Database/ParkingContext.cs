@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using ParkingSlotAPI.Entities;
 using System;
 using System.Collections.Generic;
@@ -11,7 +13,6 @@ namespace ParkingSlotAPI.Database
     {
         public ParkingContext(DbContextOptions<ParkingContext> options) : base(options)
         {
-            Database.Migrate();
         }
 
         public DbSet<User> Users { get; set; }

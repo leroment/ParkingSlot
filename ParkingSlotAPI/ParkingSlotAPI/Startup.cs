@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -22,6 +24,7 @@ using ParkingSlotAPI.Models;
 using ParkingSlotAPI.Profiles;
 using ParkingSlotAPI.PublicAPI;
 using ParkingSlotAPI.Repository;
+using ParkingSlotAPI.Services;
 
 namespace ParkingSlotAPI
 {
@@ -43,6 +46,11 @@ namespace ParkingSlotAPI
 
             var appSettingsSection = Configuration.GetSection("AppSettings");
             services.Configure<AppSettings>(appSettingsSection);
+
+            // requires using Microsoft.AspnetCore.Identity.UI.Services
+            // using WebPWRecover.Services
+            services.AddTransient<IEmailSender, EmailSender>();
+            services.Configure<AuthMessageSenderOptions>(Configuration);
 
             // configure jwt authentication
 
@@ -85,6 +93,12 @@ namespace ParkingSlotAPI
 
             IMapper mapper = config.CreateMapper();
             services.AddSingleton(mapper);
+
+            // requires
+            // using Microsoft.AspNetCore.Identity.UI.Services;
+            // using WebPWrecover.Services;
+            services.AddTransient<IEmailSender, EmailSender>();
+            services.Configure<AuthMessageSenderOptions>(Configuration);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

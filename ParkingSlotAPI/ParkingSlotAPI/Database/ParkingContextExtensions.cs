@@ -32,7 +32,18 @@ namespace ParkingSlotAPI.Database
             }
             else
             {
+                // fixHDBCarparkData(context);
+                // fixURACarparkData4(context);
 
+                //var carparks = new List<Carpark>();
+
+                //var task = Task.Run(async () => await publicAPI.GetParkingInfoAsync());
+
+                //carparks = task.Result;
+
+                //context.Carparks.AddRange(carparks);
+
+                //context.SaveChanges();
 
                 // ConvertDateTimeFormat(context);
 
@@ -93,7 +104,6 @@ namespace ParkingSlotAPI.Database
 
             }
         }
-
 
         public static List<Carpark> fixURACarparkData()
         {
@@ -183,6 +193,87 @@ namespace ParkingSlotAPI.Database
 
                         context.Carparks.Update(v);
                         context.SaveChanges();
+                    }
+                }
+
+                carparkNo = r.ppCode;
+            }
+
+        }
+
+        public static void fixHDBCarparkData(ParkingContext context)
+        {
+            FetchPublicAPI publicAPI = new FetchPublicAPI();
+
+            var task = Task.Run(async () => await publicAPI.GetHDBParkingInfoAsync());
+
+            var HDBCarparkInfo = task.Result;
+
+            foreach (var r in HDBCarparkInfo)
+            {
+                var v = context.Carparks.FirstOrDefault(a => a.CarparkId.Equals(r.CarparkId));
+
+                if (v != null)
+                {
+                    v.XCoord = r.XCoord;
+                    v.YCoord = r.YCoord;
+
+
+                    context.Carparks.Update(v);
+                    context.SaveChanges();
+                }
+            }
+        }
+
+        public static void fixURACarparkData4(ParkingContext context)
+        {
+            FetchPublicAPI publicAPI = new FetchPublicAPI();
+
+            var carparks = new List<Carpark>();
+
+            // URA Carpark Info
+            var task = Task.Run(async () => await publicAPI.GetURAParkingInfoAsync());
+
+            var URACarparkInfo = task.Result;
+
+            var carparkNo = "";
+
+            foreach (var r in URACarparkInfo)
+            {
+                if (carparkNo != r.ppCode)
+                {
+                    var v = context.Carparks.FirstOrDefault(a => a.CarparkId.Equals(r.ppCode));
+
+                    if (v != null)
+                    {
+                        double xcoord = 0.00, ycoord = 0.00;
+
+                        if (r.geometries != null)
+                        {
+                            var uncooord = r.geometries[0].coordinates.Split(",");
+                            var x = float.Parse(uncooord[0]);
+                            var y = float.Parse(uncooord[1]);
+
+                            var task2 = Task.Run(async () => await publicAPI.GetCoordinates(x, y));
+
+                            var coordinates = task2.Result;
+
+                            xcoord = coordinates.latitude;
+                            ycoord = coordinates.longitude;
+                            // Svy21Coordinate svy21 = new Svy21Coordinate(double.Parse(x), double.Parse(y));
+
+                            // LatLongCoordinate latLong = svy21.ToLatLongCoordinate();
+
+                            // xcoord = latLong.Latitude;
+                            // ycoord = latLong.Longitude;
+
+                            v.XCoord = xcoord.ToString();
+                            v.YCoord = ycoord.ToString();
+
+                            context.Carparks.Update(v);
+                            context.SaveChanges();
+                        }
+
                     }
                 }
 

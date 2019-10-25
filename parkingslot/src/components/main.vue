@@ -12,7 +12,10 @@
                   style="font-weight: 300 !important; font-size:28px;"
                 >Welcome!</h1>
                 <v-avatar size="128">
-                  <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ0FzOsx49zgl2qnBjOQe2cUSs5dAbvFAiLvjV8M0O0FdKWrOPa6Q" alt="Avatar" />
+                  <img
+                    src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ0FzOsx49zgl2qnBjOQe2cUSs5dAbvFAiLvjV8M0O0FdKWrOPa6Q"
+                    alt="Avatar"
+                  />
                 </v-avatar>
                 <p class="mt-5">To use the features, please login :)</p>
                 <v-btn color="primary" outlined type="submit" to="/login">
@@ -20,12 +23,18 @@
                   <v-icon right>mdi-lock</v-icon>
                 </v-btn>
               </div>
-              <div class="text-center">
+              <div class="text-center mb-5">
                 <p class="mb-1">Don't have an account?</p>
                 <v-btn color="primary" outlined type="submit" to="/register">
                   Register
                   <v-icon right>mdi-account-edit</v-icon>
                 </v-btn>
+              </div>
+              <div class="text-center">
+                <p>
+                  Lost your password? Reset
+                  <v-btn icon>here</v-btn>
+                </p>
               </div>
             </v-flex>
           </v-layout>
@@ -34,3 +43,4 @@
     </v-layout>
   </v-container>
 </template>
+
