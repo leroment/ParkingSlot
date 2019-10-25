@@ -6,6 +6,16 @@
       </v-btn>
     </v-layout>
     <gmap-map :center="center" ref="mapRef" :zoom="14" :options="mapStyle">
+      <gmap-marker :position="center" :icon="userMarkerOptions" @click="currentinfo = !currentinfo">
+        <gmap-info-window :position="center" @closeclick="currentinfo=false" :opened="currentinfo">
+          <h2>Current location</h2>
+          <v-container class>
+            <v-row>
+              <span class="body-1">Select a carpark to get more information and directions</span>
+            </v-row>
+          </v-container>
+        </gmap-info-window>
+      </gmap-marker>
       <gmap-cluster>
         <gmap-marker
           :key="index"
@@ -28,37 +38,62 @@
             }"
         >
           <h2>
-            {{ carparkItem.name }}
+            {{ markerItem.carparkName }}
             <v-chip
-              v-if="carparkItem.agency != undefined"
+              v-if="markerItem.agencyType != '-1'"
               class="ma-2"
               color="primary"
               outlined
-            >{{ carparkItem.agency }}</v-chip>
+            >{{ markerItem.agencyType }}</v-chip>
           </h2>
           <v-container class>
-            <v-row v-if="carparkItem.type != undefined">
-              <span class="body-1">Type: {{ carparkItem.type }}</span>
+            <v-row v-if="markerItem.address != '-1'">
+              <span class="body-1">Address: {{ markerItem.address }}</span>
             </v-row>
-            <v-row v-if="carparkItem.address != undefined">
-              <span class="body-1">Address: {{ carparkItem.address }}</span>
+            <v-row v-if="markerItem.totalAvailableLots != '-1'">
+              <span class="body-1">Total Available Lots: {{ markerItem.totalAvailableLots }}</span>
             </v-row>
-            <v-row v-if="carparkItem.desc != undefined">
-              <span class="body-1">{{ carparkItem.desc }}</span>
+            <v-row v-if="markerItem.totalLots != '-1'">
+              <span class="body-1">Total Lots: {{ markerItem.totalLots }}</span>
+            </v-row>
+            <v-row v-if="markerItem.carAvailability != '-1'">
+              <span class="body-1">Car Availability: {{ markerItem.carAvailability }}</span>
+            </v-row>
+            <v-row v-if="markerItem.mAvailability != '-1'">
+              <span class="body-1">Motorcycle Availability: {{ markerItem.mAvailability }}</span>
+            </v-row>
+            <v-row v-if="markerItem.hvAvailability != '-1'">
+              <span class="body-1">Heavy Vehicle Availability: {{ markerItem.hvAvailability }}</span>
+            </v-row>
+            <v-row v-if="markerItem.carCapacity != '-1'">
+              <span class="body-1">Car Capacity: {{ markerItem.carCapacity }}</span>
+            </v-row>
+            <v-row v-if="markerItem.mCapacity != '-1'">
+              <span class="body-1">Motorcycle Capacity: {{ markerItem.mCapacity }}</span>
+            </v-row>
+            <v-row v-if="markerItem.hvCapacity != '-1'">
+              <span class="body-1">Heavy Vehicle Capacity: {{ markerItem.hvCapacity }}</span>
             </v-row>
           </v-container>
-          <v-layout v-if="carparkItem.desc == undefined">
-            <v-divider></v-divider>
-            <v-btn
-              class="mt-5"
-              color="info"
-              @click="getDirection(carparkItem)"
-              type="submit"
-            >Directions</v-btn>
-          </v-layout>
+          <v-btn
+            class="mt-5"
+            color="info"
+            @click="getDirection(carparkItem)"
+            type="submit"
+          >Directions</v-btn>
         </gmap-info-window>
       </gmap-cluster>
     </gmap-map>
+          <table class="searchbox">
+        <tr>
+          <td>
+            <input type="text"  class="textbox centering" placeholder="ここで検索" />
+          </td>
+          <td>
+            <button class="button centering" >検索</button>
+          </td>
+        </tr>
+      </table>
   </v-content>
 </template>
 
@@ -66,15 +101,20 @@
 /*global google*/
 import mapStyles from "@/assets/mapStyle";
 const mapMarker = require("../assets/mapmarker.png");
+const carMarker = require("../assets/usermarker.png");
 export default {
   props: {
     allmarkers: Array
   },
   data() {
     return {
-      currentLocation: { lat: 0, lng: 0 },
-      center: {},
+      center: {
+        lat: +0,
+        lng: +0,
+      },
       markers: [],
+      markerItem: {},
+      carparkItem: {},
       mapStyle: {
         styles: mapStyles,
         zoomControl: true,
@@ -90,10 +130,15 @@ export default {
         size: { width: 30, height: 30 },
         scaledSize: { width: 30, height: 30 }
       },
+      userMarkerOptions: {
+        url: carMarker,
+        size: { width: 40, height: 40 },
+        scaledSize: { width: 40, height: 40 }
+      },
       info_marker: null,
       infowindow: { lat: 10.0, lng: 10.0 },
       window_open: false,
-      carparkItem: {}
+      currentinfo: true
     };
   },
   created: function() {
@@ -119,48 +164,11 @@ export default {
   methods: {
     geolocation: function() {
       navigator.geolocation.getCurrentPosition(position => {
-        this.currentLocation = {
+        this.center = {
           lat: parseFloat(position.coords.latitude),
           lng: parseFloat(position.coords.longitude)
         };
-        var userloc = {
-          position: {
-            lat: parseFloat(this.currentLocation.lat),
-            lng: parseFloat(this.currentLocation.lng)
-          }
-        };
-        console.log(this.markers);
-        //if object is empty (first init), pass in the lat and lng
-        if (
-          Object.entries(this.center).length === 0 &&
-          this.center.constructor === Object
-        ) {
-          this.center = {
-            lat: parseFloat(this.currentLocation.lat),
-            lng: parseFloat(this.currentLocation.lng)
-          };
-          this.markers.push(userloc);
-        } else {
-          //Check if the old center is the same as the new one
-          //If it is not the same, change it
-          if (
-            userloc.position.lat != this.center.lat ||
-            userloc.position.lng != this.center.lng
-          ) {
-            for (var i = 0; i < this.markers.length; i++) {
-              if (
-                this.markers[i].position.lat == this.center.lat &&
-                this.markers[i].position.lng == this.center.lng
-              ) {
-                this.markers[i].position.lat = userloc.lat;
-                this.markers[i].position.lng = userloc.lng;
-                break;
-              }
-            }
-          }
-        }
         this.$refs.mapRef.panTo(this.center);
-        this.showMarkerInfo(userloc);
       });
     },
     fetchCaparks: function() {
@@ -168,15 +176,11 @@ export default {
       this.axios
         .get("https://localhost:44392/api/carpark/all")
         .then(function(response) {
-          console.log(response);
           for (var i = 0; i < response.data.length; i++) {
             var userloc = {
               position: {
-                id: response.data[i].carparkId,
-                name: response.data[i].carparkName,
-                type: response.data[i].lottype,
-                agency: response.data[i].agencyType,
-                address: response.data[i].address,
+                id: response.data[i].id,
+                carparkId: response.data[i].carparkId,
                 lat: parseFloat(response.data[i].xCoord),
                 lng: parseFloat(response.data[i].yCoord)
               }
@@ -189,23 +193,25 @@ export default {
       //Display markerinfo except for current position
       //Change content if the user click on center
       this.carparkItem = {};
-      this.infowindow.lat = markerInfo.position.lat;
-      this.infowindow.lng = markerInfo.position.lng;
+      this.infowindow.lat = parseFloat(markerInfo.position.lat);
+      this.infowindow.lng = parseFloat(markerInfo.position.lng);
       //Move to center
       this.$refs.mapRef.panTo(this.infowindow);
-
-      if (
-        markerInfo.position.lat != this.center.lat &&
-        markerInfo.position.lng != this.center.lng
-      ) {
-        this.carparkItem = markerInfo.position;
-        this.window_open = true;
-      } else {
-        this.carparkItem.name = "Current location";
-        this.carparkItem.desc =
-          "Select a carpark to get more information and directions";
-        this.window_open = true;
-      }
+      let cur = this;
+      this.carparkItem = markerInfo.position;
+      //fetch individual carpark position
+      this.axios
+        .get(
+          "https://parkingslotapi.azurewebsites.net/api/carpark/" +
+            markerInfo.position.id
+        )
+        .then(function(response) {
+          //Pass in all the values
+          cur.markerItem = response.data;
+          delete markerInfo.xCoord;
+          delete markerInfo.yCoord;
+        });
+      this.window_open = true;
     },
     getDirection: function(markerInfo) {
       //Close the infowindow
@@ -219,7 +225,7 @@ export default {
       //polylineOptions:{strokeColor:"#4a4a4a",strokeWeight:5},
       var directionsDisplay = new google.maps.DirectionsRenderer({
         suppressMarkers: true,
-        polylineOptions:{strokeColor:"green",strokeWeight:5}
+        polylineOptions: { strokeColor: "green", strokeWeight: 5 }
       });
       //Remove previous routing
       directionsDisplay.setMap(this.$refs.mapRef.$mapObject);
