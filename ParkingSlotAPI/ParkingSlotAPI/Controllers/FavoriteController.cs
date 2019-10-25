@@ -18,83 +18,97 @@ namespace ParkingSlotAPI.Controllers
     {
 
         private readonly IFavoriteRepository _favoriteRepository;
+        private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
+   
         
-        public FavoriteController(IFavoriteRepository favoriteRepository, IMapper mapper)
+        public FavoriteController(IFavoriteRepository favoriteRepository, IUserRepository userRepository, IMapper mapper)
         {
             _favoriteRepository = favoriteRepository;
+            _userRepository = userRepository;
             _mapper = mapper;
         }
 
-        [HttpGet]
-        public IActionResult GetFavorites()
-        {
-            var favoritesFromRepo = _favoriteRepository.GetFavorites();
+        //[HttpGet]
+        //public IActionResult GetFavorites()
+        //{
+        //    var favoritesFromRepo = _favoriteRepository.GetFavorites();
 
-            if(favoritesFromRepo == null)
+        //    if(favoritesFromRepo == null)
+        //    {
+        //        return NotFound();
+        //    }
+
+        //    var favorites = _mapper.Map<IEnumerable<FavoriteDto>>(favoritesFromRepo);
+
+        //    return Ok(favorites);
+        //}
+
+        [HttpGet("{id}", Name = "GetFavoriteForUser")]
+        public IActionResult GetFavoriteForUser(Guid userId, Guid id)
+        {
+            if (!_userRepository.UserExists(userId))
             {
                 return NotFound();
             }
 
-            var favorites = _mapper.Map<IEnumerable<FavoriteDto>>(favoritesFromRepo);
+            var favoriteForAuthorFromRepo = _favoriteRepository.GetFavoriteForUser(userId, id);
 
-            return Ok(favorites);
-        }
-
-        [HttpGet("{id}", Name = "GetFavorite")]
-        public IActionResult GetFavorite(Guid id)
-        {
-            var favoriteFromRepo = _favoriteRepository.GetFavorite(id);
-
-            if(favoriteFromRepo == null)
+            if (favoriteForAuthorFromRepo == null)
             {
                 return NotFound();
             }
 
-            var favorite = _mapper.Map<FavoriteDto>(favoriteFromRepo);
+            var favoriteForAuthor = _mapper.Map<FavoriteDto>(favoriteForAuthorFromRepo);
 
-            return Ok(favorite);
+            return Ok(favoriteForAuthor);
         }
 
         [HttpPost]
-        public IActionResult AddFavorite(Guid userId,[FromBody] FavoriteForCreationDto favorite)
+        public IActionResult AddFavoriteForUser(Guid userId,[FromBody] FavoriteForCreationDto favorite)
         {
             if (favorite == null)
             {
                 return BadRequest();
             }
 
-            var favoriteEntity = _mapper.Map<Favorite>(favorite);
-
-            _favoriteRepository.SaveFavorite(favoriteEntity);
-            if (!_favoriteRepository.Save())
-            {
-                throw new Exception("Adding a favorite failed on save.");
-            }
-
-            var favoriteToReturn = _mapper.Map<FavoriteDto>(favoriteEntity);
-
-            return CreatedAtRoute("GetFavorite", new {userId = favoriteToReturn.UserId, id = favoriteToReturn.Id }, favoriteToReturn);
-        }
-
-        [HttpDelete("{id}")]
-        public IActionResult DeleteFavorite(Guid id)
-        {
-            var favoriteFromRepo = _favoriteRepository.GetFavorite(id);
-            if(favoriteFromRepo == null)
+            if (!_userRepository.UserExists(userId))
             {
                 return NotFound();
             }
 
-            _favoriteRepository.DeleteFavorite(favoriteFromRepo);
+            var favoriteEntity = _mapper.Map<Favorite>(favorite);
 
-            if(!_favoriteRepository.Save())
+            _favoriteRepository.AddFavoriteForUser(userId, favoriteEntity);
+
+            if (!_favoriteRepository.Save())
             {
-                throw new Exception($"Deleting favorite {id} failed on save");
+                throw new Exception($"Adding a favorite for user {userId} failed on save.");
             }
 
-            return NoContent();
+            var favoriteToReturn = _mapper.Map<FavoriteDto>(favoriteEntity);
+
+            return CreatedAtRoute("GetFavoriteForUser", new {userId = userId, id = favoriteToReturn.Id }, favoriteToReturn);
         }
+
+        //[HttpDelete("{id}")]
+        //public IActionResult DeleteFavorite(Guid id)
+        //{
+        //    var favoriteFromRepo = _favoriteRepository.GetFavorite(id);
+        //    if(favoriteFromRepo == null)
+        //    {
+        //        return NotFound();
+        //    }
+
+        //    _favoriteRepository.DeleteFavorite(favoriteFromRepo);
+
+        //    if(!_favoriteRepository.Save())
+        //    {
+        //        throw new Exception($"Deleting favorite {id} failed on save");
+        //    }
+
+        //    return NoContent();
+        //}
     }
 }
 

@@ -7,7 +7,6 @@ namespace ParkingSlotAPI.Models
 {
     public class FavoriteForCreationDto
     {
-        public string CarparkId { get; set; }
-        // public string CarparkName { get; set; }
+        public Guid CarparkId { get; set; }
     }
 }

@@ -20,6 +20,7 @@ namespace ParkingSlotAPI.Repository
         User GetUser(Guid userId);
         void AddUser(User user);
         void DeleteUser(User user);
+        bool UserExists(Guid userId);
         bool Save();
     }
 
@@ -89,6 +90,11 @@ namespace ParkingSlotAPI.Repository
         public void DeleteUser(User user)
         {
             _context.Users.Remove(user);
+        }
+
+        public bool UserExists(Guid userId)
+        {
+            return _context.Users.Any(a => a.Id == userId);
         }
 
         public bool Save()
