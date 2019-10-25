@@ -14,11 +14,13 @@ namespace ParkingSlotAPI.Profiles
         public MappingProfile()
         {
             CreateMap<Carpark, CarparkDto>();
+            CreateMap<Carpark, CarparkMarkerDto>();
             CreateMap<User, UserDto>();
           
 
             CreateMap<UserForCreationDto, User>();
 
+            
 
         }
     }

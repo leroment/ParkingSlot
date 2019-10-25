@@ -290,23 +290,28 @@ namespace ParkingSlotAPI.PublicAPI
             }
         }
 
+        private async Task<string> GetURAToken()
+        {
+            var responseBody = await HttpHelpers.GetResource("https://www.ura.gov.sg/uraDataService/insertNewToken.action", "AccessKey", "942ba181-3f0a-4e37-bb3e-6f66093945d3");
+
+            URAToken result = JsonConvert.DeserializeObject<URAToken>(responseBody);
+
+            return result.Result;
+        }
 
         public async Task<List<Detail>> GetURAAvailability()
         {
             try
             {
-                using (var client = new HttpClient())
-                {
-                    var responseBody = await HttpHelpers.GetResourceTwoHeaders("https://www.ura.gov.sg/uraDataService/invokeUraDS?service=Car_Park_Availability", "AccessKey", "942ba181-3f0a-4e37-bb3e-6f66093945d3", "Token", "9485e67-Va6h4Z6T3TgaqQkefbbC7fgtqeepbMDDg43r6M4D2SyMMz9Mba2EJSQ45AJX63@q-TaeE@BayXH1VxdfTteq@bXTx@9P");
+                var task = Task.Run(async () => await GetURAToken());
 
-                    URACarparkAvailability result = JsonConvert.DeserializeObject<URACarparkAvailability>(responseBody);
+                var token = task.Result;
 
-                    List<Detail> results = new List<Detail>();
+                var responseBody = await HttpHelpers.GetResourceTwoHeaders("https://www.ura.gov.sg/uraDataService/invokeUraDS?service=Car_Park_Availability", "AccessKey", "942ba181-3f0a-4e37-bb3e-6f66093945d3", "Token", token);
 
-                    results.AddRange(result.Result);
+                URACarparkAvailability result = JsonConvert.DeserializeObject<URACarparkAvailability>(responseBody);
 
-                    return results;
-                }
+                return result.Result.ToList();
             }
             catch (HttpRequestException e)
             {

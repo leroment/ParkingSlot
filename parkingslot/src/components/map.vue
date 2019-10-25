@@ -166,7 +166,7 @@ export default {
     fetchCaparks: function() {
       let cur = this;
       this.axios
-        .get("https://parkingslotapi.azurewebsites.net/api/carpark/all")
+        .get("https://localhost:44392/api/carpark/all")
         .then(function(response) {
           console.log(response);
           for (var i = 0; i < response.data.length; i++) {
