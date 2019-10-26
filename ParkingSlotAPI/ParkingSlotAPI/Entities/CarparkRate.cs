@@ -14,7 +14,7 @@ namespace ParkingSlotAPI.Entities
 
         [ForeignKey("CarparkId")]
         public Carpark Carpark { get; set; }
-        public string CarparkId { get; set; }
+        public Guid CarparkId { get; set; }
         public string StartTime { get; set; }
         public string EndTime { get; set; }
         public string WeekdayRate { get; set; }

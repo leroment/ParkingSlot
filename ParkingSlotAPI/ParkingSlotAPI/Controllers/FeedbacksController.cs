@@ -10,20 +10,23 @@ using ParkingSlotAPI.Repository;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Authorization;
+using ParkingSlotAPI.Helpers;
 
 namespace ParkingSlotAPI.Controllers
 {
     [Authorize(Roles = Role.Admin)]
     [Route("api/[controller]")]
     [ApiController]
-    public class FeedbackController : ControllerBase
+    public class FeedbacksController : ControllerBase
     {
         private readonly IFeedbackRepository _feedbackRepository;
+        private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
 
-        public FeedbackController(IFeedbackRepository feedbackRepository, IMapper mapper)
+        public FeedbacksController(IFeedbackRepository feedbackRepository, IMapper mapper, IUserRepository userRepository)
         {
             _feedbackRepository = feedbackRepository;
+            _userRepository = userRepository;
             _mapper = mapper;
         }
 
@@ -59,25 +62,34 @@ namespace ParkingSlotAPI.Controllers
         }
 
         [AllowAnonymous]
-        [HttpPost]
-        public IActionResult AddFeedback([FromBody] FeedbackForCreationDto feedback)
+        [HttpPost("user/{userId}")]
+        public IActionResult AddFeedbackForUser(Guid userId, [FromBody] FeedbackForCreationDto feedback)
         {
-            if (feedback == null)
+            try
             {
-                return BadRequest();
+                if (!_userRepository.UserExists(userId))
+                {
+                    return NotFound(new { message = $"User {userId} does not exist" });
+                }
+
+                var feedbackEntity = _mapper.Map<Feedback>(feedback);
+
+                _feedbackRepository.AddFeedback(feedbackEntity);
+                if (!_feedbackRepository.Save())
+                {
+                    throw new Exception("Adding a feedback failed on save.");
+                }
+
+                var feedbackToReturn = _mapper.Map<FeedbackDto>(feedbackEntity);
+
+                return CreatedAtRoute("GetFeedback", new { id = feedbackToReturn.Id }, feedbackToReturn);
+            }
+            catch (AppException ex)
+            {
+                return BadRequest(new { message = ex.Message });
             }
 
-            var feedbackEntity = _mapper.Map<Feedback>(feedback);
-
-            _feedbackRepository.AddFeedback(feedbackEntity);
-            if (!_feedbackRepository.Save())
-            {
-                throw new Exception("Adding a feedback failed on save.");
-            }
-
-            var feedbackToReturn = _mapper.Map<FeedbackDto>(feedbackEntity);
-
-            return CreatedAtRoute("GetFeedback", new { id = feedbackToReturn.Id}, feedbackToReturn);
+           
         }
 
         [HttpDelete("{id}")]

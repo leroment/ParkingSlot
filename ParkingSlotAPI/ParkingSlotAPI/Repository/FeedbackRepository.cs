@@ -4,6 +4,7 @@ using System.Linq;
 using ParkingSlotAPI.Entities;
 using ParkingSlotAPI.Database;
 using System.Threading.Tasks;
+using ParkingSlotAPI.Helpers;
 
 namespace ParkingSlotAPI.Repository
 {
@@ -20,9 +21,11 @@ namespace ParkingSlotAPI.Repository
     public class FeedbackRepository : IFeedbackRepository
     {
         private ParkingContext _context;
-        public FeedbackRepository(ParkingContext context)
+        private IUserRepository _userRepository;
+        public FeedbackRepository(ParkingContext context, IUserRepository userRepository)
         {
             _context = context;
+            _userRepository = userRepository;
         }
 
         public IEnumerable<Feedback> GetFeedbacks()
@@ -35,10 +38,28 @@ namespace ParkingSlotAPI.Repository
             return _context.Feedbacks.FirstOrDefault(a => a.Id == feedbackId);
         }
 
-        public void AddFeedback(Feedback feedback)
+        private bool FeedbackExists(Guid userId, Guid feedbackId)
         {
-            feedback.Id = Guid.NewGuid();
-            _context.Feedbacks.Add(feedback);
+            return _context.Feedbacks.Any(a => a.Id == userId && a.Id == feedbackId);
+        }
+
+        public void AddFeedback(Guid userId, Feedback feedback)
+        {
+            var user = _userRepository.GetUser(userId);
+
+            if (user != null)
+            {
+                if (FeedbackExists(userId, feedback.Id))
+                {
+                    throw new AppException($"This feedback {feedback.Id} already exists for user {userId}!");
+                }
+                else
+                {
+                    feedback.Id = Guid.NewGuid();
+                    feedback.IsResolved = false;
+                    user.
+                }
+            }
         }
 
         public void DeleteFeedback(Feedback feedback)

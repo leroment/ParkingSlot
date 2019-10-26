@@ -11,10 +11,6 @@ namespace ParkingSlotAPI.Models
     {
         public Guid Id { get; set; }
         public string CarparkId { get; set; }
-        public string CarparkName { get; set; }
-
-       [ForeignKey("userId")]
-       public User user { get; set; }
        public Guid UserId { get; set; }
     }
 }

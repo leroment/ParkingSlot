@@ -4,6 +4,7 @@ using System.Linq;
 using ParkingSlotAPI.Entities;
 using ParkingSlotAPI.Database;
 using System.Threading.Tasks;
+using ParkingSlotAPI.Helpers;
 
 namespace ParkingSlotAPI.Repository
 {
@@ -36,18 +37,30 @@ namespace ParkingSlotAPI.Repository
             return _context.Favorites.FirstOrDefault(f => f.UserId == userId && f.Id == favoriteId);
         }
 
+        private bool FavoriteExists(Guid userId, Guid carparkId)
+        {
+            return _context.Favorites.Any(a => a.UserId == userId && a.CarparkId == carparkId);
+        }
+
         public void AddFavoriteForUser(Guid userId, Favorite favorite)
         {
             var user = _userRepository.GetUser(userId);
 
             if (user != null)
             {
-                if (favorite.Id == Guid.Empty)
+                if (FavoriteExists(userId, favorite.CarparkId))
                 {
-                    favorite.Id = Guid.NewGuid();
+                    throw new AppException($"This carpark {favorite.CarparkId} already exists as a favorite for user {userId}!");
                 }
+                else
+                {
+                    if (favorite.Id == Guid.Empty)
+                    {
+                        favorite.Id = Guid.NewGuid();
+                    }
 
-                user.Favorites.Add(favorite);
+                    user.Favorites.Add(favorite);
+                }
             }
         }
 

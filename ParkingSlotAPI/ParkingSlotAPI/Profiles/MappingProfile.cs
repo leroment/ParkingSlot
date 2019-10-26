@@ -16,12 +16,9 @@ namespace ParkingSlotAPI.Profiles
             CreateMap<Carpark, CarparkDto>();
             CreateMap<Carpark, CarparkMarkerDto>();
             CreateMap<User, UserDto>();
-          
-
             CreateMap<UserForCreationDto, User>();
-
-            
-
+            CreateMap<FavoriteForCreationDto, Favorite>();
+            CreateMap<Favorite, FavoriteDto>();
         }
     }
 }

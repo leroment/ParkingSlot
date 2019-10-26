@@ -9,10 +9,11 @@ namespace ParkingSlotAPI.Entities
 {
     public class Carpark
     {
+        [Required]
+        [Key]
         public Guid Id { get; set; }
 
         [Required]
-        [Key]
         public string CarparkId { get; set; }
 
         [Required]

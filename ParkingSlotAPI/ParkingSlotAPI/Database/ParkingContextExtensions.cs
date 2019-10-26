@@ -516,7 +516,7 @@ namespace ParkingSlotAPI.Database
                     CarparkRate carparkRate = new CarparkRate
                     {
                         Id = Guid.NewGuid(),
-                        CarparkId = h.CarparkId,
+                        CarparkId = h.Id,
                         StartTime = r.startTime,
                         EndTime = r.endTime,
                         Remarks = r.remarks,
@@ -680,7 +680,7 @@ namespace ParkingSlotAPI.Database
                     var carparkRate = new CarparkRate()
                     {
                         Id = Guid.NewGuid(),
-                        CarparkId = carpark.CarparkId,
+                        CarparkId = carpark.Id,
                         StartTime = startTime,
                         EndTime = endTime,
                         isShortTerm = true,
@@ -740,7 +740,7 @@ namespace ParkingSlotAPI.Database
                     CarparkRate carparkRate = new CarparkRate
                     {
                         Id = Guid.NewGuid(),
-                        CarparkId = h.CarparkId,
+                        CarparkId = h.Id,
                         Remarks = x
                     };
 

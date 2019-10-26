@@ -12,7 +12,7 @@ namespace ParkingSlotAPI.Entities
         [Key]
         public Guid Id { get; set; }
 
-        [ForeignKey("CaparkId")]
+        [ForeignKey("CarparkId")]
         public Carpark Carpark {get; set; }
 
         public Guid CarparkId { get; set; }
