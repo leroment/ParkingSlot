@@ -6,7 +6,7 @@
         <v-icon>mdi-home</v-icon>
       </v-btn>
       <v-btn to="/map">
-        <span>Nearby</span>
+        <span>Map</span>
         <v-icon>mdi-map-marker</v-icon>
       </v-btn>
       <v-btn to="/favourite">

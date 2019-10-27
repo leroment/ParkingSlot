@@ -14,6 +14,8 @@ import store from './stores/store'
 import * as VueGoogleMaps from 'vue2-google-maps'
 /* 5. Gmap clusters */
 import GmapCluster from 'vue2-google-maps/dist/components/cluster'
+/* 6. Infinite loading */
+import InfiniteLoading from 'vue-infinite-loading';
 
 // Install Javascript Libraries
 // Must be called before new Vue()
@@ -26,6 +28,16 @@ Vue.use(VueGoogleMaps, {
   }
 })
 Vue.component('GmapCluster', GmapCluster)
+Vue.use(InfiniteLoading, {
+  props: {
+    spinner: 'default',
+    /* other props need to configure */
+  },
+  system: {
+    throttleLimit: 500,
+    /* other settings need to configure */
+  },
+});
 
 Vue.config.productionTip = false
 

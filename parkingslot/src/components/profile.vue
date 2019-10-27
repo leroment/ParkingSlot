@@ -3,6 +3,7 @@
     <v-container fluid>
       <v-layout column>
         <v-card>
+          <v-alert type="error" :value="passwordError">{{passwordErrorText}}</v-alert>
           <v-alert :value="notifyStatus" dismissible type="success">{{notifyText}}</v-alert>
           <v-card-text v-show="updateAccount">
             <v-flex class="mb-6">
@@ -76,23 +77,69 @@ export default {
       },
       updateAccount: true,
       notifyStatus: false,
-      notifyText: ""
+      notifyText: "",
+      passwordError: false,
+      passwordErrorText: ""
     };
   },
   methods: {
     updateProfile() {
-      /* Axios Post Req to update */
+      /* Axios PUT Req to update */
       /* change state back to*/
       /* update vuex state for username */
-      this.notifyStatus = true;
-      this.notifyText = "Profile have been successfully updated!";
+      // console.log(this.userProfile.username);
+      // this.$store
+      //   .dispatch("UPDATE", {
+      //     FirstName: this.userProfile.firstName,
+      //     LastName: this.userProfile.lastName,
+      //     Email:this.userProfile.Email,
+      //     PhoneNumber: this.userProfile.Contact
+      //   })
+      //   .then(success => {
+      //     console.log("success");
+      //     this.notifyStatus = true;
+      //     this.notifyText = "Profile have been successfully updated!";
+      //   })
+      //   .catch(error => {
+      //     this.error = true;
+      //   });
+      
+      
     },
     updatePassword() {
       /* Axios Post Req to update */
       /* change state back to*/
-      this.notifyStatus = true;
-      this.notifyText = "Password have been successfully updated!";
-      this.updateAccount = true;
+      if (this.userPassword.newpassword != this.userPassword.cfmnewpassword){
+        this.passwordError = true;
+        this.passwordErrorText = "New passwords do not match."
+        return;
+      }
+      this.$store
+        .dispatch("CHANGEPASSWORD", {
+          	"Email" : this.userProfile.Email,
+            "Token" : this.$store.getters.TOKEN,
+            "OldPassword" : this.userPassword.currentpassword,
+            "NewPassword" : this.userPassword.newpassword,
+            "username" : this.userProfile.username
+        })
+        .then(() => {
+            this.passwordError = false;
+            this.notifyStatus = true;
+            this.notifyText = "Password have been successfully updated!";
+            this.updateAccount = true;
+
+            //Clear fields
+            this.userPassword.currentpassword = "";
+            this.userPassword.newpassword = "";
+            this.userPassword.cfmnewpassword = "";
+            
+        })
+        .catch(() => {
+          this.passwordError = true;
+          this.passwordErrorText = "Please enter the correct current password.";
+        });
+      
+
     },
     reset() {
       this.updateAccount = !this.updateAccount;
