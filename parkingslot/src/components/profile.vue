@@ -87,24 +87,22 @@ export default {
       /* Axios PUT Req to update */
       /* change state back to*/
       /* update vuex state for username */
-      // console.log(this.userProfile.username);
-      // this.$store
-      //   .dispatch("UPDATE", {
-      //     FirstName: this.userProfile.firstName,
-      //     LastName: this.userProfile.lastName,
-      //     Email:this.userProfile.Email,
-      //     PhoneNumber: this.userProfile.Contact
-      //   })
-      //   .then(success => {
-      //     console.log("success");
-      //     this.notifyStatus = true;
-      //     this.notifyText = "Profile have been successfully updated!";
-      //   })
-      //   .catch(error => {
-      //     this.error = true;
-      //   });
-      
-      
+      console.log(this.userProfile.username);
+      this.$store
+        .dispatch("UPDATE", {
+          FirstName: this.userProfile.firstName,
+          LastName: this.userProfile.lastName,
+          Email:this.userProfile.Email,
+          PhoneNumber: this.userProfile.Contact
+        })
+        .then(success => {
+          console.log("success");
+          this.notifyStatus = true;
+          this.notifyText = "Profile have been successfully updated!";
+        })
+        .catch(error => {
+          this.error = true;
+        });
     },
     updatePassword() {
       /* Axios Post Req to update */
