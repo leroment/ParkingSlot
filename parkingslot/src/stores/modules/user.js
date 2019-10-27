@@ -12,7 +12,8 @@ export default {
         role: "",
         token: localStorage.getItem('access_token') || null,
         isLoggedIn: false,
-        userid: ""
+        userid: "",
+        favorites: []
     },
     getters: {
         FIRSTNAME: (state) => {
@@ -33,14 +34,17 @@ export default {
         ROLE: (state) => {
             return state.role;
         },
-        ISLOGGEDIN:(state) => {
+        ISLOGGEDIN: (state) => {
             return state.isLoggedIn;
         },
-        TOKEN:(state) => {
+        TOKEN: (state) => {
             return state.token;
         },
-        USERID:(state) => {
+        USERID: (state) => {
             return state.userid;
+        },
+        FAVORITES: (state) => {
+            return state.favorites;
         }
     },
     mutations: {
@@ -70,6 +74,15 @@ export default {
         },
         SETUSERID(state, userid) {
             state.userid = userid;
+        },
+        ADDFAVORITES(state, carparkId) {
+            state.favorites.push(carparkId)
+        },
+        REMOVEFAVORITES(state, carparkId) {
+            var index = state.favorites.indexOf(carparkId);
+            if (index > -1) {
+                state.favorites.splice(index, 1);
+            }
         }
     },
     actions: {
@@ -79,21 +92,22 @@ export default {
                 axios.post(`https://parkingslotapi.azurewebsites.net/api/users/authenticate`, payload).then(({ data, status }) => {
                     if (status === 200) {
                         //Add user info to store
-                        store.commit('SETUSERNAME', data.username); 
+                        store.commit('SETUSERNAME', data.username);
                         store.commit('SETEMAIL', data.email);
-                        store.commit('SETFIRSTNAME', data.firstName); 
-                        store.commit('SETLASTNAME', data.lastName); 
-                        store.commit('SETPHONENO', data.phoneNumber); 
-                        store.commit('SETROLE', data.role); 
+                        store.commit('SETFIRSTNAME', data.firstName);
+                        store.commit('SETLASTNAME', data.lastName);
+                        store.commit('SETPHONENO', data.phoneNumber);
+                        store.commit('SETROLE', data.role);
                         store.commit('SETTOKEN', data.token);
                         store.commit('SETUSERID', data.id);
-                        store.commit('SETAUTHSTATUS', true);    
+                        store.commit('SETAUTHSTATUS', true);
+                        localStorage.setItem('access_token', data.token);
                         resolve(true);
                     }
                 }).catch(error => {
                     reject(error);
                 })
-             
+
             });
         },
         REGISTER: ({ commit }, payload) => {
@@ -134,7 +148,7 @@ export default {
                 }).catch(error => {
                     reject(error);
                 })
-             
+
             });
         },
         CHANGEPASSWORD: ({ commit }, payload) => {
@@ -148,7 +162,44 @@ export default {
                 }).catch(error => {
                     reject(error);
                 })
-             
+
+            });
+        },
+        GETFAVORITES: ({ commit }) => {
+            return new Promise((resolve, reject) => {
+                axios
+                    .get(
+                        "https://parkingslotapi.azurewebsites.net/api/users/" +
+                        this.$store.getters.USERID +
+                        "/favorites"
+                    )
+                    .then(function (response) {
+
+                        if (response.data.length != 0) {
+                            for (var i = 0; i < response.data.length; i++) {
+                                //push each carpark id into the array
+                                store.commit('ADDFAVORITES', response.data[i].carparkId);
+                            }
+                        }
+                        resolve(true);
+                    }).catch(error => {
+                        reject(error);
+                    })
+            });
+        },
+        DELETEFAVORITE: ({ commit }, carparkId) => {
+            return new Promise((resolve, reject) => {
+                axios.delete("https://parkingslotapi.azurewebsites.net/api/users/" +
+                    this.$store.getters.USERID +
+                    "/favorites/" + carparkId).then(function (response) {
+                        if (status === 200) {
+                            //delete carparkId from favorites
+                            store.commit('REMOVEFAVORITES', carparkId);
+                            resolve(true);
+                        }
+                    }).catch(error => {
+                        reject(error);
+                    });
             });
         }
     }
