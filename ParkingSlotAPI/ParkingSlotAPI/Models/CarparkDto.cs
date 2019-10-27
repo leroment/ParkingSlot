@@ -29,7 +29,7 @@ namespace ParkingSlotAPI.Models
         public int CarCapacity { get; set; }
         public int MCapacity { get; set; }
         public int HVCapacity { get; set; }
-
-
+        public ICollection<CarparkRateDto> CarparkRates { get; set; }
+            = new List<CarparkRateDto>();
     }
 }

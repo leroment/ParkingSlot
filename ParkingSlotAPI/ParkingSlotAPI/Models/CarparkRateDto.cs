@@ -1,19 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace ParkingSlotAPI.Entities
+namespace ParkingSlotAPI.Models
 {
-    public class CarparkRate
+    public class CarparkRateDto
     {
-        [Key]
-        public Guid Id { get; set; }
-        [ForeignKey("CarparkId")]
-        public Carpark Carpark { get; set; }
-        public Guid CarparkId { get; set; }
         public string StartTime { get; set; }
         public string EndTime { get; set; }
         public string WeekdayRate { get; set; }

@@ -38,7 +38,6 @@ namespace ParkingSlotAPI.Repository
             var collectionBeforePaging = _context.Carparks
                 .OrderBy(a => a.CarparkId).AsQueryable();
 
-
             // filter agency type
             if (!string.IsNullOrEmpty(carparkResourceParameters.AgencyType))
             {

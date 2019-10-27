@@ -516,7 +516,7 @@ namespace ParkingSlotAPI.Database
                     CarparkRate carparkRate = new CarparkRate
                     {
                         Id = Guid.NewGuid(),
-                        CarparkId = h.Id,
+                        // CarparkId = h.Id,
                         StartTime = r.startTime,
                         EndTime = r.endTime,
                         Remarks = r.remarks,
@@ -526,8 +526,7 @@ namespace ParkingSlotAPI.Database
                         WeekdayMin = r.weekdayMin,
                         WeekdayRate = r.weekdayRate,
                         SatdayRate = r.satdayRate,
-                        SunPHRate = r.sunPHRate,
-                        isShortTerm = false
+                        SunPHRate = r.sunPHRate
                     };
 
                     context.CarparkRates.Add(carparkRate);
@@ -680,10 +679,9 @@ namespace ParkingSlotAPI.Database
                     var carparkRate = new CarparkRate()
                     {
                         Id = Guid.NewGuid(),
-                        CarparkId = carpark.Id,
+                        // CarparkId = carpark.Id,
                         StartTime = startTime,
                         EndTime = endTime,
-                        isShortTerm = true,
                         SatdayMin = satDayMin,
                         SatdayRate = satDayRate,
                         SunPHMin = sunPHMin,
@@ -740,7 +738,7 @@ namespace ParkingSlotAPI.Database
                     CarparkRate carparkRate = new CarparkRate
                     {
                         Id = Guid.NewGuid(),
-                        CarparkId = h.Id,
+                        // CarparkId = h.Id,
                         Remarks = x
                     };
 

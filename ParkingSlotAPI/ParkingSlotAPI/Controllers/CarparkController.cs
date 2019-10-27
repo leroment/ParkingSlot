@@ -24,6 +24,7 @@ namespace ParkingSlotAPI.Controllers
     public class CarparkController : ControllerBase
     {
         private readonly IParkingRepository _parkingRepository;
+        private readonly ICarparkRatesRepository _carparkRatesRepository;
         private readonly IMapper _mapper;
         private readonly IUrlHelper _urlHelper;
 
@@ -31,11 +32,12 @@ namespace ParkingSlotAPI.Controllers
 
         const int maxParkingPageSize = 20;
 
-        public CarparkController(IParkingRepository parkingRepository, IMapper mapper, IUrlHelper urlHelper)
+        public CarparkController(IParkingRepository parkingRepository, IMapper mapper, IUrlHelper urlHelper, ICarparkRatesRepository carparkRatesRepository)
         {
             _parkingRepository = parkingRepository;
             _mapper = mapper;
             _urlHelper = urlHelper;
+            _carparkRatesRepository = carparkRatesRepository;
         }
 
         [HttpGet("All")]

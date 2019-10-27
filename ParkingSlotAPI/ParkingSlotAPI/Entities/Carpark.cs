@@ -12,12 +12,15 @@ namespace ParkingSlotAPI.Entities
         [Required]
         [Key]
         public Guid Id { get; set; }
-
         [Required]
         public string CarparkId { get; set; }
 
         [Required]
         public string CarparkName { get; set; }
+
+        public ICollection<CarparkRate> CarparkRates { get; set; }
+            = new List<CarparkRate>();
+
         public string ParkingSystem { get; set; }
         public int TotalAvailableLots { get; set; }
         public int TotalLots { get; set; }
