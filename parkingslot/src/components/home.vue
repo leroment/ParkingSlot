@@ -1,8 +1,9 @@
 <template>
   <v-content>
+    <CarparkFilter @clicked="onFilter"></CarparkFilter>
     <v-card>
       <v-list two-line>
-        <v-list-item-group multiple active-class="blue--text">
+        <v-list-item-group active-class="blue--text">
           <template v-for="item in carparkItem">
             <v-list-item :key="item.carparkName">
               <template>
@@ -22,9 +23,14 @@
               </template>
             </v-list-item>
           </template>
-          <infinite-loading spinner="spiral" :identifier="infiniteId" @infinite="infiniteHandler">
-            <div slot="no-more">-- End of Event List --</div>
-            <div slot="no-results">-- No Events --</div>
+          <infinite-loading
+            spinner="spiral"
+            ref="InfiniteLoading"
+            :identifier="infiniteId"
+            @infinite="infiniteHandler"
+          >
+            <div slot="no-more">-- End of Carpark List --</div>
+            <div slot="no-results">-- No Carpark --</div>
           </infinite-loading>
           <a id="back-to-top" href="#" class="btn btn-primary btn-lg back-to-top" role="button">
             <span class="fas fa-arrow-up"></span>
@@ -36,33 +42,34 @@
 </template>
 
 <script>
+import CarparkFilter from "./utils/filter";
 export default {
+  components: {
+    CarparkFilter
+  },
   data() {
     return {
       carparkItem: [],
-      filterConfig: {
-        IsAscending: true,
-        PageSize: 20,
-        PageNumber: 1,
-        VehType: "",
-        AgencyType: "",
-        Price: "",
-        StartDateTime: "",
-        EndDateTime: "",
-        IsMinPrice: true
-      },
-      infiniteId: +new Date()
+      infiniteId: +new Date(),
+      filterConfig: this.$store.getters.FILTER
     };
   },
   mounted: function() {
+    //reset page number back to 1
+    this.filterConfig.PageNumber = 1;
     this.getUserFavorites();
   },
   methods: {
+    onFilter(filterConfig) {
+      //Pass the updated filter config
+      this.filterConfig = filterConfig;
+      this.changeType();
+    },
     infiniteHandler($state) {
       let cur = this;
       this.axios
         .get("https://parkingslotapi.azurewebsites.net/api/carpark", {
-          params: cur.filterConfig
+          params: this.filterConfig
         })
         .then(({ data }) => {
           setTimeout(() => {
@@ -75,6 +82,11 @@ export default {
             }
           }, 500);
         });
+    },
+    changeType() {
+      this.filterConfig.PageNumber = 1;
+      this.carparkItem = [];
+      this.infiniteId += 1;
     },
     getUserFavorites: function() {
       //fetch from store
