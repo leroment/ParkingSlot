@@ -15,7 +15,7 @@
                   <v-list-item-action-text v-text="item.totalAvailableLots"></v-list-item-action-text>
                   <v-icon
                     v-if="!item.favorite"
-                    @click="favorite(item.id)"
+                    @click="favorite(item)"
                     color="grey lighten-1"
                   >mdi-heart-outline</v-icon>
                   <v-icon v-else @click="unfavorite(item.id)" color="red">mdi-heart</v-icon>
@@ -94,9 +94,20 @@ export default {
     addUserFavoritesToList: function() {
       //update the list favorites
     },
-    favorite: function(carparkId) {
+    favorite: function(item) {
       //fetch from store
-      console.log("liked");
+      var cur = this;
+      this.axios
+        .post(
+          `https://parkingslotapi.azurewebsites.net/api/users/${this.$store.getters.USERID}/favorites`, {
+            "CarparkID" : item.id
+          }
+        )
+        .then(function() {
+          item.favorite = true;
+          //cur.$set(item,'favorite',true)
+          console.log("liked");
+        });
     },
     unfavorite: function(carparkId) {
       //fetch from store
