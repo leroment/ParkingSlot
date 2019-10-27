@@ -16,7 +16,8 @@ namespace ParkingSlotAPI.Profiles
             CreateMap<Carpark, CarparkDto>();
             CreateMap<Carpark, CarparkMarkerDto>();
             CreateMap<User, UserDto>();
-            CreateMap<UserForCreationDto, User>();
+            CreateMap<UserForCreationDto, User>()
+                .ForMember(dest => dest.Role, opt => opt.MapFrom(src => src.isAdmin ? Role.Admin : Role.User));
             CreateMap<UserForUpdateDto, User>();
             CreateMap<FavoriteForCreationDto, Favorite>();
             CreateMap<Favorite, FavoriteDto>();

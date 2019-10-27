@@ -101,6 +101,12 @@ namespace ParkingSlotAPI.Controllers
         [HttpPost]
         public IActionResult Register([FromBody]UserForCreationDto userForCreationDto)
         {
+            if (!ModelState.IsValid)
+            {
+                // return 422
+                return new Helpers.UnprocessableEntityObjectResult(ModelState);
+            }
+
             // map dto to entity
             var user = _mapper.Map<User>(userForCreationDto);
 
@@ -120,19 +126,36 @@ namespace ParkingSlotAPI.Controllers
             }
         }
 
-        [AllowAnonymous]
+
+        [Authorize(Roles = Role.User)]
         [HttpPut("{id}")]
         public IActionResult UpdateUser(Guid id, [FromBody]UserForUpdateDto userForUpdateDto)
         {
-            // map dto to entity and set id
-            var user = _mapper.Map<User>(userForUpdateDto);
-
-            user.Id = id;
-
             try
             {
-                _userRepository.UpdateUser(user);
-                return Ok();
+
+                if (!ModelState.IsValid)
+                {
+                    // return 422
+                    return new Helpers.UnprocessableEntityObjectResult(ModelState);
+                }
+
+                if (!_userRepository.UserExists(id))
+                {
+                    return NotFound();
+                }
+
+                // map dto to entity and set id
+                var user = _mapper.Map<User>(userForUpdateDto);
+
+                _userRepository.UpdateUser(id, user);
+
+                if (!_userRepository.Save())
+                {
+                    throw new AppException("Updating {id} for user failed on save.");
+                }
+
+                return NoContent();
             }
             catch (AppException ex)
             {
@@ -140,6 +163,7 @@ namespace ParkingSlotAPI.Controllers
             }
         }
 
+        [Authorize(Roles = Role.Admin)]
         [HttpDelete("{id}")]
         public IActionResult DeleteUser(Guid id)
         {

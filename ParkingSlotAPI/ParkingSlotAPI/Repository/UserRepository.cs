@@ -20,8 +20,7 @@ namespace ParkingSlotAPI.Repository
         User Create(User user, string password);
         User GetUser(Guid userId);
         User GetUserByEmail(string Email);
-        void AddUser(User user);
-        void UpdateUser(User userParam);
+        void UpdateUser(Guid userId, User userParam);
         void UpdatePassword(User user, string password);
         void DeleteUser(User user);
         bool UserExists(Guid userId);
@@ -118,9 +117,9 @@ namespace ParkingSlotAPI.Repository
             _context.Users.Add(user);
         }
 
-        public void UpdateUser(User userParam)
+        public void UpdateUser(Guid userId, User userParam)
         {
-            var user = _context.Users.Find(userParam.Id);
+            var user = GetUser(userId);
 
             if (user == null)
             {
@@ -128,13 +127,12 @@ namespace ParkingSlotAPI.Repository
             }
 
             // Update user properties
-            user.FirstName = userParam.FirstName;
-            user.LastName = userParam.LastName;
-            user.Email = userParam.Email;
-            user.PhoneNumber = userParam.PhoneNumber;
+            user.FirstName = string.IsNullOrEmpty(userParam.FirstName) ? user.FirstName : userParam.FirstName;
+            user.LastName = string.IsNullOrEmpty(userParam.LastName) ? user.LastName : userParam.LastName;
+            user.Email = string.IsNullOrEmpty(userParam.Email) ? user.Email : userParam.Email;
+            user.PhoneNumber = string.IsNullOrEmpty(userParam.PhoneNumber) ? user.PhoneNumber : userParam.PhoneNumber;
 
             _context.Users.Update(user);
-            _context.SaveChanges();
         }
 
         public void UpdatePassword(User user, string password)

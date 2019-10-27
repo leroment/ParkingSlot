@@ -27,6 +27,8 @@ namespace ParkingSlotAPI.Entities
         [MaxLength(50)]
         public string FirstName { get; set; }
 
+        [Required]
+        [MaxLength(50)]
         public string Username { get; set; }
        
         public byte[] PasswordHash { get; set; }
@@ -39,6 +41,8 @@ namespace ParkingSlotAPI.Entities
         [Required]
         [MaxLength(50)]
         public string PhoneNumber { get; set; }
+
+        [Required]
         public string Role { get; set; }
     }
 }
