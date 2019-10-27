@@ -79,6 +79,9 @@ namespace ParkingSlotAPI
             services.AddScoped<IParkingRepository, ParkingRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IFetchPublicAPI, FetchPublicAPI>();
+            services.AddScoped<IFeedbackRepository, FeedbackRepository>();
+            services.AddScoped<IFavoriteRepository, FavoriteRepository>();
+            services.AddScoped<ICarparkRatesRepository, CarparkRatesRepository>();
             services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
             services.AddScoped<IUrlHelper, UrlHelper>(implementationFactory =>
             {
@@ -86,6 +89,7 @@ namespace ParkingSlotAPI
                 implementationFactory.GetService<IActionContextAccessor>().ActionContext;
                 return new UrlHelper(actionContext);
             });
+
 
             var connectionString = Configuration["connectionStrings:parkingDBConnectionString"];
             services.AddDbContext<ParkingContext>(o => o.UseSqlServer(connectionString));

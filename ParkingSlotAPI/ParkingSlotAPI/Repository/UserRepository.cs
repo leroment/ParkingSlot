@@ -24,6 +24,7 @@ namespace ParkingSlotAPI.Repository
         void UpdateUser(User userParam);
         void UpdatePassword(User user, string password);
         void DeleteUser(User user);
+        bool UserExists(Guid userId);
         bool Save();
     }
 
@@ -157,6 +158,11 @@ namespace ParkingSlotAPI.Repository
             _context.Users.Remove(user);
         }
 
+        public bool UserExists(Guid userId)
+        {
+            return _context.Users.Any(a => a.Id == userId);
+        }
+        
         private static void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
         {
             if (password == null) throw new ArgumentNullException("password");

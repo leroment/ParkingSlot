@@ -16,6 +16,9 @@ namespace ParkingSlotAPI.Entities
         public ICollection<Favorite> Favorites { get; set; }
             = new List<Favorite>();
 
+        public ICollection<Feedback> Feedbacks { get; set; }
+            = new List<Feedback>();
+
         [Required]
         [MaxLength(50)]
         public string LastName { get; set; }
