@@ -11,7 +11,7 @@ namespace ParkingSlotAPI.Repository
     public interface IFavoriteRepository
     {
         IEnumerable<Favorite> GetFavoritesForUser(Guid userId);
-        Favorite GetFavoriteForUser(Guid userId, Guid favoriteId);
+        Favorite GetFavoriteForUser(Guid userId, Guid carparkId);
         void AddFavoriteForUser(Guid userId, Favorite favorite);
         void SaveFavorite(Favorite favorite);
         void DeleteFavorite(Favorite favorite);
@@ -32,9 +32,9 @@ namespace ParkingSlotAPI.Repository
             return _context.Favorites.Where(f => f.UserId == userId).OrderBy(f => f.CarparkId).ToList();
         }
 
-        public Favorite GetFavoriteForUser(Guid userId, Guid favoriteId)
+        public Favorite GetFavoriteForUser(Guid userId, Guid carparkId)
         {
-            return _context.Favorites.FirstOrDefault(f => f.UserId == userId && f.Id == favoriteId);
+            return _context.Favorites.FirstOrDefault(f => f.UserId == userId && f.CarparkId == carparkId);
         }
 
         private bool FavoriteExists(Guid userId, Guid carparkId)

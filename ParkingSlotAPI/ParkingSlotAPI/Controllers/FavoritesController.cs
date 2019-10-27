@@ -99,25 +99,25 @@ namespace ParkingSlotAPI.Controllers
         }
 
         [HttpDelete("{id}")]
-        public IActionResult DeleteFavoriteForUser(Guid userId, Guid id)
+        public IActionResult DeleteFavoriteForUser(Guid userId, Guid carparkId)
         {
             if (!_userRepository.UserExists(userId))
             {
                 return NotFound(new { message = $"User {userId} does not exist" });
             }
 
-            var favoriteForUserFromRepo = _favoriteRepository.GetFavoriteForUser(userId, id);
+            var favoriteForUserFromRepo = _favoriteRepository.GetFavoriteForUser(userId, carparkId);
 
             if (favoriteForUserFromRepo == null)
             {
-                return NotFound(new { message = $"Favorite {id} for User {userId} does not exist" });
+                return NotFound(new { message = $"Favorite carpark {carparkId} for User {userId} does not exist" });
             }
 
             _favoriteRepository.DeleteFavorite(favoriteForUserFromRepo);
 
             if (!_favoriteRepository.Save())
             {
-                throw new Exception($"Deleting favorite {id} for user {userId} failed on save");
+                throw new Exception($"Deleting favorite carpark {carparkId} for user {userId} failed on save");
             }
 
             return NoContent();
