@@ -1,7 +1,7 @@
 <template>
-  <v-app class="grey lighten-4">
+  <v-app class="grey lighten-4 box">
     <navbar></navbar>
-      <router-view></router-view>
+    <router-view class="content"></router-view>
     <tabbar v-show="this.$store.getters.ISLOGGEDIN"></tabbar>
   </v-app>
 </template>
@@ -15,6 +15,16 @@ export default {
   components: {
     navbar,
     tabbar
-  },
+  }
 };
 </script>
+<style>
+.box {
+  height: 100% !important;
+  width: 100% !important;
+}
+#google-map-container {
+  margin-top: 48px;
+  margin-bottom: 42px;
+}
+</style>
