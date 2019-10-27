@@ -23,5 +23,9 @@ namespace ParkingSlotAPI.Helpers
                 _pageSize = (value > maxPageSize) ? maxPageSize : value;
             }
         }
+
+        public string AgencyType { get; set; }
+
+        
     }
 }

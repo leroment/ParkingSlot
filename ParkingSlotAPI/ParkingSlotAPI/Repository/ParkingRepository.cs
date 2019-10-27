@@ -10,7 +10,7 @@ namespace ParkingSlotAPI.Repository
 {
     public interface IParkingRepository
     {
-        IEnumerable<Carpark> GetCarparks(CarparkResourceParameters carparkResourceParameters);
+        PagedList<Carpark> GetCarparks(CarparkResourceParameters carparkResourceParameters);
         Carpark GetCarpark(Guid carparkId);
         IEnumerable<Carpark> GetAllCarparks();
         void AddCarpark(Carpark carpark);
@@ -33,14 +33,28 @@ namespace ParkingSlotAPI.Repository
             return _context.Carparks.OrderBy(a => a.CarparkId);
         }
 
-        public IEnumerable<Carpark> GetCarparks(CarparkResourceParameters carparkResourceParameters)
+        public PagedList<Carpark> GetCarparks(CarparkResourceParameters carparkResourceParameters)
         {
-            return _context.Carparks
-                .OrderBy(a => a.CarparkId)
-                .Skip(carparkResourceParameters.PageSize
-                * (carparkResourceParameters.PageNumber - 1))
-                .Take(carparkResourceParameters.PageSize)
-                .ToList();
+            var collectionBeforePaging = _context.Carparks
+                .OrderBy(a => a.CarparkId).AsQueryable();
+
+
+            // filter agency type
+            if (!string.IsNullOrEmpty(carparkResourceParameters.AgencyType))
+            {
+                var agencyTypeForWhereClause = carparkResourceParameters.AgencyType.Trim();
+
+                if (agencyTypeForWhereClause == "HDB" || agencyTypeForWhereClause == "LTA" || agencyTypeForWhereClause == "URA")
+                {
+                    collectionBeforePaging = collectionBeforePaging.Where(a => a.AgencyType == agencyTypeForWhereClause);
+                }
+                else
+                {
+                    throw new AppException($"Cannot find the specified agency type {carparkResourceParameters.AgencyType}.");
+                }
+            }
+
+            return PagedList<Carpark>.Create(collectionBeforePaging, carparkResourceParameters.PageNumber, carparkResourceParameters.PageSize);
         }
 
         public Carpark GetCarpark(Guid carparkId)

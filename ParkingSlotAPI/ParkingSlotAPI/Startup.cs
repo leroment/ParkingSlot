@@ -11,6 +11,8 @@ using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -77,6 +79,13 @@ namespace ParkingSlotAPI
             services.AddScoped<IParkingRepository, ParkingRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IFetchPublicAPI, FetchPublicAPI>();
+            services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
+            services.AddScoped<IUrlHelper, UrlHelper>(implementationFactory =>
+            {
+                var actionContext =
+                implementationFactory.GetService<IActionContextAccessor>().ActionContext;
+                return new UrlHelper(actionContext);
+            });
 
             var connectionString = Configuration["connectionStrings:parkingDBConnectionString"];
             services.AddDbContext<ParkingContext>(o => o.UseSqlServer(connectionString));

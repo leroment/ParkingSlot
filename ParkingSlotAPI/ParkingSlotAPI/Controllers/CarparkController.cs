@@ -25,15 +25,17 @@ namespace ParkingSlotAPI.Controllers
     {
         private readonly IParkingRepository _parkingRepository;
         private readonly IMapper _mapper;
+        private readonly IUrlHelper _urlHelper;
 
         FetchPublicAPI publicAPI = new FetchPublicAPI();
 
         const int maxParkingPageSize = 20;
 
-        public CarparkController(IParkingRepository parkingRepository, IMapper mapper)
+        public CarparkController(IParkingRepository parkingRepository, IMapper mapper, IUrlHelper urlHelper)
         {
             _parkingRepository = parkingRepository;
             _mapper = mapper;
+            _urlHelper = urlHelper;
         }
 
         [HttpGet("All")]
@@ -51,7 +53,7 @@ namespace ParkingSlotAPI.Controllers
 
         }
 
-        [HttpGet]
+        [HttpGet(Name = "GetCarparks")]
         public IActionResult GetCarparks([FromQuery] CarparkResourceParameters carparkResourceParameters)
         {
 
@@ -61,6 +63,30 @@ namespace ParkingSlotAPI.Controllers
             {
                 return NotFound();
             }
+
+            var previousPageLink = carparksFromRepo.HasPrevious ?
+                CreateCarparksResourceUri(carparkResourceParameters,
+                ResourceUriType.PreviousPage) : null;
+
+            var x = CreateCarparksResourceUri(carparkResourceParameters,
+                ResourceUriType.NextPage);
+
+            var nextPageLink = carparksFromRepo.HasNext ?
+                CreateCarparksResourceUri(carparkResourceParameters,
+                ResourceUriType.NextPage) : null;
+
+            var paginationMetadata = new
+            {
+                totalCount = carparksFromRepo.TotalCount,
+                pageSize = carparksFromRepo.PageSize,
+                currentPage = carparksFromRepo.CurrentPage,
+                totalPages = carparksFromRepo.TotalPages,
+                previousPageLink = previousPageLink,
+                nextPageLink = nextPageLink
+            };
+
+            Response.Headers.Add("X-Pagination",
+                Newtonsoft.Json.JsonConvert.SerializeObject(paginationMetadata));
 
             var minutes = (DateTime.Now - Timer.RequestedDT).TotalMinutes;
 
@@ -95,6 +121,37 @@ namespace ParkingSlotAPI.Controllers
             {
                 var carparks = _mapper.Map<IEnumerable<CarparkDto>>(carparksFromRepo);
                 return Ok(carparks);
+            }
+        }
+
+        private string CreateCarparksResourceUri( CarparkResourceParameters carparkResourceParameters, ResourceUriType type)
+        {
+            switch (type)
+            {
+                case ResourceUriType.PreviousPage:
+                    return _urlHelper.Link("GetCarparks",
+                        new
+                        {
+                            agencyType = carparkResourceParameters.AgencyType,
+                            pageNumber = carparkResourceParameters.PageNumber - 1,
+                            pageSize = carparkResourceParameters.PageSize
+                        });
+                case ResourceUriType.NextPage:
+                    return _urlHelper.Link("GetCarparks",
+                        new
+                        {
+                            agencyType = carparkResourceParameters.AgencyType,
+                            pageNumber = carparkResourceParameters.PageNumber + 1,
+                            pageSize = carparkResourceParameters.PageSize
+                        });
+                default:
+                    return _urlHelper.Link("GetCarparks",
+                        new
+                        {
+                            agencyType = carparkResourceParameters.AgencyType,
+                            pageNumber = carparkResourceParameters.PageNumber,
+                            pageSize = carparkResourceParameters.PageSize
+                        });
             }
         }
 

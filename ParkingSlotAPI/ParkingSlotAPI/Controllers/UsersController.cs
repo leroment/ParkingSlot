@@ -120,6 +120,7 @@ namespace ParkingSlotAPI.Controllers
             }
         }
 
+        [AllowAnonymous]
         [HttpPut("{id}")]
         public IActionResult UpdateUser(Guid id, [FromBody]UserForUpdateDto userForUpdateDto)
         {

@@ -20,7 +20,7 @@ namespace ParkingSlotAPI.Profiles
 
             CreateMap<UserForCreationDto, User>();
 
-            
+            CreateMap<UserForUpdateDto, User>();
 
         }
     }
