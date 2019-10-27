@@ -78,6 +78,9 @@ export default {
         ADDFAVORITES(state, carparkId) {
             state.favorites.push(carparkId)
         },
+        CLEARFAVORITES(state) {
+            state.favorites.length = 0
+        },
         REMOVEFAVORITES(state, carparkId) {
             var index = state.favorites.indexOf(carparkId);
             if (index > -1) {
@@ -170,10 +173,13 @@ export default {
                 axios
                     .get(
                         "https://parkingslotapi.azurewebsites.net/api/users/" +
-                        this.$store.getters.USERID +
+                        store.getters.USERID +
                         "/favorites"
                     )
                     .then(function (response) {
+                        store.commit("CLEARFAVORITES"); //Clear in store
+                        
+                        //console.log(response);
 
                         if (response.data.length != 0) {
                             for (var i = 0; i < response.data.length; i++) {
@@ -181,7 +187,7 @@ export default {
                                 store.commit('ADDFAVORITES', response.data[i].carparkId);
                             }
                         }
-                        resolve(true);
+                        resolve(response);
                     }).catch(error => {
                         reject(error);
                     })
@@ -190,9 +196,9 @@ export default {
         DELETEFAVORITE: ({ commit }, carparkId) => {
             return new Promise((resolve, reject) => {
                 axios.delete("https://parkingslotapi.azurewebsites.net/api/users/" +
-                    this.$store.getters.USERID +
+                    store.getters.USERID +
                     "/favorites/" + carparkId).then(function (response) {
-                        if (status === 200) {
+                        if (status === 204) {
                             //delete carparkId from favorites
                             store.commit('REMOVEFAVORITES', carparkId);
                             resolve(true);
