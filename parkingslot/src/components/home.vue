@@ -22,12 +22,18 @@
               </template>
             </v-list-item>
           </template>
+          <infinite-loading spinner="spiral" :identifier="infiniteId" @infinite="infiniteHandler">
+            <div slot="no-more">-- End of Event List --</div>
+            <div slot="no-results">-- No Events --</div>
+          </infinite-loading>
+          <a id="back-to-top" href="#" class="btn btn-primary btn-lg back-to-top" role="button">
+            <span class="fas fa-arrow-up"></span>
+          </a>
         </v-list-item-group>
       </v-list>
     </v-card>
   </v-content>
 </template>
-
 
 <script>
 export default {
@@ -44,23 +50,30 @@ export default {
         StartDateTime: "",
         EndDateTime: "",
         IsMinPrice: true
-      }
+      },
+      infiniteId: +new Date()
     };
   },
   mounted: function() {
     this.getUserFavorites();
-    this.getCarparkList();
   },
   methods: {
-    getCarparkList: function() {
+    infiniteHandler($state) {
       let cur = this;
       this.axios
         .get("https://parkingslotapi.azurewebsites.net/api/carpark", {
           params: cur.filterConfig
         })
-        .then(function(response) {
-          cur.carparkItem = response.data;
-          cur.addUserFavoritesToList;
+        .then(({ data }) => {
+          setTimeout(() => {
+            if (data.length) {
+              this.filterConfig.PageNumber += 1;
+              this.carparkItem.push(...data);
+              $state.loaded();
+            } else {
+              $state.complete();
+            }
+          }, 500);
         });
     },
     getUserFavorites: function() {
