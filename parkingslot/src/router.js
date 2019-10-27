@@ -9,6 +9,7 @@ const ForgetPassword = () => import('@/components/auth/forgetpassword.vue');
 const Profile = () => import('@/components/profile.vue');
 const Favourite = () => import('@/components/favourite.vue');
 const Map = () => import('@/components/map.vue');
+const Filter = () => import('@/components/utils/filter.vue');
 
 Vue.use(Router);
 
@@ -93,6 +94,11 @@ export default new Router({
       path: '/resetpassword/:userId/:token',
       component: ForgetPassword,
       beforeEnter: ifNotAuthenticated,
+    },
+    {
+      name: 'filter',
+      path: '/filter',
+      component: Filter
     },
     { path: '*', redirect: '/home' }
   ],

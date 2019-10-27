@@ -13,7 +13,20 @@ export default {
         token: localStorage.getItem('access_token') || null,
         isLoggedIn: false,
         userid: "",
-        favorites: []
+        favorites: [],
+        filterConfig: {
+            IsAscending: true,
+            PageSize: 20,
+            PageNumber: 1,
+            VehType: "",
+            AgencyType: "",
+            Price: "",
+            StartDate: "",
+            StartTime: "",
+            EndDate: "",
+            EndTime: "",
+            IsMinPrice: true
+        }
     },
     getters: {
         FIRSTNAME: (state) => {
@@ -45,6 +58,9 @@ export default {
         },
         FAVORITES: (state) => {
             return state.favorites;
+        },
+        FILTER: (state) => {
+            return state.filterConfig
         }
     },
     mutations: {
@@ -83,6 +99,9 @@ export default {
             if (index > -1) {
                 state.favorites.splice(index, 1);
             }
+        },
+        SETFILTERCONFIG(state, filterConfig) {
+            state.filterConfig = filterConfig;
         }
     },
     actions: {
@@ -201,6 +220,12 @@ export default {
                         reject(error);
                     });
             });
+        },
+        UPDATEFILTER: ({ commit }, filterConfig) => {
+            return new Promise((resolve, reject) => {
+                store.commit('SETFILTERCONFIG', filterConfig);
+                resolve(true);
+            })
         }
     }
 };
