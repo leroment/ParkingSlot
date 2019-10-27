@@ -88,7 +88,6 @@ export default {
                         store.commit('SETTOKEN', data.token);
                         store.commit('SETUSERID', data.id);
                         store.commit('SETAUTHSTATUS', true);    
-                        localStorage.setItem('access_token', data.token);
                         resolve(true);
                     }
                 }).catch(error => {
@@ -114,5 +113,43 @@ export default {
                     });
             });
         },
+        UPDATE: ({ commit }, payload) => {
+            return new Promise((resolve, reject) => {
+                /* PUT to the Web API */
+                axios.put(`https://parkingslotapi.azurewebsites.net/api/users/${this.$store.getters.USERID}`, payload).then(({ data, status }) => {
+                    if (status === 200) {
+                        //Update user info to store
+                        //console.log(data);
+                        // store.commit('SETUSERNAME', data.username); 
+                        // store.commit('SETEMAIL', data.email);
+                        // store.commit('SETFIRSTNAME', data.firstName); 
+                        // store.commit('SETLASTNAME', data.lastName); 
+                        // store.commit('SETPHONENO', data.phoneNumber); 
+                        // store.commit('SETROLE', data.role); 
+                        // store.commit('SETTOKEN', data.token);
+                        // store.commit('SETUSERID', data.id);
+                        // store.commit('SETAUTHSTATUS', true);    
+                        resolve(true);
+                    }
+                }).catch(error => {
+                    reject(error);
+                })
+             
+            });
+        },
+        CHANGEPASSWORD: ({ commit }, payload) => {
+            return new Promise((resolve, reject) => {
+                /* PUT to the Web API */
+                axios.post(`https://parkingslotapi.azurewebsites.net/api/users/ResetPassword`, payload).then(({ data, status }) => {
+                    if (status === 200) {
+                        //Update user password
+                        resolve(true);
+                    }
+                }).catch(error => {
+                    reject(error);
+                })
+             
+            });
+        }
     }
 };
