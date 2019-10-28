@@ -1,9 +1,11 @@
 <template>
-  <v-app class="grey lighten-4 box">
-    <navbar></navbar>
-    <router-view class="content"></router-view>
-    <tabbar v-show="this.$store.getters.ISLOGGEDIN"></tabbar>
-  </v-app>
+  <v-layout>
+    <v-app class="grey lighten-4 main">
+      <navbar></navbar>
+      <router-view class="content"></router-view>
+      <tabbar v-show="this.$store.getters.ISLOGGEDIN"></tabbar>
+    </v-app>
+  </v-layout>
 </template>
 <style>
 @import url("./assets/style.css");
@@ -19,12 +21,12 @@ export default {
 };
 </script>
 <style>
-.box {
+.main {
   height: 100% !important;
   width: 100% !important;
 }
-#google-map-container {
+.content{
   margin-top: 48px;
-  margin-bottom: 42px;
+  margin-bottom: 55px;
 }
 </style>

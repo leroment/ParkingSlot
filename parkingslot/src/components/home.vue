@@ -1,8 +1,7 @@
 <template>
-  <v-content>
-    <CarparkFilter @clicked="onFilter"></CarparkFilter>
     <v-card>
-      <v-list two-line>
+          <CarparkFilter @clicked="onFilter"></CarparkFilter>
+      <v-list>
         <v-list-item-group active-class="blue--text">
           <template v-for="item in carparkItem">
             <v-list-item :key="item.carparkName">
@@ -38,7 +37,6 @@
         </v-list-item-group>
       </v-list>
     </v-card>
-  </v-content>
 </template>
 
 <script>

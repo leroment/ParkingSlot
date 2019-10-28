@@ -1,13 +1,15 @@
 <template>
   <v-flex xs12>
     <v-card-text>
-      <v-layout align-end justify-end>
-        <v-btn class="ma-2" @click="openFilter" pull-right outlined fab color="teal">
-          <v-icon v-if="isFiltered">mdi-filter</v-icon>
-          <v-icon v-if="!isFiltered">mdi-filter-outline</v-icon>
-        </v-btn>
-      </v-layout>
-      <v-layout v-if="filterOpen" align-end justify-end class="filterbox">
+      <v-menu offset-y>
+        <template v-slot:activator="{ on }">
+          <v-layout align-end justify-end>
+            <v-btn class="ma-2" v-on="on" @click="openFilter" pull-right outlined fab color="teal">
+              <v-icon v-if="isFiltered">mdi-filter</v-icon>
+              <v-icon v-if="!isFiltered">mdi-filter-outline</v-icon>
+            </v-btn>
+          </v-layout>
+        </template>
         <v-card max-width="500" outlined>
           <v-list-item>
             <v-list-item-content>
@@ -139,7 +141,7 @@
             <v-btn color="blue darken-1" text @click="clearFilter">Clear Filter</v-btn>
           </v-card-actions>
         </v-card>
-      </v-layout>
+      </v-menu>
     </v-card-text>
   </v-flex>
 </template>
@@ -165,19 +167,19 @@ export default {
     openFilter: function() {
       //Get the updated filterConfig settings
       this.filterConfig = this.$store.getters.FILTER;
-      this.filterOpen = !this.filterOpen;
     },
     filterCarparks: function() {
       //filter carparks here.
       this.$emit("clicked", this.filterConfig);
     },
-    clearFilter: function() {
+    clearFilter: function(event) {
+      event.stopPropagation();
       this.filterConfig = {
         //Set back default values
-        IsAscending: true,
+        IsAscending: false,
+        IsMinPrice: false,
         PageSize: 20,
-        PageNumber: 1,
-        IsMinPrice: true
+        PageNumber: 1
       };
     }
   }
@@ -185,8 +187,8 @@ export default {
 </script>
 <style>
 .filterbox {
-  margin-top: -15px;
-  padding: 15px;
+  margin-top: -15px !important;
+  padding: 15px !important;
 }
 
 .filterheader {
