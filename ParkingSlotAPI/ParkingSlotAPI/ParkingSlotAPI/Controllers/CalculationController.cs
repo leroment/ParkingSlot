@@ -39,8 +39,12 @@ namespace ParkingSlotAPI.Controllers
 		[HttpGet("{id}")]
 		public ActionResult Index(Guid id, [FromQuery] DateTime StartTime, [FromQuery] DateTime EndTime, [FromQuery] String vehicleType )
 		{
+			
+			var carpark = ICarparkRateRepository.GetCarparkRateById(id, vehicleType);
+			List<CarparkRate> CarParkRateList = carpark.ToList();
+
 			var duration = 0.0;
-			int dayOfWeek=0;
+			int dayOfWeek = 0;
 			if (EndTime.ToString() == "1/1/0001 12:00:00 AM" && StartTime.ToString() == "1/1/0001 12:00:00 AM")
 			{
 				duration = 60;
@@ -54,42 +58,38 @@ namespace ParkingSlotAPI.Controllers
 			{
 				duration = (EndTime - StartTime).TotalMinutes;
 			}
-			
-
-			var carpark = ICarparkRateRepository.GetCarparkRateById(id, vehicleType, dayOfWeek);
-			List<CarparkRate> asList = carpark.ToList();
 
 
-			
-						var result= new Calculation(StartTime,(int)duration);
+
+			var result= new Calculation(StartTime,(int)duration);
 						int day = result.parkingRate(StartTime);
 						double dayRate;
 						double  dayMin;
-
+			
 						if (day>0&&day<6)
 						{
 
 
-							dayRate = Convert.ToDouble(asList[0].WeekdayRate.Trim('$'));
-							dayMin = Convert.ToDouble(asList[0].WeekdayMin.Trim('m','i','n','s'));
+							dayRate = Convert.ToDouble(CarParkRateList[0].WeekdayRate.Trim('$'));
+							dayMin = Convert.ToDouble(CarParkRateList[0].WeekdayMin.Trim('m','i','n','s'));
 
 						}
 						else if(day==6)
 						{
-							dayRate = Convert.ToDouble(asList[0].SatdayRate.Trim('$'));
-							dayMin = Convert.ToDouble(asList[0].SatdayMin.Trim('m', 'i', 'n', 's'));
+							dayRate = Convert.ToDouble(CarParkRateList[0].SatdayRate.Trim('$'));
+							dayMin = Convert.ToDouble(CarParkRateList[0].SatdayMin.Trim('m', 'i', 'n', 's'));
 						}
 						else
 						{
-							dayRate = Convert.ToDouble(asList[0].SunPHRate.Trim('$'));
-							dayMin = Convert.ToDouble(asList[0].SunPHMin.Trim('m', 'i', 'n', 's'));
+							dayRate = Convert.ToDouble(CarParkRateList[0].SunPHRate.Trim('$'));
+							dayMin = Convert.ToDouble(CarParkRateList[0].SunPHMin.Trim('m', 'i', 'n', 's'));
 						}
 
 
 						var Price = result.calculatePrice(dayRate, dayMin);
 						
 
-			return Ok(new { id, duration , asList, Price, StartTime,EndTime });
+			return Ok(new { id, duration , Price, StartTime,EndTime });
 			
 		}
 
