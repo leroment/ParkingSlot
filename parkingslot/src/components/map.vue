@@ -10,6 +10,7 @@
         </v-container>
       </gmap-info-window>
     </gmap-marker>
+    <CarparkFilter class="filterBtn" id="filter" @clicked="onFilter"></CarparkFilter>
     <v-toolbar id="filterBar" dense floating>
       <v-text-field hide-details prepend-icon="mdi-magnify" single-line></v-text-field>
       <v-btn icon>
@@ -29,12 +30,13 @@
 /*global google*/
 import mapStyles from "@/assets/mapStyle";
 import * as MarkerClusterer from "marker-clusterer-plus";
+import CarparkFilter from "./utils/filter";
 const mapMarker = require("../assets/mapmarker.png");
 const carMarker = require("../assets/usermarker.png");
 var gmap;
 export default {
-  props: {
-    allmarkers: Array
+  components: {
+    CarparkFilter
   },
   data() {
     return {
@@ -46,6 +48,7 @@ export default {
       markers: [],
       markerItem: {},
       carparkItem: {},
+      filterConfig: this.$store.getters.FILTER,
       mapStyle: {
         styles: mapStyles,
         disableDefaultUi: false,
@@ -85,11 +88,16 @@ export default {
     });
   },
   methods: {
+    onFilter(filterConfig) {
+      //Pass the updated filter config
+      //Filter by the markers
+      this.filterConfig = filterConfig;
+    },
     initGmaps: function() {
-      var filterBar = document.getElementById("filterBar");
+      var filterBar = document.getElementById("filter");
       var gpsBtn = document.getElementById("gpsBtn");
       this.mapObject = this.$refs.mapRef.$mapObject;
-      this.mapObject.controls[google.maps.ControlPosition.TOP_CENTER].push(
+      this.mapObject.controls[google.maps.ControlPosition.TOP_RIGHT].push(
         filterBar
       );
       this.mapObject.controls[google.maps.ControlPosition.RIGHT_BOTTOM].push(
@@ -102,7 +110,6 @@ export default {
           lat: parseFloat(position.coords.latitude),
           lng: parseFloat(position.coords.longitude)
         };
-        gmap.setZoom(18);
         this.$refs.mapRef.panTo(this.center);
       });
     },
@@ -172,5 +179,9 @@ export default {
   width: 300px;
   margin-top: 10px !important;
   margin: 0 auto;
+}
+
+.filterBtn .filter input{
+  color: white !important;
 }
 </style>

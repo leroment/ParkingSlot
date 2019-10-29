@@ -152,13 +152,13 @@ export default {
         UPDATE: ({ commit }, payload) => {
             return new Promise((resolve, reject) => {
                 /* PUT to the Web API */
-                axios.put(`https://parkingslotapi.azurewebsites.net/api/users/${this.$store.getters.USERID}`, payload, {headers: {Authorization: store.getters.TOKEN}}).then(({ data, status }) => {
+                axios.put(`https://parkingslotapi.azurewebsites.net/api/users/${this.$store.getters.USERID}`, payload, { headers: { Authorization: store.getters.TOKEN } }).then(({ data, status }) => {
                     if (status === 204) {
                         //Update user info to store
-                        store.commit('SETFIRSTNAME', payload.FirstName); 
-                        store.commit('SETLASTNAME', payload.LastName); 
+                        store.commit('SETFIRSTNAME', payload.FirstName);
+                        store.commit('SETLASTNAME', payload.LastName);
                         store.commit('SETEMAIL', payload.Email);
-                        store.commit('SETPHONENO', payload.PhoneNumber); 
+                        store.commit('SETPHONENO', payload.PhoneNumber);
                         resolve(true);
                     }
                 }).catch(error => {
@@ -191,7 +191,7 @@ export default {
                     )
                     .then(function (response) {
                         store.commit("CLEARFAVORITES"); //Clear in store
-                        
+
                         //console.log(response);
 
                         if (response.data.length != 0) {
@@ -206,16 +206,29 @@ export default {
                     })
             });
         },
+        ADDFAVORITES: ({ commit }, carparkId) => {
+            return new Promise((resolve, reject) => {
+                axios.post(
+                    "https://parkingslotapi.azurewebsites.net/api/users/" + store.getters.USERID + "/favorites",
+                    {
+                        CarparkId: carparkId
+                    }
+                )
+                    .then(function () {
+                        store.commit('ADDFAVORITES', carparkId);
+                        resolve(true);
+                    }).catch(error => {
+                        reject(error);
+                    });
+            })
+        },
         DELETEFAVORITE: ({ commit }, carparkId) => {
             return new Promise((resolve, reject) => {
                 axios.delete("https://parkingslotapi.azurewebsites.net/api/users/" +
                     store.getters.USERID +
                     "/favorites/" + carparkId).then(function (response) {
-                        if (status === 204) {
-                            //delete carparkId from favorites
-                            store.commit('REMOVEFAVORITES', carparkId);
-                            resolve(true);
-                        }
+                        store.commit('REMOVEFAVORITES', carparkId);
+                        resolve(response);                   
                     }).catch(error => {
                         reject(error);
                     });

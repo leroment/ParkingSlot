@@ -1,10 +1,27 @@
 <template>
   <v-flex xs12>
-    <v-card-text>
+    <v-card-text class="filter">
       <v-menu offset-y>
         <template v-slot:activator="{ on }">
-          <v-layout align-end justify-end>
-            <v-btn class="ma-2" v-on="on" @click="openFilter" pull-right outlined fab color="teal">
+          <v-layout>
+            <v-text-field
+              style="margin-top:10px; margin-right: 15px;"
+              hint="Enter carpark name"
+              persistent-hint
+              label="Search"
+              outlined
+            ></v-text-field>
+            <v-btn
+              align-end
+              justify-end
+              style="margin-right: -5px !important; background-color: white;"
+              class="ma-2"
+              v-on="on"
+              @click="openFilter"
+              outlined
+              fab         
+              color="teal"
+            >
               <v-icon v-if="isFiltered">mdi-filter</v-icon>
               <v-icon v-if="!isFiltered">mdi-filter-outline</v-icon>
             </v-btn>
@@ -12,7 +29,7 @@
         </template>
         <v-card max-width="500" outlined>
           <v-list-item>
-            <v-list-item-content>
+            <v-list-item-content @click.stop>
               <div class="filterheader mb-4">Filter carparks by:</div>
               <v-col cols="12" sm="6" md="6">
                 <v-switch v-model="filterConfig.IsAscending" label="Ascending Order"></v-switch>
@@ -169,8 +186,11 @@ export default {
       this.filterConfig = this.$store.getters.FILTER;
     },
     filterCarparks: function() {
-      //filter carparks here.
-      this.$emit("clicked", this.filterConfig);
+      //Update store filter
+      //Pass the filter config to the parent component
+      this.$store.dispatch("UPDATEFILTER", this.filterConfig).then(success => {
+        this.$emit("clicked", this.filterConfig);
+      });
     },
     clearFilter: function(event) {
       event.stopPropagation();
@@ -186,6 +206,11 @@ export default {
 };
 </script>
 <style>
+.filter {
+  margin-top: -10px;
+  margin-bottom: -25px;
+}
+
 .filterbox {
   margin-top: -15px !important;
   padding: 15px !important;

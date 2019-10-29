@@ -4,14 +4,14 @@
       <v-list two-line>
         <v-list-item-group>
           <template v-for="(item, index) in items">
-            <v-list-item :key="item.carparkName" @click="displayCarparkInfo(item)">
+            <v-list-item :key="item.carparkName" @click.stop="displayCarparkInfo(item)">
               <template>
                 <v-list-item-content>
                   <v-list-item-title v-text="item.carparkName"></v-list-item-title>
                   <v-list-item-subtitle v-text="item.carparkLocation"></v-list-item-subtitle>
                 </v-list-item-content>
                 <v-list-item-action>
-                  <v-icon @click="unfavourite(item.id)">mdi-delete</v-icon>
+                  <v-icon @click.stop="unfavourite(item.id)">mdi-delete</v-icon>
                 </v-list-item-action>
               </template>
             </v-list-item>
@@ -40,12 +40,12 @@
             {{"Total Available Motorcycle Lots: " + viewingItem.mAvailability}}
             <br />
             {{"Total Available Heavy Vehicle Lots: " + viewingItem.hvAvailability}}
-             <br />
+            <br />
             {{"Total Lots: " + viewingItem.totalLots}}
             <br />
             {{"Total Car Lots: " + viewingItem.carCapacity}}
             <br />
-            {{"Total Motorcycle Lots:  " + viewingItem.mCapacity}}
+            {{"Total Motorcycle Lots: " + viewingItem.mCapacity}}
             <br />
             {{"Total Heavy Vehicle Lots: " + viewingItem.hvCapacity}}
             <br />
@@ -78,7 +78,8 @@ export default {
     this.fetchFavoritesData();
   },
   methods: {
-    fetchFavoritesData: function() { //Retrieve favorites data (CarparkID)
+    fetchFavoritesData: function() {
+      //Retrieve favorites data (CarparkID)
       //Get request from backend first
       this.$store
         .dispatch("GETFAVORITES")
@@ -98,24 +99,22 @@ export default {
       if (confirm("Are you sure?")) {
         //Send Delete Request to Backend: If succesful, then delete from frontend
         this.$store
-        .dispatch("DELETEFAVORITE", carparkID)
-        .then(success => {
-        console.log(success);
-        })
-        .catch(error => {
-          console.log(error);
-        });
-
-        cur.items.forEach((item, index) => {
-          if (item.id == carparkID) {
-            cur.items.splice(index, 1);
-          }
-        });
-
-        
+          .dispatch("DELETEFAVORITE", carparkID)
+          .then(success => {
+            console.log(success);
+            cur.items.forEach((item, index) => {
+              if (item.id == carparkID) {
+                cur.items.splice(index, 1);
+              }
+            });
+          })
+          .catch(error => {
+            console.log(error);
+          });
       }
     },
-    fetchCarparkInfo: function(carparkID) { //Retrieve Carpark information from GetCarpark API call using CarparkID
+    fetchCarparkInfo: function(carparkID) {
+      //Retrieve Carpark information from GetCarpark API call using CarparkID
       let cur = this;
       this.axios
         .get(
@@ -130,14 +129,38 @@ export default {
               lotType: response.data.lotType,
               agencyType: response.data.agencyType,
               carparkLocation: response.data.address,
-              totalAvailableLots: response.data.totalAvailableLots != -1 ? response.data.totalAvailableLots : "Not Available" ,
-              totalLots:response.data.totalLots != -1 ? response.data.totalLots : "Not Available",
-              carAvailability: response.data.carAvailability != -1 ? response.data.carAvailability : "Not Available", 
-              mAvailability: response.data.mAvailability != -1 ? response.data.mAvailability : "Not Available",
-              hvAvailability:response.data.hvAvailability != -1 ? response.data.hvAvailability : "Not Available",
-              carCapacity: response.data.carCapacity != -1 ? response.data.carCapacity : "Not Available",
-              mCapacity: response.data.mCapacity != -1 ? response.data.mCapacity : "Not Available",
-              hvCapacity: response.data.hvCapacity != -1 ? response.data.hvCapacity : "Not Available",
+              totalAvailableLots:
+                response.data.totalAvailableLots != -1
+                  ? response.data.totalAvailableLots
+                  : "Not Available",
+              totalLots:
+                response.data.totalLots != -1
+                  ? response.data.totalLots
+                  : "Not Available",
+              carAvailability:
+                response.data.carAvailability != -1
+                  ? response.data.carAvailability
+                  : "Not Available",
+              mAvailability:
+                response.data.mAvailability != -1
+                  ? response.data.mAvailability
+                  : "Not Available",
+              hvAvailability:
+                response.data.hvAvailability != -1
+                  ? response.data.hvAvailability
+                  : "Not Available",
+              carCapacity:
+                response.data.carCapacity != -1
+                  ? response.data.carCapacity
+                  : "Not Available",
+              mCapacity:
+                response.data.mCapacity != -1
+                  ? response.data.mCapacity
+                  : "Not Available",
+              hvCapacity:
+                response.data.hvCapacity != -1
+                  ? response.data.hvCapacity
+                  : "Not Available",
               parkingFee: "$1/h"
             });
           }
