@@ -9,6 +9,8 @@
               hint="Enter carpark name"
               persistent-hint
               label="Search"
+              @change="onChange"
+              v-model="filterText"
               outlined
             ></v-text-field>
             <v-btn
@@ -19,7 +21,7 @@
               v-on="on"
               @click="openFilter"
               outlined
-              fab         
+              fab
               color="teal"
             >
               <v-icon v-if="isFiltered">mdi-filter</v-icon>
@@ -167,6 +169,7 @@ import { filter } from "minimatch";
 export default {
   data() {
     return {
+      filterText: "",
       isFiltered: false,
       filterOpen: false,
       filterConfig: this.$store.getters.FILTER,
@@ -184,6 +187,9 @@ export default {
     openFilter: function() {
       //Get the updated filterConfig settings
       this.filterConfig = this.$store.getters.FILTER;
+    },
+    onChange: function() {
+      this.$emit("change", this.filterText);
     },
     filterCarparks: function() {
       //Update store filter

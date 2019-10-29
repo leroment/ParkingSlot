@@ -1,6 +1,6 @@
 <template>
   <v-card>
-    <CarparkFilter @clicked="onFilter"></CarparkFilter>
+    <CarparkFilter @change="onText" @clicked="onFilter"></CarparkFilter>
     <v-list>
       <v-list-item-group active-class="blue--text">
         <template v-for="item in carparkItem">
@@ -60,6 +60,20 @@ export default {
     this.filterConfig.PageNumber = 1;
   },
   methods: {
+    onText(test) {
+      console.log(test);
+      var value = {
+        SearchQuery: test
+      };
+      let cur = this;
+      this.axios
+        .get("https://parkingslotapi.azurewebsites.net/api/carpark", {
+          params: value
+        })
+        .then(function(response) {
+          cur.carparkItem = Object.assign({}, response.data);
+        });
+    },
     onFilter(filterConfig) {
       //Pass the updated filter config
       this.filterConfig = filterConfig;
@@ -101,7 +115,6 @@ export default {
       //fetch from store
       var cur = this;
       cur.$store.dispatch("GETFAVORITES").then(userFavorites => {
-        console.log(userFavorites);
         for (var i = 0; i < cur.carparkItem.length; i++) {
           for (var j = 0; j < userFavorites.data.length; j++) {
             if (
