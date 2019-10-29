@@ -58,71 +58,82 @@ namespace ParkingSlotAPI.Controllers
         [HttpGet(Name = "GetCarparks")]
         public IActionResult GetCarparks([FromQuery] CarparkResourceParameters carparkResourceParameters)
         {
-
-            var carparksFromRepo = _parkingRepository.GetCarparks(carparkResourceParameters);
-
-            if (carparksFromRepo == null)
+            try
             {
-                return NotFound();
-            }
+                var carparksFromRepo = _parkingRepository.GetCarparks(carparkResourceParameters);
 
-            var previousPageLink = carparksFromRepo.HasPrevious ?
-                CreateCarparksResourceUri(carparkResourceParameters,
-                ResourceUriType.PreviousPage) : null;
-
-            var x = CreateCarparksResourceUri(carparkResourceParameters,
-                ResourceUriType.NextPage);
-
-            var nextPageLink = carparksFromRepo.HasNext ?
-                CreateCarparksResourceUri(carparkResourceParameters,
-                ResourceUriType.NextPage) : null;
-
-            var paginationMetadata = new
-            {
-                totalCount = carparksFromRepo.TotalCount,
-                pageSize = carparksFromRepo.PageSize,
-                currentPage = carparksFromRepo.CurrentPage,
-                totalPages = carparksFromRepo.TotalPages,
-                previousPageLink = previousPageLink,
-                nextPageLink = nextPageLink
-            };
-
-            Response.Headers.Add("X-Pagination",
-                Newtonsoft.Json.JsonConvert.SerializeObject(paginationMetadata));
-
-            var minutes = (DateTime.Now - Timer.RequestedDT).TotalMinutes;
-
-            if (minutes > 1)
-            {
-                List<Carpark> carparksToAdd = new List<Carpark>();
-
-                foreach (var carparkFromRepo in carparksFromRepo)
+                if (carparksFromRepo == null)
                 {
-                    if (carparkFromRepo.AgencyType == "HDB")
-                    {
-                        var c = UpdateHDBAvailability(carparkFromRepo);
-                        carparksToAdd.Add(c);
-                    }
-                    else if (carparkFromRepo.AgencyType == "LTA")
-                    {
-                        var c = UpdateLTAAvailability(carparkFromRepo);
-                        carparksToAdd.Add(c);
-                    }
-                    else if (carparkFromRepo.AgencyType == "URA")
-                    {
-                        var c = UpdateURAAvailability(carparkFromRepo);
-                        carparksToAdd.Add(c);
-                    }
+                    return NotFound();
                 }
 
-                var carparks = _mapper.Map<IEnumerable<CarparkDto>>(carparksToAdd);
+                var previousPageLink = carparksFromRepo.HasPrevious ?
+                    CreateCarparksResourceUri(carparkResourceParameters,
+                    ResourceUriType.PreviousPage) : null;
 
-                return Ok(carparks);
+                var x = CreateCarparksResourceUri(carparkResourceParameters,
+                    ResourceUriType.NextPage);
+
+                var nextPageLink = carparksFromRepo.HasNext ?
+                    CreateCarparksResourceUri(carparkResourceParameters,
+                    ResourceUriType.NextPage) : null;
+
+                var paginationMetadata = new
+                {
+                    totalCount = carparksFromRepo.TotalCount,
+                    pageSize = carparksFromRepo.PageSize,
+                    currentPage = carparksFromRepo.CurrentPage,
+                    totalPages = carparksFromRepo.TotalPages,
+                    previousPageLink = previousPageLink,
+                    nextPageLink = nextPageLink
+                };
+
+                Response.Headers.Add("X-Pagination",
+                    Newtonsoft.Json.JsonConvert.SerializeObject(paginationMetadata));
+
+                var minutes = (DateTime.Now - Timer.RequestedDT).TotalMinutes;
+
+                if (minutes > 1)
+                {
+                    List<Carpark> carparksToAdd = new List<Carpark>();
+
+                    foreach (var carparkFromRepo in carparksFromRepo)
+                    {
+                        if (carparkFromRepo.AgencyType == "HDB")
+                        {
+                            var c = UpdateHDBAvailability(carparkFromRepo);
+                            carparksToAdd.Add(c);
+                        }
+                        else if (carparkFromRepo.AgencyType == "LTA")
+                        {
+                            var c = UpdateLTAAvailability(carparkFromRepo);
+                            carparksToAdd.Add(c);
+                        }
+                        else if (carparkFromRepo.AgencyType == "URA")
+                        {
+                            var c = UpdateURAAvailability(carparkFromRepo);
+                            carparksToAdd.Add(c);
+                        }
+                    }
+
+                    var carparks = _mapper.Map<IEnumerable<CarparkDto>>(carparksToAdd);
+
+                    if (!carparks.Any())
+                    {
+                        return NoContent();
+                    }
+
+                    return Ok(carparks);
+                }
+                else
+                {
+                    var carparks = _mapper.Map<IEnumerable<CarparkDto>>(carparksFromRepo);
+                    return Ok(carparks);
+                }
             }
-            else
+            catch (AppException ex)
             {
-                var carparks = _mapper.Map<IEnumerable<CarparkDto>>(carparksFromRepo);
-                return Ok(carparks);
+                return BadRequest(new { message = ex.Message });
             }
         }
 
@@ -134,6 +145,7 @@ namespace ParkingSlotAPI.Controllers
                     return _urlHelper.Link("GetCarparks",
                         new
                         {
+                            searchQuery = carparkResourceParameters.SearchQuery,
                             agencyType = carparkResourceParameters.AgencyType,
                             pageNumber = carparkResourceParameters.PageNumber - 1,
                             pageSize = carparkResourceParameters.PageSize
@@ -142,6 +154,7 @@ namespace ParkingSlotAPI.Controllers
                     return _urlHelper.Link("GetCarparks",
                         new
                         {
+                            searchQuery = carparkResourceParameters.SearchQuery,
                             agencyType = carparkResourceParameters.AgencyType,
                             pageNumber = carparkResourceParameters.PageNumber + 1,
                             pageSize = carparkResourceParameters.PageSize
@@ -150,6 +163,7 @@ namespace ParkingSlotAPI.Controllers
                     return _urlHelper.Link("GetCarparks",
                         new
                         {
+                            searchQuery = carparkResourceParameters.SearchQuery,
                             agencyType = carparkResourceParameters.AgencyType,
                             pageNumber = carparkResourceParameters.PageNumber,
                             pageSize = carparkResourceParameters.PageSize

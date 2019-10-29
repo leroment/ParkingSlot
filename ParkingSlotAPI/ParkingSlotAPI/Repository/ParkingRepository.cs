@@ -35,8 +35,8 @@ namespace ParkingSlotAPI.Repository
 
         public PagedList<Carpark> GetCarparks(CarparkResourceParameters carparkResourceParameters)
         {
-            var collectionBeforePaging = _context.Carparks
-                .OrderBy(a => a.CarparkId).AsQueryable();
+            var error = "";
+            var collectionBeforePaging = _context.Carparks.AsQueryable();
 
             // filter agency type
             if (!string.IsNullOrEmpty(carparkResourceParameters.AgencyType))
@@ -49,8 +49,42 @@ namespace ParkingSlotAPI.Repository
                 }
                 else
                 {
-                    throw new AppException($"Cannot find the specified agency type {carparkResourceParameters.AgencyType}.");
+                    error += $"Cannot find the specified agency type {carparkResourceParameters.AgencyType}. ";
                 }
+            }
+
+            // filter vehicle type
+            if (!string.IsNullOrEmpty(carparkResourceParameters.VehType))
+            {
+                if (carparkResourceParameters.VehType == "Car")
+                {
+                    collectionBeforePaging = collectionBeforePaging.Where(a => a.LotType.Contains('C'));
+                }
+                else if (carparkResourceParameters.VehType == "Motorcycle")
+                {
+                    collectionBeforePaging = collectionBeforePaging.Where(a => a.LotType.Contains('M'));
+                }
+                else if (carparkResourceParameters.VehType == "Heavy Vehicle")
+                {
+                    collectionBeforePaging = collectionBeforePaging.Where(a => a.LotType.Contains('H'));
+                }
+                else
+                {
+                    error += $"Cannot find the specified vehicle type {carparkResourceParameters.VehType}. ";
+                }
+            }
+
+            if (!string.IsNullOrEmpty(carparkResourceParameters.SearchQuery))
+            {
+                var searchQueryForWhereClause = carparkResourceParameters.SearchQuery
+                    .Trim().ToLowerInvariant();
+
+                collectionBeforePaging = collectionBeforePaging.Where(a => a.CarparkName.ToLowerInvariant().Contains(searchQueryForWhereClause));
+            }
+
+            if (error.Any())
+            {
+                throw new AppException(error);
             }
 
             return PagedList<Carpark>.Create(collectionBeforePaging, carparkResourceParameters.PageNumber, carparkResourceParameters.PageSize);

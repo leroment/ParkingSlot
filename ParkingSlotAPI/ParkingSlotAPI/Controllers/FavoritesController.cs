@@ -98,7 +98,7 @@ namespace ParkingSlotAPI.Controllers
             }
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete("{carparkId}")]
         public IActionResult DeleteFavoriteForUser(Guid userId, Guid carparkId)
         {
             if (!_userRepository.UserExists(userId))
