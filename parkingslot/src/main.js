@@ -16,6 +16,10 @@ import * as VueGoogleMaps from 'vue2-google-maps'
 import GmapCluster from 'vue2-google-maps/dist/components/cluster'
 /* 6. Infinite loading */
 import InfiniteLoading from 'vue-infinite-loading';
+/* 7. NProgress */
+import NProgress from 'nprogress';
+import 'nprogress/nprogress.css'
+
 
 // Install Javascript Libraries
 // Must be called before new Vue()
@@ -41,19 +45,28 @@ Vue.use(InfiniteLoading, {
 
 Vue.config.productionTip = false
 
+
 axios.interceptors.request.use(
   config => {
+    NProgress.start();
     const token = localStorage.getItem("access_token");
     if (token) {
       config.headers["Authorization"] = "Bearer " + token;
     }
-    // config.headers['Content-Type'] = 'application/json';
     return config;
   },
   error => {
     Promise.reject(error);
   }
 );
+
+axios.interceptors.response.use(function (response) {
+  NProgress.done();
+  return response;
+}, function (error) {
+  NProgress.done();
+  return Promise.reject(error);
+})
 
 new Vue({
   router,
