@@ -4,7 +4,7 @@
     <v-list>
       <v-list-item-group active-class="blue--text">
         <template v-for="item in carparkItem">
-          <v-list-item :key="item.carparkName">
+          <v-list-item :key="item.id">
             <template>
               <v-list-item-content>
                 <v-list-item-title v-text="item.carparkName"></v-list-item-title>
@@ -60,10 +60,9 @@ export default {
     this.filterConfig.PageNumber = 1;
   },
   methods: {
-    onText(test) {
-      console.log(test);
+    onText(input) {
       var value = {
-        SearchQuery: test
+        SearchQuery: input
       };
       let cur = this;
       this.axios
@@ -80,7 +79,6 @@ export default {
       this.changeType();
     },
     infiniteHandler($state) {
-      let cur = this;
       this.axios
         .get("https://parkingslotapi.azurewebsites.net/api/carpark", {
           params: this.filterConfig
@@ -90,6 +88,7 @@ export default {
             if (data.length) {
               this.filterConfig.PageNumber += 1;
               this.carparkItem.push(...data);
+              //Check for user favorites for every page
               this.getUserFavorites();
               $state.loaded();
             } else {
@@ -103,7 +102,20 @@ export default {
       this.carparkItem = [];
       this.infiniteId += 1;
     },
-    getCarparkItemIndex(id) {
+    getUserFavorites: function() {
+      this.$store.dispatch("GETFAVORITES").then(userFavorites => {
+        for (var j = 0; j < userFavorites.data.length; j++) {
+          var id = userFavorites.data[j].carparkId;
+          var index = this.getCarparkPos(id);
+          if (index != -1) {
+            var item = this.carparkItem[index];
+            item.favorite = true;
+            this.$set(this.carparkItem, index, item);
+          }
+        }
+      });
+    },
+    getCarparkPos(id) {
       var foundIndex = this.carparkItem
         .map(function(x) {
           return x.id;
@@ -111,37 +123,23 @@ export default {
         .indexOf(id);
       return foundIndex;
     },
-    getUserFavorites: function() {
-      //fetch from store
-      var cur = this;
-      cur.$store.dispatch("GETFAVORITES").then(userFavorites => {
-        for (var i = 0; i < cur.carparkItem.length; i++) {
-          for (var j = 0; j < userFavorites.data.length; j++) {
-            if (
-              JSON.stringify(cur.carparkItem[i].id) ===
-              JSON.stringify(userFavorites.data[j].carparkId)
-            ) {
-              //set data to true
-              //cur.carparkItem[i].favorite = true;
-              //cur.carparkId.favorite.$set(i, true);
-            }
-          }
-        }
-      });
-    },
     favorite: function(item) {
-      //console.log(item.id);
       this.$store.dispatch("ADDFAVORITES", item.id).then(success => {
         if (success) {
-          var index = this.getCarparkItemIndex(item.id);
-          this.$set(this.carparkItem[index], favorite, true);
-          //this.carparkItem[index].favorite = true;
+          var index = this.getCarparkPos(item.id);
+          item.favorite = true;
+          this.$set(this.carparkItem, index, item);
         }
       });
     },
     unfavorite: function(item) {
-      //fetch from store
-      //console.log("unliked");
+      this.$store.dispatch("DELETEFAVORITE", item.id).then(success => {
+        if (success) {
+          var index = this.getCarparkPos(item.id);
+          item.favorite = false;
+          this.$set(this.carparkItem, index, item);
+        }
+      });
     }
   }
 };

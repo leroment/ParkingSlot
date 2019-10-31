@@ -9,8 +9,7 @@
               hint="Enter carpark name"
               persistent-hint
               label="Search"
-              @change="onChange"
-              v-model="filterText"
+              v-model.lazy="filterText"
               outlined
             ></v-text-field>
             <v-btn
@@ -183,13 +182,17 @@ export default {
       endtime: null
     };
   },
+  watch: {
+    filterText: function(filterText) {
+      if(this.filterText.length >= 3){
+      this.$emit("change", this.filterText);
+      }
+    }
+  },
   methods: {
     openFilter: function() {
       //Get the updated filterConfig settings
       this.filterConfig = this.$store.getters.FILTER;
-    },
-    onChange: function() {
-      this.$emit("change", this.filterText);
     },
     filterCarparks: function() {
       //Update store filter

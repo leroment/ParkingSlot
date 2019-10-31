@@ -61,9 +61,6 @@
     </v-card>
   </v-content>
 </template>
-
-
-
 <script>
 export default {
   data() {
@@ -101,7 +98,6 @@ export default {
         this.$store
           .dispatch("DELETEFAVORITE", carparkID)
           .then(success => {
-            console.log(success);
             cur.items.forEach((item, index) => {
               if (item.id == carparkID) {
                 cur.items.splice(index, 1);

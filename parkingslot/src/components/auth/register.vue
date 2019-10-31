@@ -10,6 +10,7 @@
               <form @submit.prevent="register">
                 <v-layout row>
                   <v-flex xs12>
+                    <h3>Register</h3>
                     <v-text-field
                       name="firstname"
                       label="First Name"
