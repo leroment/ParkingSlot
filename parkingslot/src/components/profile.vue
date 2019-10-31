@@ -136,8 +136,6 @@ export default {
           this.passwordError = true;
           this.passwordErrorText = "Please enter the correct current password.";
         });
-      
-
     },
     reset() {
       this.updateAccount = !this.updateAccount;

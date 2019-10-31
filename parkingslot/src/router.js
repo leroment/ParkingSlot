@@ -11,6 +11,7 @@ const Profile = () => import('@/components/profile.vue');
 const Favourite = () => import('@/components/favourite.vue');
 const Map = () => import('@/components/map.vue');
 const Filter = () => import('@/components/utils/filter.vue');
+const Admin = () => import('@/components/admin.vue');
 
 Vue.use(Router);
 
@@ -105,6 +106,11 @@ export default new Router({
       name: 'filter',
       path: '/filter',
       component: Filter
+    },
+    {
+      name: 'admin',
+      path: '/admin',
+      component: Admin
     },
     { path: '*', redirect: '/home' }
   ],

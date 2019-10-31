@@ -58,7 +58,7 @@ export default {
         }
         else{
           //route user to page not found
-           this.$router.push("/notfound");
+           this.$router.push("/main");
         }
     });
   },

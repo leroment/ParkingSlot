@@ -180,5 +180,4 @@ export default {
   margin-top: 10px !important;
   margin: 0 auto;
 }
-
 </style>

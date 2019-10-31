@@ -11,7 +11,7 @@
       <div class="flex-grow-1"></div>
       <template>
         <v-btn icon>
-          <v-icon>mdi-magnify</v-icon>
+          <v-icon>mdi-comment-question-outline</v-icon>
         </v-btn>
       </template>
     </v-app-bar>
