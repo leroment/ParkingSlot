@@ -4,7 +4,7 @@
       <v-list two-line>
         <v-list-item-group>
           <template v-for="(item, index) in items">
-            <v-list-item :key="item.carparkName" @click.stop="displayCarparkInfo(item)">
+            <v-list-item :key="item.id" @click.stop="displayCarparkInfo(item)">
               <template>
                 <v-list-item-content>
                   <v-list-item-title v-text="item.carparkName"></v-list-item-title>

@@ -6,11 +6,10 @@
           <v-layout>
             <v-text-field
               style="margin-top:10px; margin-right: 15px;"
-              hint="Enter carpark name"
-              persistent-hint
-              label="Search"
+              placeholder="Enter carpark name"
               v-model.lazy="filterText"
               outlined
+              background-color="white"
             ></v-text-field>
             <v-btn
               align-end
@@ -184,7 +183,9 @@ export default {
   },
   watch: {
     filterText: function(filterText) {
-      if(this.filterText.length >= 3){
+      //When user type more than 2, filter the text
+      //When user delete the input, return back the original list
+      if(this.filterText.length >= 3 || this.filterText.length == 0){
       this.$emit("change", this.filterText);
       }
     }
@@ -217,7 +218,7 @@ export default {
 <style>
 .filter {
   margin-top: -10px;
-  margin-bottom: -25px;
+  margin-bottom: -45px;
 }
 
 .filterbox {
