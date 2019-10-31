@@ -10,6 +10,8 @@ using ParkingSlotAPI.Models;
 using ParkingSlotAPI.Repository;
 using ParkingSlotAPI.Services;
 using ParkingSlotAPI.Entities;
+using System.Collections;
+
 namespace ParkingSlotAPI.Controllers
 {
 	[Route("api/[controller]")]
@@ -42,9 +44,9 @@ namespace ParkingSlotAPI.Controllers
 			
 			var carpark = ICarparkRateRepository.GetCarparkRateById(id, vehicleType);
 			List<CarparkRate> CarParkRateList = carpark.ToList();
-
+			
 			var duration = 0.0;
-			int dayOfWeek = 0;
+			
 			if (EndTime.ToString() == "1/1/0001 12:00:00 AM" && StartTime.ToString() == "1/1/0001 12:00:00 AM")
 			{
 				duration = 60;
@@ -62,35 +64,44 @@ namespace ParkingSlotAPI.Controllers
 
 
 			var result= new Calculation(StartTime,(int)duration);
-						int day = result.parkingRate(StartTime);
-						double dayRate;
-						double  dayMin;
+			List<HoursPerDay> dayOfWeek = result.getparkingDay(StartTime,EndTime);
+
+			double dayRate=0;
+			double dayMin=0;
+			Double Price = 0; 
+			foreach (HoursPerDay EachHoursPerDay in dayOfWeek)
+			{
+				
+
+				if (EachHoursPerDay.getDay() > 0 && EachHoursPerDay.getDay() < 6)
+				{
+
+
+
+					Price += result.calculatePrice(Convert.ToDouble(CarParkRateList[0].WeekdayRate.Trim('$')), Convert.ToDouble(CarParkRateList[0].WeekdayMin.Trim('m', 'i', 'n', 's')));
+				//	dayRate = Convert.ToDouble(CarParkRateList[0].WeekdayRate.Trim('$'));
+				//	dayMin = Convert.ToDouble(CarParkRateList[0].WeekdayMin.Trim('m', 'i', 'n', 's'));
+
+				}
+				else if (EachHoursPerDay.getDay() == 6)
+				{
+					Price += result.calculatePrice(Convert.ToDouble(CarParkRateList[0].SatdayRate.Trim('$')), Convert.ToDouble(CarParkRateList[0].SatdayMin.Trim('m', 'i', 'n', 's')));
+				//	dayRate = Convert.ToDouble(CarParkRateList[0].SatdayRate.Trim('$'));
+					//dayMin = Convert.ToDouble(CarParkRateList[0].SatdayMin.Trim('m', 'i', 'n', 's'));
+				}
+				else
+				{
+					Price += result.calculatePrice(Convert.ToDouble(CarParkRateList[0].SunPHRate.Trim('$')), Convert.ToDouble(CarParkRateList[0].SunPHMin.Trim('m', 'i', 'n', 's')));
+					//dayRate = Convert.ToDouble(CarParkRateList[0].SunPHRate.Trim('$'));
+				//	dayMin = Convert.ToDouble(CarParkRateList[0].SunPHMin.Trim('m', 'i', 'n', 's'));
+				}
+			}
+		
 			
-						if (day>0&&day<6)
-						{
-
-
-							dayRate = Convert.ToDouble(CarParkRateList[0].WeekdayRate.Trim('$'));
-							dayMin = Convert.ToDouble(CarParkRateList[0].WeekdayMin.Trim('m','i','n','s'));
-
-						}
-						else if(day==6)
-						{
-							dayRate = Convert.ToDouble(CarParkRateList[0].SatdayRate.Trim('$'));
-							dayMin = Convert.ToDouble(CarParkRateList[0].SatdayMin.Trim('m', 'i', 'n', 's'));
-						}
-						else
-						{
-							dayRate = Convert.ToDouble(CarParkRateList[0].SunPHRate.Trim('$'));
-							dayMin = Convert.ToDouble(CarParkRateList[0].SunPHMin.Trim('m', 'i', 'n', 's'));
-						}
-
-
-						var Price = result.calculatePrice(dayRate, dayMin);
-						
-
-			return Ok(new { id, duration , Price, StartTime,EndTime });
 			
+			//return Ok(dayOfWeek);
+			return Ok(new { id, duration , Price, StartTime,EndTime, vehicleType });
+
 		}
 
 	}
