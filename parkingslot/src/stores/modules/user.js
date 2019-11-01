@@ -174,7 +174,6 @@ export default {
                         resolve(true);
                     }
                 }).catch(error => {
-                    console.log(error.response);
                     reject(error);
                 })
 
