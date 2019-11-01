@@ -11,7 +11,7 @@
                 <img src="https://randomuser.me/api/portraits/men/81.jpg" alt="Avatar" />
               </v-avatar>
             </v-flex>
-            <v-text-field name="username" label="Username" v-model="userProfile.username"></v-text-field>
+            <v-text-field readonly name="username" label="Username" v-model="userProfile.username"></v-text-field>
             <v-text-field name="firstName" label="First Name" v-model="userProfile.firstName"></v-text-field>
             <v-text-field name="lastName" label="Last Name" v-model="userProfile.lastName"></v-text-field>
             <v-text-field name="email" label="Email Address" v-model="userProfile.Email"></v-text-field>
