@@ -3,8 +3,15 @@
     <v-container fluid>
       <v-layout column>
         <v-card>
-          <v-alert type="error" :value="passwordError">Confirm Password is not the same as new password!</v-alert>
-          <v-alert :value="notifyStatus" dismissible type="success">Your password have been changed successfully!</v-alert>
+          <v-alert
+            type="error"
+            :value="passwordError"
+          >Confirm Password is not the same as new password!</v-alert>
+          <v-alert
+            :value="notifyStatus"
+            dismissible
+            type="success"
+          >Your password have been changed successfully!</v-alert>
           <v-card-text>
             <v-text-field
               name="password"
@@ -20,8 +27,11 @@
             ></v-text-field>
           </v-card-text>
           <v-card-actions>
-            <v-btn color="primary" @click="changePassword">
+            <v-btn color="primary" v-if="!updated" @click="changePassword">
               <v-icon left dark>mdi-check</v-icon>Change Password
+            </v-btn>
+            <v-btn color="primary" v-if="updated" to="/login">
+              <v-icon left dark>mdi-check</v-icon>Login
             </v-btn>
           </v-card-actions>
         </v-card>
@@ -34,37 +44,36 @@
 export default {
   data() {
     return {
+      updated: false,
       userPassword: {
         newpassword: "",
         cfmnewpassword: ""
       },
       notifyStatus: false,
-      passwordError: false,
+      passwordError: false
     };
   },
   created: function() {
-    var userId = this.$route.params.userId;
     var token = this.$route.params.token;
-    this.axios.post(
-      "https://parkingslotapi.azurewebsites.net/api/users/ConfirmPassword",
-      {
-        Id: this.$route.params.userId,
-        Token: token
-      }
-    ).then(response => {
-        console.log(response.status);
-        if(response.status == "200"){
-           //route user to the resetpassword page
-        }
-        else{
-          //route user to page not found
-           this.$router.push("/main");
-        }
+    this.$store.dispatch("CHECKTOKEN", token).catch(error => {
+      this.$router.push("/main");
+      this.error = true;
     });
   },
   methods: {
     changePassword() {
       //update password
+      var userId = this.$route.params.userId;
+      var update = {
+        Id: userId,
+        NewPassword: this.userPassword.newpassword
+      };
+      this.$store.dispatch("SETNEWPASSWORD", update).then(response => {
+        if (response == true) {
+          this.notifyStatus = true;
+          this.updated = true;
+        }
+      });
     }
   }
 };

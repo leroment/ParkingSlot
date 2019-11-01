@@ -28,7 +28,7 @@
               </v-container>
               <v-layout>
                 <v-flex xs12>
-                  <v-btn color="primary" type="submit">Reset Password</v-btn>
+                  <v-btn color="primary" type="submit">Reset</v-btn>
                   <v-btn color="primary" class="ml-5" type="submit" to="/main">Back</v-btn>
                 </v-flex>
               </v-layout>
