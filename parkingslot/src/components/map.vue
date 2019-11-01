@@ -85,6 +85,8 @@ import CarparkFilter from "./utils/filter";
 const mapMarker = require("../assets/mapmarker.png");
 const carMarker = require("../assets/usermarker.png");
 var gmap;
+var directionsDisplay;
+var directionsService;
 export default {
   components: {
     CarparkFilter
@@ -156,6 +158,13 @@ export default {
       this.mapObject.controls[google.maps.ControlPosition.RIGHT_BOTTOM].push(
         gpsBtn
       );
+      //To change the polyline color
+      //polylineOptions:{strokeColor:"#4a4a4a",strokeWeight:5},
+      //Initialise it once
+      directionsDisplay = new google.maps.DirectionsRenderer({
+        suppressMarkers: true,
+        polylineOptions: { strokeColor: "green", strokeWeight: 5 }
+      });
     },
     geolocation: function() {
       navigator.geolocation.getCurrentPosition(position => {
@@ -163,6 +172,8 @@ export default {
           lat: parseFloat(position.coords.latitude),
           lng: parseFloat(position.coords.longitude)
         };
+        this.window_open = false;
+        this.currentinfo = !this.currentinfo;
         this.$refs.mapRef.panTo(this.center);
       });
     },
@@ -233,14 +244,7 @@ export default {
       var destination = new Object();
       destination.lat = parseFloat(markerInfo.lat);
       destination.lng = parseFloat(markerInfo.lng);
-      var directionsService = new google.maps.DirectionsService();
-      //To change the polyline color
-      //polylineOptions:{strokeColor:"#4a4a4a",strokeWeight:5},
-      var directionsDisplay = new google.maps.DirectionsRenderer({
-        suppressMarkers: true,
-        polylineOptions: { strokeColor: "green", strokeWeight: 5 }
-      });
-      //Remove previous routing
+      directionsService = new google.maps.DirectionsService();
       directionsDisplay.setMap(this.$refs.mapRef.$mapObject);
       directionsService.route(
         {
@@ -262,6 +266,7 @@ export default {
         function(response, status) {
           if (status === "OK") {
             directionsDisplay.setDirections(response);
+            console.log(response.routes[0].legs[0].steps);
           } else {
             console.error("Directions request failed due to " + status);
           }
