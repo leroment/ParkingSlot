@@ -1,74 +1,73 @@
 <template>
-  <v-content>
-    <v-card>
-      <v-list two-line>
-        <v-list-item-group>
-          <template v-for="(item, index) in items">
-            <v-list-item :key="item.carparkName" @click.stop="displayCarparkInfo(item)">
-              <template>
-                <v-list-item-content>
-                  <v-list-item-title v-text="item.carparkName"></v-list-item-title>
-                  <v-list-item-subtitle v-text="item.carparkLocation"></v-list-item-subtitle>
-                </v-list-item-content>
-                <v-list-item-action>
-                  <v-icon @click.stop="unfavourite(item.id)">mdi-delete</v-icon>
-                </v-list-item-action>
-              </template>
-            </v-list-item>
-            <v-divider v-if="index + 1 < items.length" :key="index"></v-divider>
-          </template>
-        </v-list-item-group>
-      </v-list>
-      <v-dialog v-model="dialog" width="500">
-        <v-card>
-          <v-card-title class="headline grey lighten-2" primary-title>Carpark Information</v-card-title>
+  <v-card>
+    <v-list two-line>
+      <v-layout justify-center v-if="displayMsg">
+        <h3 style="font-size:22px;font-weight:300;">No carpark favorites... 😱</h3>
+      </v-layout>
+      <v-list-item-group>
+        <template v-for="(item, index) in items">
+          <v-list-item :key="item.id" @click.stop="displayCarparkInfo(item)">
+            <template>
+              <v-list-item-content>
+                <v-list-item-title v-text="item.carparkName"></v-list-item-title>
+                <v-list-item-subtitle v-text="item.carparkLocation"></v-list-item-subtitle>
+              </v-list-item-content>
+              <v-list-item-action>
+                <v-icon @click.stop="unfavourite(item.id)">mdi-delete</v-icon>
+              </v-list-item-action>
+            </template>
+          </v-list-item>
+          <v-divider v-if="index + 1 < items.length" :key="index"></v-divider>
+        </template>
+      </v-list-item-group>
+    </v-list>
+    <v-dialog v-model="dialog" width="500">
+      <v-card>
+        <v-card-title class="headline grey lighten-2" primary-title>Carpark Information</v-card-title>
 
-          <v-card-text>
-            <br />
-            {{"Carpark ID: " + viewingItem.carparkId}}
-            <br />
-            {{"Carpark Name: " + viewingItem.carparkName}}
-            <br />
-            {{"Agency Type: " + viewingItem.agencyType}}
-            <br />
-            {{"Carpark Location: " + viewingItem.carparkLocation}}
-            <br />
-            {{"Total Available Lots: " + viewingItem.totalAvailableLots}}
-            <br />
-            {{"Total Available Car Lots: " + viewingItem.carAvailability}}
-            <br />
-            {{"Total Available Motorcycle Lots: " + viewingItem.mAvailability}}
-            <br />
-            {{"Total Available Heavy Vehicle Lots: " + viewingItem.hvAvailability}}
-            <br />
-            {{"Total Lots: " + viewingItem.totalLots}}
-            <br />
-            {{"Total Car Lots: " + viewingItem.carCapacity}}
-            <br />
-            {{"Total Motorcycle Lots: " + viewingItem.mCapacity}}
-            <br />
-            {{"Total Heavy Vehicle Lots: " + viewingItem.hvCapacity}}
-            <br />
-            {{"Parking Rate: " +viewingItem.parkingFee}}
-          </v-card-text>
+        <v-card-text>
+          <br />
+          {{"Carpark ID: " + viewingItem.carparkId}}
+          <br />
+          {{"Carpark Name: " + viewingItem.carparkName}}
+          <br />
+          {{"Agency Type: " + viewingItem.agencyType}}
+          <br />
+          {{"Carpark Location: " + viewingItem.carparkLocation}}
+          <br />
+          {{"Total Available Lots: " + viewingItem.totalAvailableLots}}
+          <br />
+          {{"Total Available Car Lots: " + viewingItem.carAvailability}}
+          <br />
+          {{"Total Available Motorcycle Lots: " + viewingItem.mAvailability}}
+          <br />
+          {{"Total Available Heavy Vehicle Lots: " + viewingItem.hvAvailability}}
+          <br />
+          {{"Total Lots: " + viewingItem.totalLots}}
+          <br />
+          {{"Total Car Lots: " + viewingItem.carCapacity}}
+          <br />
+          {{"Total Motorcycle Lots: " + viewingItem.mCapacity}}
+          <br />
+          {{"Total Heavy Vehicle Lots: " + viewingItem.hvCapacity}}
+          <br />
+          {{"Parking Rate: " +viewingItem.parkingFee}}
+        </v-card-text>
 
-          <v-card-actions>
-            <div class="flex-grow-1"></div>
-            <v-btn color="primary" text @click="dialog = false">Go Back</v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-dialog>
-    </v-card>
-  </v-content>
+        <v-card-actions>
+          <div class="flex-grow-1"></div>
+          <v-btn color="primary" text @click="dialog = false">Go Back</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+  </v-card>
 </template>
-
-
-
 <script>
 export default {
   data() {
     return {
       dialog: false,
+      displayMsg: true,
       selected: [],
       items: [],
       viewingItem: {}
@@ -85,9 +84,15 @@ export default {
         .dispatch("GETFAVORITES")
         .then(success => {
           var idArr = this.$store.getters.FAVORITES.slice();
-          idArr.forEach(carparkID => {
-            this.fetchCarparkInfo(carparkID);
-          });
+          if (idArr.length > 0) {
+            this.displayMsg = false;
+            idArr.forEach(carparkID => {
+              this.fetchCarparkInfo(carparkID);
+            });
+          }
+          else{
+            this.displayMsg = true;
+          }
         })
         .catch(error => {
           console.log(error);
@@ -101,12 +106,14 @@ export default {
         this.$store
           .dispatch("DELETEFAVORITE", carparkID)
           .then(success => {
-            console.log(success);
             cur.items.forEach((item, index) => {
               if (item.id == carparkID) {
                 cur.items.splice(index, 1);
               }
             });
+            if(cur.items.length == 0){
+              this.displayMsg = true;
+            }
           })
           .catch(error => {
             console.log(error);

@@ -180,8 +180,4 @@ export default {
   margin-top: 10px !important;
   margin: 0 auto;
 }
-
-.filterBtn .filter input{
-  color: white !important;
-}
 </style>

@@ -6,10 +6,12 @@ const Home = () => import('@/components/home.vue');
 const Login = () => import('@/components/auth/login.vue');
 const Register = () => import('@/components/auth/register.vue');
 const ForgetPassword = () => import('@/components/auth/forgetpassword.vue');
+const ResetPassword = () => import('@/components/auth/resetpassword.vue');
 const Profile = () => import('@/components/profile.vue');
 const Favourite = () => import('@/components/favourite.vue');
 const Map = () => import('@/components/map.vue');
 const Filter = () => import('@/components/utils/filter.vue');
+const Admin = () => import('@/components/admin.vue');
 
 Vue.use(Router);
 
@@ -90,15 +92,25 @@ export default new Router({
       beforeEnter: ifAuthenticated,
     },
     {
-      name: 'resetpassword',
-      path: '/resetpassword/:userId/:token',
+      name: 'forgot',
+      path: '/forgot',
       component: ForgetPassword,
       beforeEnter: ifNotAuthenticated,
+    },
+    {
+      name: 'resetpassword',
+      path: '/resetpassword/:userId/:token',
+      component: ResetPassword,
     },
     {
       name: 'filter',
       path: '/filter',
       component: Filter
+    },
+    {
+      name: 'admin',
+      path: '/admin',
+      component: Admin
     },
     { path: '*', redirect: '/home' }
   ],

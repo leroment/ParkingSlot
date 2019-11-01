@@ -1,10 +1,10 @@
 <template>
   <v-card>
-    <CarparkFilter @clicked="onFilter"></CarparkFilter>
+    <CarparkFilter @change="onText" @clicked="onFilter"></CarparkFilter>
     <v-list>
       <v-list-item-group active-class="blue--text">
         <template v-for="item in carparkItem">
-          <v-list-item :key="item.carparkName">
+          <v-list-item :key="item.id" @click.stop="displayCarparkInfo(item)">
             <template>
               <v-list-item-content>
                 <v-list-item-title v-text="item.carparkName"></v-list-item-title>
@@ -17,10 +17,10 @@
                 ></v-list-item-action-text>
                 <v-icon
                   v-if="item.favorite == false || item.favorite == undefined"
-                  @click="favorite(item)"
+                  @click.stop="favorite(item)"
                   color="grey lighten-1"
                 >mdi-heart-outline</v-icon>
-                <v-icon v-else @click="unfavorite(item)" color="red">mdi-heart</v-icon>
+                <v-icon v-else @click.stop="unfavorite(item)" color="red">mdi-heart</v-icon>
               </v-list-item-action>
             </template>
           </v-list-item>
@@ -39,6 +39,55 @@
         </a>
       </v-list-item-group>
     </v-list>
+    <v-dialog v-model="dialog" width="500">
+      <v-card>
+        <v-card-title class="headline grey lighten-2" primary-title>Carpark Information</v-card-title>
+        <v-card-text>
+          <v-container>
+            <v-row>
+              <span class="body-1">Carpark ID: {{ viewingItem.carparkId }}</span>
+            </v-row>
+            <v-row>
+              <span class="body-1">Carpark Name: {{ viewingItem.name }}</span>
+            </v-row>
+            <v-row>
+              <span class="body-1">Agency Type: {{ viewingItem.agency }}</span>
+            </v-row>
+            <v-row>
+              <span class="body-1">Address: {{ viewingItem.address }}</span>
+            </v-row>
+            <v-row v-if="viewingItem.totalAvailableLots != '-1'">
+              <span class="body-1">Total Available Lots: {{ viewingItem.totalAvailableLots }}</span>
+            </v-row>
+            <v-row v-if="viewingItem.totalLots != '-1'">
+              <span class="body-1">Total Lots: {{ viewingItem.totalLots }}</span>
+            </v-row>
+            <v-row v-if="viewingItem.carAvailability != '-1'">
+              <span class="body-1">Car Availability: {{ viewingItem.carAvailability }}</span>
+            </v-row>
+            <v-row v-if="viewingItem.mAvailability != '-1'">
+              <span class="body-1">Motorcycle Availability: {{ viewingItem.mAvailability }}</span>
+            </v-row>
+            <v-row v-if="viewingItem.hvAvailability != '-1'">
+              <span class="body-1">Heavy Vehicle Availability: {{ viewingItem.hvAvailability }}</span>
+            </v-row>
+            <v-row v-if="viewingItem.carCapacity != '-1'">
+              <span class="body-1">Car Capacity: {{ viewingItem.carCapacity }}</span>
+            </v-row>
+            <v-row v-if="viewingItem.mCapacity != '-1'">
+              <span class="body-1">Motorcycle Capacity: {{ viewingItem.mCapacity }}</span>
+            </v-row>
+            <v-row v-if="viewingItem.hvCapacity != '-1'">
+              <span class="body-1">Heavy Vehicle Capacity: {{ viewingItem.hvCapacity }}</span>
+            </v-row>
+          </v-container>
+        </v-card-text>
+        <v-card-actions>
+          <div class="flex-grow-1"></div>
+          <v-btn color="primary" text @click="dialog = false">Go Back</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-card>
 </template>
 
@@ -50,7 +99,9 @@ export default {
   },
   data() {
     return {
+      dialog: false,
       carparkItem: [],
+      viewingItem: {},
       infiniteId: +new Date(),
       filterConfig: this.$store.getters.FILTER
     };
@@ -60,13 +111,28 @@ export default {
     this.filterConfig.PageNumber = 1;
   },
   methods: {
+    onText(input) {
+      var value = {
+        SearchQuery: input
+      };
+      let cur = this;
+      this.axios
+        .get("https://parkingslotapi.azurewebsites.net/api/carpark", {
+          params: value
+        })
+        .then(function(response) {
+          if (response.data.length > 0) {
+            cur.carparkItem = Object.assign({}, response.data);
+          } else {
+          }
+        });
+    },
     onFilter(filterConfig) {
       //Pass the updated filter config
       this.filterConfig = filterConfig;
       this.changeType();
     },
     infiniteHandler($state) {
-      let cur = this;
       this.axios
         .get("https://parkingslotapi.azurewebsites.net/api/carpark", {
           params: this.filterConfig
@@ -76,6 +142,7 @@ export default {
             if (data.length) {
               this.filterConfig.PageNumber += 1;
               this.carparkItem.push(...data);
+              //Check for user favorites for every page
               this.getUserFavorites();
               $state.loaded();
             } else {
@@ -89,7 +156,20 @@ export default {
       this.carparkItem = [];
       this.infiniteId += 1;
     },
-    getCarparkItemIndex(id) {
+    getUserFavorites: function() {
+      this.$store.dispatch("GETFAVORITES").then(userFavorites => {
+        for (var j = 0; j < userFavorites.data.length; j++) {
+          var id = userFavorites.data[j].carparkId;
+          var index = this.getCarparkPos(id);
+          if (index != -1) {
+            var item = this.carparkItem[index];
+            item.favorite = true;
+            this.$set(this.carparkItem, index, item);
+          }
+        }
+      });
+    },
+    getCarparkPos(id) {
       var foundIndex = this.carparkItem
         .map(function(x) {
           return x.id;
@@ -97,38 +177,27 @@ export default {
         .indexOf(id);
       return foundIndex;
     },
-    getUserFavorites: function() {
-      //fetch from store
-      var cur = this;
-      cur.$store.dispatch("GETFAVORITES").then(userFavorites => {
-        console.log(userFavorites);
-        for (var i = 0; i < cur.carparkItem.length; i++) {
-          for (var j = 0; j < userFavorites.data.length; j++) {
-            if (
-              JSON.stringify(cur.carparkItem[i].id) ===
-              JSON.stringify(userFavorites.data[j].carparkId)
-            ) {
-              //set data to true
-              //cur.carparkItem[i].favorite = true;
-              //cur.carparkId.favorite.$set(i, true);
-            }
-          }
-        }
-      });
-    },
     favorite: function(item) {
-      //console.log(item.id);
       this.$store.dispatch("ADDFAVORITES", item.id).then(success => {
         if (success) {
-          var index = this.getCarparkItemIndex(item.id);
-          this.$set(this.carparkItem[index], favorite, true);
-          //this.carparkItem[index].favorite = true;
+          var index = this.getCarparkPos(item.id);
+          item.favorite = true;
+          this.$set(this.carparkItem, index, item);
         }
       });
     },
     unfavorite: function(item) {
-      //fetch from store
-      //console.log("unliked");
+      this.$store.dispatch("DELETEFAVORITE", item.id).then(success => {
+        if (success) {
+          var index = this.getCarparkPos(item.id);
+          item.favorite = false;
+          this.$set(this.carparkItem, index, item);
+        }
+      });
+    },
+    displayCarparkInfo: function(item) {
+      this.viewingItem = item;
+      this.dialog = true;
     }
   }
 };

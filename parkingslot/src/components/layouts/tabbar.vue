@@ -17,6 +17,10 @@
         <span>Profile</span>
         <v-icon>mdi-face</v-icon>
       </v-btn>
+      <v-btn v-if="this.$store.getters.ROLE == 'Admin'" to="/admin">
+        <span>Admin</span>
+        <v-icon>mdi-auto-fix</v-icon>
+      </v-btn>
     </v-bottom-navigation>
   </div>
 </template>

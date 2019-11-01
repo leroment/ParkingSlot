@@ -6,10 +6,10 @@
           <v-layout>
             <v-text-field
               style="margin-top:10px; margin-right: 15px;"
-              hint="Enter carpark name"
-              persistent-hint
-              label="Search"
+              placeholder="Enter carpark name"
+              v-model.lazy="filterText"
               outlined
+              background-color="white"
             ></v-text-field>
             <v-btn
               align-end
@@ -19,7 +19,7 @@
               v-on="on"
               @click="openFilter"
               outlined
-              fab         
+              fab
               color="teal"
             >
               <v-icon v-if="isFiltered">mdi-filter</v-icon>
@@ -167,6 +167,7 @@ import { filter } from "minimatch";
 export default {
   data() {
     return {
+      filterText: "",
       isFiltered: false,
       filterOpen: false,
       filterConfig: this.$store.getters.FILTER,
@@ -179,6 +180,15 @@ export default {
       starttime: null,
       endtime: null
     };
+  },
+  watch: {
+    filterText: function(filterText) {
+      //When user type more than 2, filter the text
+      //When user delete the input, return back the original list
+      if(this.filterText.length >= 3 || this.filterText.length == 0){
+      this.$emit("change", this.filterText);
+      }
+    }
   },
   methods: {
     openFilter: function() {
@@ -208,7 +218,7 @@ export default {
 <style>
 .filter {
   margin-top: -10px;
-  margin-bottom: -25px;
+  margin-bottom: -45px;
 }
 
 .filterbox {

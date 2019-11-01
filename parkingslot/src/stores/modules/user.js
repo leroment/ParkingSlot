@@ -10,7 +10,7 @@ export default {
         email: "",
         phoneNo: "",
         role: "",
-        token: localStorage.getItem('access_token') || null,
+        token: null,
         isLoggedIn: false,
         userid: "",
         favorites: [],
@@ -123,7 +123,6 @@ export default {
                         store.commit('SETTOKEN', data.token);
                         store.commit('SETUSERID', data.id);
                         store.commit('SETAUTHSTATUS', true);
-                        localStorage.setItem('access_token', data.token);
                         resolve(true);
                     }
                 }).catch(error => {
@@ -149,6 +148,19 @@ export default {
                     });
             });
         },
+        CHECKTOKEN: ({ commit }, token) => {
+            return new Promise((resolve, reject) => {
+                axios
+                    .post("https://parkingslotapi.azurewebsites.net/api/users/checktoken", {
+                        Token: token
+                    })
+                    .then(function (response) {
+                        resolve(true);
+                    }).catch(error => {
+                        reject(error);
+                    });
+            })
+        },
         UPDATE: ({ commit }, payload) => {
             return new Promise((resolve, reject) => {
                 /* PUT to the Web API */
@@ -170,16 +182,20 @@ export default {
         },
         CHANGEPASSWORD: ({ commit }, payload) => {
             return new Promise((resolve, reject) => {
-                /* PUT to the Web API */
-                axios.post(`https://parkingslotapi.azurewebsites.net/api/users/ResetPassword`, payload).then(({ data, status }) => {
-                    if (status === 200) {
-                        //Update user password
-                        resolve(true);
-                    }
+                axios.post("https://parkingslotapi.azurewebsites.net/api/users/resetpassword", payload).then(function (response) {
+                    resolve(true);
                 }).catch(error => {
                     reject(error);
                 })
-
+            });
+        },
+        SETNEWPASSWORD: ({ commit }, Update) => {
+            return new Promise((resolve, reject) => {
+                axios.post("https://parkingslotapi.azurewebsites.net/api/users/confirmpassword", Update).then(function (response) {
+                    resolve(true);
+                }).catch(error => {
+                    reject(error);
+                })
             });
         },
         GETFAVORITES: ({ commit }) => {
@@ -192,9 +208,6 @@ export default {
                     )
                     .then(function (response) {
                         store.commit("CLEARFAVORITES"); //Clear in store
-
-                        //console.log(response);
-
                         if (response.data.length != 0) {
                             for (var i = 0; i < response.data.length; i++) {
                                 //push each carpark id into the array
@@ -229,7 +242,7 @@ export default {
                     store.getters.USERID +
                     "/favorites/" + carparkId).then(function (response) {
                         store.commit('REMOVEFAVORITES', carparkId);
-                        resolve(response);                   
+                        resolve(response);
                     }).catch(error => {
                         reject(error);
                     });

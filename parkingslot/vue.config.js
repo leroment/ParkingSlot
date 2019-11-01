@@ -2,7 +2,7 @@ module.exports = {
   configureWebpack: {
   },
   devServer: {
-    host: '0.0.0.0',
+    host: 'localhost',
     hot: true,
     port: 8080,
     open: 'Chrome',

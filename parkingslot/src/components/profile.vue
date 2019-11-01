@@ -87,12 +87,11 @@ export default {
       /* Axios PUT Req to update */
       /* change state back to*/
       /* update vuex state for username */
-      console.log(this.userProfile.username);
       this.$store
         .dispatch("UPDATE", {
           FirstName: this.userProfile.firstName,
           LastName: this.userProfile.lastName,
-          Email:this.userProfile.Email,
+          Email: this.userProfile.Email,
           PhoneNumber: this.userProfile.Contact
         })
         .then(success => {
@@ -105,39 +104,32 @@ export default {
         });
     },
     updatePassword() {
-      /* Axios Post Req to update */
-      /* change state back to*/
-      if (this.userPassword.newpassword != this.userPassword.cfmnewpassword){
+      if (this.userPassword.newpassword != this.userPassword.cfmnewpassword) {
         this.passwordError = true;
-        this.passwordErrorText = "New passwords do not match."
+        this.passwordErrorText = "New passwords do not match.";
         return;
       }
       this.$store
         .dispatch("CHANGEPASSWORD", {
-          	"Email" : this.userProfile.Email,
-            "Token" : this.$store.getters.TOKEN,
-            "OldPassword" : this.userPassword.currentpassword,
-            "NewPassword" : this.userPassword.newpassword,
-            "username" : this.userProfile.username
+          OldPassword: this.userPassword.currentpassword,
+          NewPassword: this.userPassword.newpassword,
+          Username: this.userProfile.username,
         })
-        .then(() => {
-            this.passwordError = false;
-            this.notifyStatus = true;
-            this.notifyText = "Password have been successfully updated!";
-            this.updateAccount = true;
+        .then(success => {
+          this.passwordError = false;
+          this.notifyStatus = true;
+          this.notifyText = "Password have been successfully updated!";
+          this.updateAccount = true;
 
-            //Clear fields
-            this.userPassword.currentpassword = "";
-            this.userPassword.newpassword = "";
-            this.userPassword.cfmnewpassword = "";
-            
+          //Clear fields
+          this.userPassword.currentpassword = "";
+          this.userPassword.newpassword = "";
+          this.userPassword.cfmnewpassword = "";
         })
-        .catch(() => {
+        .catch((error) => {
           this.passwordError = true;
           this.passwordErrorText = "Please enter the correct current password.";
         });
-      
-
     },
     reset() {
       this.updateAccount = !this.updateAccount;

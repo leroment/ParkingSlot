@@ -33,7 +33,7 @@
               <div class="text-center">
                 <p>
                   Lost your password? Reset
-                  <v-btn icon>here</v-btn>
+                  <v-btn icon to="/forgot">here</v-btn>
                 </p>
               </div>
             </v-flex>

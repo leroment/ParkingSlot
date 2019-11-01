@@ -148,7 +148,11 @@ namespace ParkingSlotAPI.Repository
             user.PasswordSalt = passwordSalt;
 
             _context.Users.Update(user);
-            _context.SaveChanges(); 
+
+            if (!Save())
+            {
+                throw new AppException("Error in updating password.");
+            }
         }
 
         public void DeleteUser(User user)
