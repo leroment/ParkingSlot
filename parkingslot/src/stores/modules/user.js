@@ -164,7 +164,7 @@ export default {
         UPDATE: ({ commit }, payload) => {
             return new Promise((resolve, reject) => {
                 /* PUT to the Web API */
-                axios.put(`https://parkingslotapi.azurewebsites.net/api/users/${this.$store.getters.USERID}`, payload, { headers: { Authorization: store.getters.TOKEN } }).then(({ data, status }) => {
+                axios.put(`https://parkingslotapi.azurewebsites.net/api/users/${store.getters.USERID}`, payload, { headers: { Authorization: store.getters.TOKEN } }).then(({ data, status }) => {
                     if (status === 204) {
                         //Update user info to store
                         store.commit('SETFIRSTNAME', payload.FirstName);

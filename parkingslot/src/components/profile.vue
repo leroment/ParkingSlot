@@ -3,7 +3,7 @@
     <v-container fluid>
       <v-layout column>
         <v-card>
-          <v-alert type="error" :value="passwordError">{{passwordErrorText}}</v-alert>
+          <v-alert type="error" :value="generalError">{{generalErrorText}}</v-alert>
           <v-alert :value="notifyStatus" dismissible type="success">{{notifyText}}</v-alert>
           <v-card-text v-show="updateAccount">
             <v-flex class="mb-6">
@@ -11,7 +11,7 @@
                 <img src="https://randomuser.me/api/portraits/men/81.jpg" alt="Avatar" />
               </v-avatar>
             </v-flex>
-            <v-text-field name="username" label="Username" v-model="userProfile.username"></v-text-field>
+            <v-text-field readonly name="username" label="Username" v-model="userProfile.username"></v-text-field>
             <v-text-field name="firstName" label="First Name" v-model="userProfile.firstName"></v-text-field>
             <v-text-field name="lastName" label="Last Name" v-model="userProfile.lastName"></v-text-field>
             <v-text-field name="email" label="Email Address" v-model="userProfile.Email"></v-text-field>
@@ -78,8 +78,8 @@ export default {
       updateAccount: true,
       notifyStatus: false,
       notifyText: "",
-      passwordError: false,
-      passwordErrorText: ""
+      generalError: false,
+      generalErrorText: ""
     };
   },
   methods: {
@@ -95,18 +95,35 @@ export default {
           PhoneNumber: this.userProfile.Contact
         })
         .then(success => {
-          console.log("success");
+          this.generalError = false;
           this.notifyStatus = true;
           this.notifyText = "Profile have been successfully updated!";
         })
         .catch(error => {
-          this.error = true;
+          console.log(error.response.data.FirstName);
+          if (this.userProfile.firstName === "") {
+            this.generalErrorText = error.response.data.FirstName[1];
+            this.generalError = true;      
+          }
+          else if (this.userProfile.lastName === "") {
+            this.generalErrorText = error.response.data.LastName[1];
+            this.generalError = true;      
+          }
+          else if (this.userProfile.Email === "") {
+            this.generalErrorText = error.response.data.Email[1];
+            this.generalError = true;      
+          }
+          else if (this.userProfile.Contact === ""){
+            this.generalErrorText = error.response.data.PhoneNumber[1];
+            this.generalError = true;   
+          }
+          
         });
     },
     updatePassword() {
       if (this.userPassword.newpassword != this.userPassword.cfmnewpassword) {
-        this.passwordError = true;
-        this.passwordErrorText = "New passwords do not match.";
+        this.generalError = true;
+        this.generalErrorText = "New passwords do not match.";
         return;
       }
       this.$store
@@ -116,7 +133,7 @@ export default {
           Username: this.userProfile.username,
         })
         .then(success => {
-          this.passwordError = false;
+          this.generalError = false;
           this.notifyStatus = true;
           this.notifyText = "Password have been successfully updated!";
           this.updateAccount = true;
@@ -127,8 +144,8 @@ export default {
           this.userPassword.cfmnewpassword = "";
         })
         .catch((error) => {
-          this.passwordError = true;
-          this.passwordErrorText = "Please enter the correct current password.";
+          this.generalError = true;
+          this.generalErrorText = "Please enter the correct current password.";
         });
     },
     reset() {

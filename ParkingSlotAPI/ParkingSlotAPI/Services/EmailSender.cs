@@ -20,7 +20,7 @@ namespace ParkingSlotAPI.Services
 
         public Task SendEmailAsync(string email, string subject, string message)
         {
-            return Execute(Options.SendGridKey, subject, message, email);
+            return Execute("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", subject, message, email);
         }
 
         private Task Execute(string apiKey, string subject, string message, string email)
