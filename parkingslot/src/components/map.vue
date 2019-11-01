@@ -10,6 +10,57 @@
         </v-container>
       </gmap-info-window>
     </gmap-marker>
+    <gmap-info-window
+      @closeclick="window_open=false"
+      :opened="window_open"
+      :position="markerPos"
+      :options="{
+              pixelOffset: {
+                width: 0,
+                height: -35
+              }
+            }"
+    >
+      <h2>
+        {{ markerItem.carparkName }}
+        <v-chip
+          v-if="markerItem.agencyType != '-1'"
+          class="ma-2"
+          color="primary"
+          outlined
+        >{{ markerItem.agencyType }}</v-chip>
+      </h2>
+      <v-container class>
+        <v-row v-if="markerItem.address != '-1'">
+          <span class="body-1">Address: {{ markerItem.address }}</span>
+        </v-row>
+        <v-row v-if="markerItem.totalAvailableLots != '-1'">
+          <span class="body-1">Total Available Lots: {{ markerItem.totalAvailableLots }}</span>
+        </v-row>
+        <v-row v-if="markerItem.totalLots != '-1'">
+          <span class="body-1">Total Lots: {{ markerItem.totalLots }}</span>
+        </v-row>
+        <v-row v-if="markerItem.carAvailability != '-1'">
+          <span class="body-1">Car Availability: {{ markerItem.carAvailability }}</span>
+        </v-row>
+        <v-row v-if="markerItem.mAvailability != '-1'">
+          <span class="body-1">Motorcycle Availability: {{ markerItem.mAvailability }}</span>
+        </v-row>
+        <v-row v-if="markerItem.hvAvailability != '-1'">
+          <span class="body-1">Heavy Vehicle Availability: {{ markerItem.hvAvailability }}</span>
+        </v-row>
+        <v-row v-if="markerItem.carCapacity != '-1'">
+          <span class="body-1">Car Capacity: {{ markerItem.carCapacity }}</span>
+        </v-row>
+        <v-row v-if="markerItem.mCapacity != '-1'">
+          <span class="body-1">Motorcycle Capacity: {{ markerItem.mCapacity }}</span>
+        </v-row>
+        <v-row v-if="markerItem.hvCapacity != '-1'">
+          <span class="body-1">Heavy Vehicle Capacity: {{ markerItem.hvCapacity }}</span>
+        </v-row>
+      </v-container>
+      <v-btn class="mt-5" color="info" @click="getDirection(markerPos)" type="submit">Directions</v-btn>
+    </gmap-info-window>
     <CarparkFilter class="filterBtn" id="filter" @clicked="onFilter"></CarparkFilter>
     <v-toolbar id="filterBar" dense floating>
       <v-text-field hide-details prepend-icon="mdi-magnify" single-line></v-text-field>
@@ -69,10 +120,12 @@ export default {
         size: { width: 40, height: 40 },
         scaledSize: { width: 40, height: 40 }
       },
-      infoWindow: {
-        open: true
-      },
-      currentinfo: true
+      currentinfo: true,
+      window_open: false,
+      markerPos: {
+        lat: 1.3521,
+        lng: 103.8198
+      }
     };
   },
   mounted: function() {
@@ -113,6 +166,10 @@ export default {
         this.$refs.mapRef.panTo(this.center);
       });
     },
+    selectUserLocation: function() {
+      this.currentinfo = !this.currentinfo;
+      this.$refs.mapRef.panTo(this.center);
+    },
     fetchCaparks: function() {
       let cur = this;
       this.axios
@@ -138,15 +195,79 @@ export default {
                 map: gmap,
                 icon: cur.markerOptions
               });
+              cur.addClickEvent(marker, userloc.position);
               markers.push(marker);
             }
           }
           var markerCluster = new MarkerClusterer(gmap, markers);
         });
     },
-    selectUserLocation: function() {
-      this.currentinfo = !this.currentinfo;
-      this.$refs.mapRef.panTo(this.center);
+    fetchCarparkItem: function(id) {
+      let cur = this;
+      this.axios
+        .get("https://parkingslotapi.azurewebsites.net/api/carpark/" + id)
+        .then(function(response) {
+          cur.markerItem = response.data;
+        });
+    },
+    addClickEvent: function(marker, markerInfo) {
+      //Add a listener for each marker
+      //Render information on one infowindow
+      //Update the position
+      let cur = this;
+      marker.addListener("click", function() {
+        cur.window_open = true;
+        cur.currentinfo = false;
+        var position = {
+          lat: parseFloat(markerInfo.lat),
+          lng: parseFloat(markerInfo.lng)
+        };
+        cur.markerPos = position;
+        cur.$refs.mapRef.panTo(cur.markerPos);
+        cur.fetchCarparkItem(markerInfo.id);
+      });
+    },
+    getDirection: function(markerInfo) {
+      //Close the infowindow
+      this.window_open = false;
+      var destination = new Object();
+      destination.lat = parseFloat(markerInfo.lat);
+      destination.lng = parseFloat(markerInfo.lng);
+      var directionsService = new google.maps.DirectionsService();
+      //To change the polyline color
+      //polylineOptions:{strokeColor:"#4a4a4a",strokeWeight:5},
+      var directionsDisplay = new google.maps.DirectionsRenderer({
+        suppressMarkers: true,
+        polylineOptions: { strokeColor: "green", strokeWeight: 5 }
+      });
+      //Remove previous routing
+      directionsDisplay.setMap(this.$refs.mapRef.$mapObject);
+      directionsService.route(
+        {
+          origin: this.center,
+          destination: destination,
+          travelMode: "DRIVING"
+          /* More configurations
+          transitOptions: TransitOptions,
+          drivingOptions: DrivingOptions,
+          unitSystem: UnitSystem,
+          waypoints[]: DirectionsWaypoint,
+          optimizeWaypoints: Boolean,
+          provideRouteAlternatives: Boolean,
+          avoidFerries: Boolean,
+          avoidHighways: Boolean,
+          avoidTolls: Boolean,
+          */
+        },
+        function(response, status) {
+          if (status === "OK") {
+            directionsDisplay.setDirections(response);
+          } else {
+            console.error("Directions request failed due to " + status);
+          }
+        }
+      );
+      console.log("Finished getting the route!");
     }
   }
 };
