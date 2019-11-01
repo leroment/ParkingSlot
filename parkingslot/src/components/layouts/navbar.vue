@@ -129,6 +129,7 @@ export default {
     },
     logout() {
       this.$store.commit("SETAUTHSTATUS", false);
+      localStorage.clear();
       this.$router.push({ path: "/login" });
     }
   }

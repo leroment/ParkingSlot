@@ -5,7 +5,12 @@ import User from "./modules/user";
 import createPersistedState from 'vuex-persistedstate';
 //Encrypt localStorage data
 import SecureLS from "secure-ls";
-var ls = new SecureLS({ isCompression: false });
+//RABBIT Encryption
+var ls = new SecureLS({
+  encodingType: 'rc4',
+  isCompression: false,
+  encryptionSecret: 's3cr3t$@1'
+});
 
 Vue.use(Vuex);
 
