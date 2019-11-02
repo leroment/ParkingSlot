@@ -5,6 +5,14 @@ using System.Threading.Tasks;
 
 namespace ParkingSlotAPI.Models
 {
+    public class Users
+    {
+        public IEnumerable<UserDto> UserDtos { get; set; }
+            = new List<UserDto>();
+        public int TotalCount { get; set; }
+    }
+
+    
     public class UserDto
     {
         public Guid Id { get; set; }
