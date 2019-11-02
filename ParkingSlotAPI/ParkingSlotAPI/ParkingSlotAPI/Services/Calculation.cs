@@ -24,18 +24,20 @@ namespace ParkingSlotAPI
 		{
 			List<HoursPerDay> result = new  List<HoursPerDay>();
 			
-			if ((endDate.Day-startDate.Day)<1)
+			if ((endDate.Day-startDate.Day)==0)
 			{
 
-				result.Add(new HoursPerDay(startDate, endDate, (int)(endDate - startDate).TotalMinutes, (int)startDate.DayOfWeek));
+				result.Add(new HoursPerDay(startDate, endDate, getPeriodDuration(startDate, endDate), (int)startDate.DayOfWeek));
 				
 			}
 			else
 			{
 				DateTime tempStartDate = startDate, AfterCalculation = startDate, BeforeCalculation = startDate;
-				double totalSec =(double) (endDate - startDate).TotalSeconds;
-	
-				for (int i=0;i<= (endDate.Day - startDate.Day);i++)
+				double totalSec = getPeriodDuration(startDate, endDate)*60;
+
+
+
+				for (int i=0;i<= (endDate - startDate).Days;i++)
 				{
 					
 					if(result.Count==0)
@@ -112,12 +114,41 @@ namespace ParkingSlotAPI
 		
 		}
 
-		public int[] getReminderingHour()
+		public double getPeriodDuration(DateTime st,DateTime et)
 		{
-			int[] intArray3 = { 1, 2, 3, 4, 5 };
-			return intArray3;
+			double result = 0;
+			if((et- st).TotalHours<0)
+			{
+				result=((et - st).TotalMinutes) + (24 * 60);
+			}
+			else
+			{
+				result = ((et - st).TotalMinutes);
+			}
+			return result;
 		}
-		
+		public double getPeriodDurationBasedOnDayTime(DateTime st, DateTime et)
+		{
+			double result = 0;
+	
+			if (st.TimeOfDay.TotalMinutes == 0)
+			{
+				result = et.TimeOfDay.TotalMinutes - 24 * 60;
+			}
+			else if (et.TimeOfDay.TotalMinutes == 0)
+			{
+				result = 24 * 60 - st.TimeOfDay.TotalMinutes;
+			}
+			else
+			{
+				result = ((et.TimeOfDay - st.TimeOfDay).TotalMinutes);
+			}
+				
+		//	}
+			return result;
+		}
+
+
 
 
 	}
