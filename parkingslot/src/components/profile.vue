@@ -152,8 +152,20 @@ export default {
           this.userPassword.cfmnewpassword = "";
         })
         .catch((error) => {
+          console.log(error.response);
+          console.log(error.response.data);
+          
           this.generalError = true;
-          this.generalErrorText = "Please enter the correct current password.";
+              this.generalErrorText = error.response.data;
+          
+          if (error.response.data.OldPassword != ""){ //New passwords do not meet requirement
+            this.generalErrorText = error.response.data.OldPassword[0];
+          }
+          if (error.response.data.NewPassword != ""){ //New passwords do not meet requirement
+            this.generalErrorText = error.response.data.NewPassword[0];
+          }
+          
+          
         });
     },
     reset() {
