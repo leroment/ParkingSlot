@@ -85,6 +85,8 @@ import CarparkFilter from "./utils/filter";
 const mapMarker = require("../assets/mapmarker.png");
 const carMarker = require("../assets/usermarker.png");
 var gmap;
+var directionsService;
+var directionsDisplay;
 export default {
   components: {
     CarparkFilter
@@ -156,6 +158,12 @@ export default {
       this.mapObject.controls[google.maps.ControlPosition.RIGHT_BOTTOM].push(
         gpsBtn
       );
+      //To change the polyline color
+      //polylineOptions:{strokeColor:"#4a4a4a",strokeWeight:5},
+      directionsDisplay = new google.maps.DirectionsRenderer({
+        suppressMarkers: true,
+        polylineOptions: { strokeColor: "green", strokeWeight: 5 }
+      });
     },
     geolocation: function() {
       navigator.geolocation.getCurrentPosition(position => {
@@ -233,13 +241,7 @@ export default {
       var destination = new Object();
       destination.lat = parseFloat(markerInfo.lat);
       destination.lng = parseFloat(markerInfo.lng);
-      var directionsService = new google.maps.DirectionsService();
-      //To change the polyline color
-      //polylineOptions:{strokeColor:"#4a4a4a",strokeWeight:5},
-      var directionsDisplay = new google.maps.DirectionsRenderer({
-        suppressMarkers: true,
-        polylineOptions: { strokeColor: "green", strokeWeight: 5 }
-      });
+      directionsService = new google.maps.DirectionsService();
       //Remove previous routing
       directionsDisplay.setMap(this.$refs.mapRef.$mapObject);
       directionsService.route(
