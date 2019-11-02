@@ -28,17 +28,6 @@ namespace ParkingSlotAPI.Controllers
 			_mapper = mapper;
 		}
 
-
-		// GET: Calculation
-		[HttpGet]
-		public ActionResult Index()
-		{
-			var carpark = ICarparkRateRepository.GetCarparkRates();
-			//var carparkFromRepo = _parkingRepository.GetCarpark(id);
-			var carparks = _mapper.Map<IEnumerable<CarparkRateDto>>(carpark);
-
-			return Ok(carparks);
-		}
 		[HttpGet("{id}")]
 		public ActionResult Index(Guid id, [FromQuery] DateTime StartTime, [FromQuery] DateTime EndTime, [FromQuery] String vehicleType )
 		{
