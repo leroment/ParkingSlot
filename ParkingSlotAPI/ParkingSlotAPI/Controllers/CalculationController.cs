@@ -33,7 +33,6 @@ namespace ParkingSlotAPI.Controllers
 		{
 				
 				var carpark = ICarparkRateRepository.GetCarparkRateById(id, vehicleType);
-			/*	var carpark = ICarparkRateRepository.GetCarparkRateById(id, vehicleType);
 				List<CarparkRate> CarParkRateList = carpark.ToList();
 
 				var duration = 0.0;
@@ -276,7 +275,7 @@ namespace ParkingSlotAPI.Controllers
 
 
 				//return Ok(new {  Price });
-*/
+
 			return Ok(carpark);
 		}
 

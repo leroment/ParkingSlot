@@ -33,13 +33,15 @@ namespace ParkingSlotAPI.Controllers
         private readonly IMapper _mapper;
         private readonly AppSettings _appSettings;
         private readonly IEmailSender _emailSender;
+        private readonly IUrlHelper _urlHelper;
 
-        public UsersController(IUserRepository userRepository, IMapper mapper, IOptions<AppSettings> appSettings, IEmailSender emailSender)
+        public UsersController(IUserRepository userRepository, IMapper mapper, IUrlHelper urlHelper, IOptions<AppSettings> appSettings, IEmailSender emailSender)
         {
             _userRepository = userRepository;
             _mapper = mapper;
             _appSettings = appSettings.Value;
             _emailSender = emailSender;
+            _urlHelper = urlHelper;
         }
 
         [AllowAnonymous]
@@ -72,13 +74,73 @@ namespace ParkingSlotAPI.Controllers
             return Ok(userFromRepo);
         }
 
-        [Authorize(Roles = Role.Admin)]
-        [HttpGet]
-        public IActionResult GetUsers()
+        private string CreateUsersResourceUri(UserResourceParameters userResourceParameters, ResourceUriType type)
         {
-            var users = _userRepository.GetUsers();
+            switch (type)
+            {
+                case ResourceUriType.PreviousPage:
+                    return _urlHelper.Link("GetUsers",
+                        new
+                        {
+                            orderBy = userResourceParameters.OrderBy,
+                            pageNumber = userResourceParameters.PageNumber - 1,
+                            pageSize = userResourceParameters.PageSize
+                        });
+                case ResourceUriType.NextPage:
+                    return _urlHelper.Link("GetUsers",
+                        new
+                        {
+                            orderBy = userResourceParameters.OrderBy,
+                            pageNumber = userResourceParameters.PageNumber + 1,
+                            pageSize = userResourceParameters.PageSize
+                        });
+                default:
+                    return _urlHelper.Link("GetUsers",
+                        new
+                        {
+                            orderBy = userResourceParameters.OrderBy,
+                            pageNumber = userResourceParameters.PageNumber,
+                            pageSize = userResourceParameters.PageSize
+                        });
+            }
+        }
 
-            var userDtos = _mapper.Map<IList<UserDto>>(users);
+        [Authorize(Roles = Role.Admin)]
+        [HttpGet(Name = "GetUsers")]
+        public IActionResult GetUsers([FromQuery] UserResourceParameters userResourceParameters)
+        {
+            var usersFromRepo = _userRepository.GetUsers(userResourceParameters);
+
+            if (usersFromRepo == null)
+            {
+                return NotFound();
+            }
+
+            var previousPageLink = usersFromRepo.HasPrevious ?
+    CreateUsersResourceUri(userResourceParameters,
+    ResourceUriType.PreviousPage) : null;
+
+            var x = CreateUsersResourceUri(userResourceParameters,
+                ResourceUriType.NextPage);
+
+            var nextPageLink = usersFromRepo.HasNext ?
+                CreateUsersResourceUri(userResourceParameters,
+                ResourceUriType.NextPage) : null;
+
+            var paginationMetadata = new
+            {
+                totalCount = usersFromRepo.TotalCount,
+                pageSize = usersFromRepo.PageSize,
+                currentPage = usersFromRepo.CurrentPage,
+                totalPages = usersFromRepo.TotalPages,
+                previousPageLink = previousPageLink,
+                nextPageLink = nextPageLink
+            };
+
+            Response.Headers.Add("X-Pagination",
+                Newtonsoft.Json.JsonConvert.SerializeObject(paginationMetadata));
+
+            var userDtos = _mapper.Map<IEnumerable<UserDto>>(usersFromRepo);
 
             return Ok(userDtos);
         }

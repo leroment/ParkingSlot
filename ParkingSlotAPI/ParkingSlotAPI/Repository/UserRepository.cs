@@ -1,8 +1,11 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using ParkingSlotAPI.Database;
 using ParkingSlotAPI.Entities;
 using ParkingSlotAPI.Helpers;
+using ParkingSlotAPI.Models;
+using ParkingSlotAPI.Services;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
@@ -16,7 +19,7 @@ namespace ParkingSlotAPI.Repository
     public interface IUserRepository
     {
         User Authenticate(string username, string password);
-        IEnumerable<User> GetUsers();
+        PagedList<User> GetUsers(UserResourceParameters userResourceParameters);
         User Create(User user, string password);
         User GetUser(Guid userId);
         User GetUserByEmail(string Email);
@@ -39,11 +42,13 @@ namespace ParkingSlotAPI.Repository
 
         private ParkingContext _context;
         private readonly AppSettings _appSettings;
+        private readonly IPropertyMappingService _propertyMappingService;
 
-        public UserRepository(ParkingContext context, IOptions<AppSettings> appSettings)
+        public UserRepository(ParkingContext context, IOptions<AppSettings> appSettings, IPropertyMappingService propertyMappingService)
         {
             _context = context;
             _appSettings = appSettings.Value;
+            _propertyMappingService = propertyMappingService;
         }
 
         public User Authenticate(string username, string password)
@@ -96,9 +101,14 @@ namespace ParkingSlotAPI.Repository
             return user;
         }
 
-        public IEnumerable<User> GetUsers()
+        public PagedList<User> GetUsers([FromQuery] UserResourceParameters userResourceParameters)
         {
-            return _context.Users.OrderBy(a => a.FirstName);
+            var collectionBeforePaging =
+                _context.Users.ApplySort(userResourceParameters.OrderBy,
+                _propertyMappingService.GetPropertyMapping<UserDto, User>());
+
+            return PagedList<User>.Create(collectionBeforePaging, userResourceParameters.PageNumber, userResourceParameters.PageSize);
+
         }
 
         public User GetUser(Guid userId)
