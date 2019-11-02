@@ -69,11 +69,11 @@
               <br>
               Time Range: {{rate.startTime}} - {{rate.endTime}}
                 <br>
-                Weekday Rate: {{rate.weekdayRate}}
+                Weekday Rate: {{rate.weekdayRate}} per 30 min
                 <br>
-                Saturday Rate: {{rate.satdayRate}}
+                Saturday Rate: {{rate.satdayRate}} per 30 min
                 <br>
-                Sunday/Public Holiday Rate: {{rate.sunPHRate}}
+                Sunday/Public Holiday Rate: {{rate.sunPHRate}} per 30 min
                 <br>
             </div>
             <br>
@@ -84,11 +84,11 @@
               <br>
               Time Range: {{rate.startTime}} - {{rate.endTime}}
                 <br>
-                Weekday Rate: {{rate.weekdayRate}}
+                Weekday Rate: {{rate.weekdayRate}} per 30 min
                 <br>
-                Saturday Rate: {{rate.satdayRate}}
+                Saturday Rate: {{rate.satdayRate}} per 30 min
                 <br>
-                Sunday/Public Holiday Rate: {{rate.sunPHRate}}
+                Sunday/Public Holiday Rate: {{rate.sunPHRate}} per 30 min
                 <br>
             </div>
             <v-row v-if="viewingItem.hvRates != 0">
@@ -98,11 +98,11 @@
               <br>
               Time Range: {{rate.startTime}} - {{rate.endTime}}
                 <br>
-                Weekday Rate: {{rate.weekdayRate}}
+                Weekday Rate: {{rate.weekdayRate}} per 30 min
                 <br>
-                Saturday Rate: {{rate.satdayRate}}
+                Saturday Rate: {{rate.satdayRate}} per 30 min
                 <br>
-                Sunday/Public Holiday Rate: {{rate.sunPHRate}}
+                Sunday/Public Holiday Rate: {{rate.sunPHRate}} per 30 min
                 <br>
             </div>
             <br>
