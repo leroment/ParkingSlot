@@ -14,7 +14,7 @@ using ParkingSlotAPI.Helpers;
 
 namespace ParkingSlotAPI.Controllers
 {
-    [Authorize(Roles = Role.Admin)]
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class FeedbacksController : ControllerBase
@@ -22,86 +22,178 @@ namespace ParkingSlotAPI.Controllers
         private readonly IFeedbackRepository _feedbackRepository;
         private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
+        private readonly IUrlHelper _urlHelper;
 
-        public FeedbacksController(IFeedbackRepository feedbackRepository, IMapper mapper, IUserRepository userRepository)
+        public FeedbacksController(IFeedbackRepository feedbackRepository, IMapper mapper, IUserRepository userRepository, IUrlHelper urlHelper)
         {
             _feedbackRepository = feedbackRepository;
             _userRepository = userRepository;
             _mapper = mapper;
+            _urlHelper = urlHelper;
         }
 
-       
-        [HttpGet]
-        public IActionResult GetFeedbacks()
+        [Authorize(Roles = Role.Admin)]
+        [HttpGet(Name = "GetFeedbacks")]
+        public IActionResult GetFeedbacks([FromQuery] FeedbackResourceParameters feedbackResourceParameters)
         {
-            var feedbacksFromRepo = _feedbackRepository.GetFeedbacks();
+            var feedbacksFromRepo = _feedbackRepository.GetFeedbacks(feedbackResourceParameters);
 
             if (feedbacksFromRepo == null)
             {
                 return NotFound();
             }
 
+            var previousPageLink = feedbacksFromRepo.HasPrevious ?
+                 CreateFeedbacksResourceUri(feedbackResourceParameters,
+                 ResourceUriType.PreviousPage) : null;
+
+            var x = CreateFeedbacksResourceUri(feedbackResourceParameters,
+                ResourceUriType.NextPage);
+
+            var nextPageLink = feedbacksFromRepo.HasNext ?
+                CreateFeedbacksResourceUri(feedbackResourceParameters,
+                ResourceUriType.NextPage) : null;
+
+            var paginationMetadata = new
+            {
+                totalCount = feedbacksFromRepo.TotalCount,
+                pageSize = feedbacksFromRepo.PageSize,
+                currentPage = feedbacksFromRepo.CurrentPage,
+                totalPages = feedbacksFromRepo.TotalPages,
+                previousPageLink = previousPageLink,
+                nextPageLink = nextPageLink
+            };
+
+            Response.Headers.Add("X-Pagination",
+                Newtonsoft.Json.JsonConvert.SerializeObject(paginationMetadata));
+
             var feedbacks = _mapper.Map<IEnumerable<FeedbackDto>>(feedbacksFromRepo);
 
             return Ok(feedbacks);
         }
 
-        [HttpGet("{id}", Name = "GetFeedback")]
-        public IActionResult GetFeedback(Guid id)
+        private string CreateFeedbacksResourceUri(FeedbackResourceParameters feedbackResourceParameters, ResourceUriType type)
         {
-            var feedbackFromRepo = _feedbackRepository.GetFeedback(id);
-
-            if (feedbackFromRepo == null)
+            switch (type)
             {
-                return NotFound();
+                case ResourceUriType.PreviousPage:
+                    return _urlHelper.Link("GetFeedbacks",
+                        new
+                        {
+                            orderBy = feedbackResourceParameters.OrderBy,
+                            pageNumber = feedbackResourceParameters.PageNumber - 1,
+                            pageSize = feedbackResourceParameters.PageSize
+                        });
+                case ResourceUriType.NextPage:
+                    return _urlHelper.Link("GetFeedbacks",
+                        new
+                        {
+                            orderBy = feedbackResourceParameters.OrderBy,
+                            pageNumber = feedbackResourceParameters.PageNumber + 1,
+                            pageSize = feedbackResourceParameters.PageSize
+                        });
+                default:
+                    return _urlHelper.Link("GetFeedbacks",
+                        new
+                        {
+                            orderBy = feedbackResourceParameters.OrderBy,
+                            pageNumber = feedbackResourceParameters.PageNumber,
+                            pageSize = feedbackResourceParameters.PageSize
+                        });
             }
-
-            var feedback = _mapper.Map<FeedbackDto>(feedbackFromRepo);
-
-            return Ok(feedback);
         }
 
-        //[AllowAnonymous]
-        //[HttpPost("user/{userId}")]
-        //public IActionResult AddFeedbackForUser(Guid userId, [FromBody] FeedbackForCreationDto feedback)
-        //{
-        //    try
-        //    {
-        //        if (!_userRepository.UserExists(userId))
-        //        {
-        //            return NotFound(new { message = $"User {userId} does not exist" });
-        //        }
-
-        //        var feedbackEntity = _mapper.Map<Feedback>(feedback);
-
-        //        _feedbackRepository.AddFeedback(feedbackEntity);
-        //        if (!_feedbackRepository.Save())
-        //        {
-        //            throw new Exception("Adding a feedback failed on save.");
-        //        }
-
-        //        var feedbackToReturn = _mapper.Map<FeedbackDto>(feedbackEntity);
-
-        //        return CreatedAtRoute("GetFeedback", new { id = feedbackToReturn.Id }, feedbackToReturn);
-        //    }
-        //    catch (AppException ex)
-        //    {
-        //        return BadRequest(new { message = ex.Message });
-        //    }
-
-           
-        //}
-
-        [HttpDelete("{id}")]
-        public IActionResult DeleteFeedback(Guid id)
+        [AllowAnonymous]
+        [HttpGet("user/{userId}", Name = "GetFeedbacksForUser")]
+        public IActionResult GetFeedbacksForUser(Guid userId)
         {
-            var feedbackFromRepo = _feedbackRepository.GetFeedback(id);
-            if (feedbackFromRepo == null)
+            if (!_userRepository.UserExists(userId))
             {
-                return NotFound();
+                return NotFound(new { message = $"User {userId} does not exist" });
             }
 
-            _feedbackRepository.DeleteFeedback(feedbackFromRepo);
+            var feedbacksForUserFromRepo = _feedbackRepository.GetFeedbacksForUser(userId);
+
+            var feedbacksForUser = _mapper.Map<IEnumerable<FeedbackDto>>(feedbacksForUserFromRepo);
+
+            if (!feedbacksForUser.Any())
+            {
+                return NoContent();
+            }
+
+            return Ok(feedbacksForUser);
+        }
+
+        [AllowAnonymous]
+        [HttpGet("{id}/user/{userId}", Name = "GetFeedbackForUser")]
+        public IActionResult GetFeedbackForUser(Guid id, Guid userId)
+        {
+            if (!_userRepository.UserExists(userId))
+            {
+                return NotFound(new { message = $"User {userId} does not exist" });
+            }
+
+            var feedbackForUserFromRepo = _feedbackRepository.GetFeedbackForUser(userId, id);
+
+            if (feedbackForUserFromRepo == null)
+            {
+                return NotFound(new { message = $"Feedback {id} for User {userId} does not exist" });
+            }
+
+            var feedbackForUser = _mapper.Map<FeedbackDto>(feedbackForUserFromRepo);
+
+            return Ok(feedbackForUser);
+        }
+
+        [AllowAnonymous]
+        [HttpPost("user/{userId}")]
+        public IActionResult AddFeedbackForUser(Guid userId, [FromBody] FeedbackForCreationDto feedback)
+        {
+            try
+            {
+                if (!_userRepository.UserExists(userId))
+                {
+                    return NotFound(new { message = $"User {userId} does not exist" });
+                }
+
+                var feedbackEntity = _mapper.Map<Feedback>(feedback);
+
+                _feedbackRepository.AddFeedbackForUser(userId, feedbackEntity);
+
+                if (!_feedbackRepository.Save())
+                {
+                    throw new Exception($"Adding a feedback for user {userId} failed on save.");
+                }
+
+                var feedbackToReturn = _mapper.Map<FeedbackDto>(feedbackEntity);
+
+                return CreatedAtRoute("GetFeedbackForUser", new {userId = userId, id = feedbackToReturn.Id }, feedbackToReturn);
+            }
+            catch (AppException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+        
+        [AllowAnonymous]
+        [HttpDelete("{id}/user/{userId}")]
+        public IActionResult DeleteFeedbackForUser(Guid id, Guid userId)
+        {
+
+            if (!_userRepository.UserExists(userId))
+            {
+                return NotFound(new { message = $"User {userId} does not exist" });
+            }
+
+            var feedbackForUserFromRepo = _feedbackRepository.GetFeedbackForUser(userId, id);
+
+            if (feedbackForUserFromRepo == null)
+            {
+                return NotFound(new { message = $"Feedback {id} for User {userId} does not exist" });
+            }
+
+            _feedbackRepository.DeleteFeedback(feedbackForUserFromRepo);
+
             if (!_feedbackRepository.Save())
             {
                 throw new Exception($"Deleting feedback {id} failed on save");
@@ -109,57 +201,35 @@ namespace ParkingSlotAPI.Controllers
 
             return NoContent();
         }
-        /*[HttpPut("{id}")]
-        public IActionResult UpdatedFeedback(Guid id, [FromBody] FeedbackForUpdateDto feedback)
+
+        [HttpPut("{id}/user/{userId}")]
+        [Authorize(Roles = Role.Admin)]
+        public IActionResult UpdateFeedback(Guid userId, Guid id, [FromBody] FeedbackForUpdateDto feedback)
         {
-            if(feedback == null)
+            if (feedback == null)
             {
                 return BadRequest();
             }
 
-            var feedbackFromRepo = _feedbackRepository.GetFeedback(id);
-            if (feedbackFromRepo == null)
+            if (!_userRepository.UserExists(userId))
             {
                 return NotFound();
             }
 
-            _mapper.Map(feedback, feedbackFromRepo);
+            var feedbackForUserFromRepo = _feedbackRepository.GetFeedbackForUser(userId, id);
 
-            _feedbackRepository.UpdatedFeedback(feedbackFromRepo);
+            if (feedbackForUserFromRepo == null)
+            {
+                return NotFound();
+            }
 
-            if(!_feedbackRepository.Save())
+            var feedbackFromRepo = _mapper.Map(feedback, feedbackForUserFromRepo);
+
+            _feedbackRepository.UpdateFeedback(feedbackFromRepo);
+
+            if (!_feedbackRepository.Save())
             {
                 throw new Exception($"Updating feedback {id} failed on save");
-            }
-
-            return NoContent();
-        }*/
-
-        [HttpPatch("{id}")]
-        public IActionResult PartiallyUpdatedFeedback(Guid id, [FromBody]JsonPatchDocument<FeedbackForUpdateDto> patchDoc)
-        {
-            if (patchDoc == null)
-            {
-                return BadRequest();
-            }
-
-            var feedbackFromRepo = _feedbackRepository.GetFeedback(id);
-
-            if (feedbackFromRepo == null)
-            {
-                return NotFound();
-            }
-
-            var feedbackToPatch = _mapper.Map<FeedbackForUpdateDto>(feedbackFromRepo);
-            patchDoc.ApplyTo(feedbackToPatch);
-
-            _mapper.Map(feedbackToPatch, feedbackFromRepo);
-
-            _feedbackRepository.UpdatedFeedback(feedbackFromRepo);
-
-            if(!_feedbackRepository.Save())
-            {
-                throw new Exception($"Patching feedback {id} failed on save.");
             }
 
             return NoContent();

@@ -13,11 +13,9 @@ namespace ParkingSlotAPI.Entities
         public Guid Id { get; set; }
 
         [ForeignKey("UserId")]
-        public User user { get; set; }
+        public User User { get; set; }
 
-        [Required]
-        [MaxLength(50)]
-        public string Name { get; set; }
+        public Guid UserId { get; set; }
 
         [Required]
         [MaxLength(50)]

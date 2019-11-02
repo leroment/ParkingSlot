@@ -22,6 +22,9 @@ namespace ParkingSlotAPI.Profiles
             CreateMap<UserForUpdatePasswordDto, User>();
             CreateMap<FavoriteForCreationDto, Favorite>();
             CreateMap<Favorite, FavoriteDto>();
+            CreateMap<FeedbackForCreationDto, Feedback>();
+            CreateMap<Feedback, FeedbackDto>();
+            CreateMap<FeedbackForUpdateDto, Feedback>();
         }
     }
 }

@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace ParkingSlotAPI.Helpers
 {
-    public class UserResourceParameters
+    public class FeedbackResourceParameters
     {
         const int maxPageSize = 20;
         public int PageNumber { get; set; } = 1;
@@ -24,6 +24,6 @@ namespace ParkingSlotAPI.Helpers
             }
         }
 
-        public string OrderBy { get; set; } = "Username";
+        public string OrderBy { get; set; } = "Topic";
     }
 }

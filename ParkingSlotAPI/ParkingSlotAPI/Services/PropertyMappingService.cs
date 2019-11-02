@@ -20,7 +20,8 @@ namespace ParkingSlotAPI.Services
                 { "FirstName", new PropertyMappingValue(new List<string>() { "FirstName" } ) },
                 { "LastName", new PropertyMappingValue(new List<string>() { "LastName" } ) },
                 { "Email", new PropertyMappingValue(new List<string>() { "Email"} ) },
-                { "Username", new PropertyMappingValue(new List<string>() { "Username" } ) }
+                { "Username", new PropertyMappingValue(new List<string>() { "Username" } ) },
+                { "Topic", new PropertyMappingValue(new List<string>() { "Topic" }) }
             };
 
         public IList<IPropertyMapping> propertyMappings = new List<IPropertyMapping>();
@@ -28,6 +29,7 @@ namespace ParkingSlotAPI.Services
         public PropertyMappingService()
         {
             propertyMappings.Add(new PropertyMapping<UserDto, User>(_userPropertyMapping));
+            propertyMappings.Add(new PropertyMapping<FeedbackDto, Feedback>(_userPropertyMapping));
         }
 
         public Dictionary<string, PropertyMappingValue> GetPropertyMapping
