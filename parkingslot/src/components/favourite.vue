@@ -30,13 +30,13 @@
               <span class="body-1">Carpark ID: {{ viewingItem.carparkId }}</span>
             </v-row>
             <v-row>
-              <span class="body-1">Carpark Name: {{ viewingItem.name }}</span>
+              <span class="body-1">Carpark Name: {{ viewingItem.carparkName }}</span>
             </v-row>
             <v-row>
-              <span class="body-1">Agency Type: {{ viewingItem.agency }}</span>
+              <span class="body-1">Agency Type: {{ viewingItem.agencyType }}</span>
             </v-row>
             <v-row>
-              <span class="body-1">Address: {{ viewingItem.address }}</span>
+              <span class="body-1">Address: {{ viewingItem.carparkLocation }}</span>
             </v-row>
             <v-row v-if="viewingItem.totalAvailableLots != '-1'">
               <span class="body-1">Total Available Lots: {{ viewingItem.totalAvailableLots }}</span>
