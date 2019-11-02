@@ -91,6 +91,7 @@ namespace ParkingSlotAPI
                 return new UrlHelper(actionContext);
             });
 
+            services.AddTransient<IPropertyMappingService, PropertyMappingService>();
 
             var connectionString = Configuration["connectionStrings:parkingDBConnectionString"];
             services.AddDbContext<ParkingContext>(o => o.UseSqlServer(connectionString));
