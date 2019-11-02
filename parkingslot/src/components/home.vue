@@ -240,7 +240,6 @@ export default {
       });
     },
     displayCarparkInfo: function(item) {
-      
       let cur = this;
       this.axios
         .get(
