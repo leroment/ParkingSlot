@@ -5,6 +5,7 @@
         <v-card>
           <v-alert type="error" :value="generalError">{{generalErrorText}}</v-alert>
           <v-alert :value="notifyStatus" dismissible type="success">{{notifyText}}</v-alert>
+          <form @submit.prevent="updateProfile">
           <v-card-text v-show="updateAccount">
             <v-flex class="mb-6">
               <v-avatar size="96" class="mr-4">
@@ -14,9 +15,18 @@
             <v-text-field readonly name="username" label="Username" v-model="userProfile.username"></v-text-field>
             <v-text-field name="firstName" label="First Name" v-model="userProfile.firstName"></v-text-field>
             <v-text-field name="lastName" label="Last Name" v-model="userProfile.lastName"></v-text-field>
-            <v-text-field name="email" label="Email Address" v-model="userProfile.Email"></v-text-field>
-            <v-text-field name="contact" label="Contact Number" v-model="userProfile.Contact"></v-text-field>
+            <v-text-field name="email" label="Email Address" v-model="userProfile.Email" type = "email" required></v-text-field>
+            <v-text-field name="contact" label="Contact Number (8 Digits)" v-model="userProfile.Contact" type="tel" pattern="[0-9]{8}" required></v-text-field>
           </v-card-text>
+          <v-card-actions v-show="updateAccount">
+            <v-btn color="primary" type = "submit">
+              <v-icon left dark>mdi-check</v-icon>Save Changes
+            </v-btn>
+            <v-btn color="warning" @click="reset">
+              <v-icon left dark>mdi-lock-reset</v-icon>Change Password
+            </v-btn>
+          </v-card-actions>
+          </form>
           <v-card-text v-show="!updateAccount">
             <v-text-field
               name="password"
@@ -37,14 +47,6 @@
               type="password"
             ></v-text-field>
           </v-card-text>
-          <v-card-actions v-show="updateAccount">
-            <v-btn color="primary" @click="updateProfile">
-              <v-icon left dark>mdi-check</v-icon>Save Changes
-            </v-btn>
-            <v-btn color="warning" @click="reset">
-              <v-icon left dark>mdi-lock-reset</v-icon>Change Password
-            </v-btn>
-          </v-card-actions>
           <v-card-actions v-show="!updateAccount">
             <v-btn color="primary" @click="updatePassword">
               <v-icon left dark>mdi-check</v-icon>Update Password
@@ -100,7 +102,7 @@ export default {
           this.notifyText = "Profile have been successfully updated!";
         })
         .catch(error => {
-          console.log(error.response.data.FirstName);
+          console.log(error.response);
           if (this.userProfile.firstName === "") {
             this.generalErrorText = error.response.data.FirstName[1];
             this.generalError = true;      
@@ -126,6 +128,12 @@ export default {
         this.generalErrorText = "New passwords do not match.";
         return;
       }
+      if (this.userPassword.currentpassword == this.userPassword.newpassword && this.userPassword.currentpassword == this.userPassword.cfmnewpassword) {
+        this.generalError = true;
+        this.generalErrorText = "New password is the same as before.";
+        return;
+      }
+
       this.$store
         .dispatch("CHANGEPASSWORD", {
           OldPassword: this.userPassword.currentpassword,
