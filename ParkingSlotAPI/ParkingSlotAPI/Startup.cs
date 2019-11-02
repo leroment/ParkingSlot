@@ -82,7 +82,8 @@ namespace ParkingSlotAPI
             services.AddScoped<IFeedbackRepository, FeedbackRepository>();
             services.AddScoped<IFavoriteRepository, FavoriteRepository>();
             services.AddScoped<ICarparkRatesRepository, CarparkRatesRepository>();
-            services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
+			
+			services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
             services.AddScoped<IUrlHelper, UrlHelper>(implementationFactory =>
             {
                 var actionContext =

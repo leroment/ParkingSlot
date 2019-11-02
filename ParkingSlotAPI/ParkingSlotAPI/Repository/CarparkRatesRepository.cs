@@ -12,7 +12,9 @@ namespace ParkingSlotAPI.Repository
     {
         IEnumerable<CarparkRate> GetCarparkRates(Guid carparkId);
         IEnumerable<CarparkRate> GetCarparkRateById(Guid carparkId, string vehicletype);
-    }
+		IEnumerable<CarparkRate> GetCarparkRateByIdPerHour(Guid carparkId);
+
+	}
 
     public class CarparkRatesRepository : ICarparkRatesRepository
     {
@@ -32,6 +34,10 @@ namespace ParkingSlotAPI.Repository
         {
             return _context.CarparkRates.Where(o => o.CarparkId == carparkId && o.VehicleType == vehicletype);
         }
+		public IEnumerable<CarparkRate> GetCarparkRateByIdPerHour(Guid carparkId)
+		{
+			return _context.CarparkRates.Where(o => o.CarparkId == carparkId );
+		}
 
-    }
+	}
 }
