@@ -147,8 +147,16 @@ export default {
           this.$router.push("/login");
         })
         .catch(error => {
+          console.log(error.response);
+          console.log(error.response.data.message );
           if (error.response.status == 400) {
-            this.errorMsg = error.response.data.message;
+            if ( error.response.data.message == undefined){
+              this.errorMsg = error.response.data.Password[0];
+            }
+            else{
+              this.errorMsg = error.response.data.message;
+            }
+            
             this.matchError = true;
           } else {
             this.matchError = false;

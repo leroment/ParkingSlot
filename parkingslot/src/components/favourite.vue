@@ -62,6 +62,50 @@
             <v-row v-if="viewingItem.hvCapacity != '-1'">
               <span class="body-1">Heavy Vehicle Capacity: {{ viewingItem.hvCapacity }}</span>
             </v-row>
+            <v-row v-if="viewingItem.carRates != 0">
+              <span class="body-1">Car Rates:</span>
+            </v-row>
+            <div class="row" v-for="rate in viewingItem.carRates" :key=rate.id>
+              <br>
+              Time Range: {{rate.startTime}} - {{rate.endTime}}
+                <br>
+                Weekday Rate: {{rate.weekdayRate}} per 30 min
+                <br>
+                Saturday Rate: {{rate.satdayRate}} per 30 min
+                <br>
+                Sunday/Public Holiday Rate: {{rate.sunPHRate}} per 30 min
+                <br>
+            </div>
+            <br>
+            <v-row v-if="viewingItem.motorRates != 0">
+              <span class="body-1">Motorcycle Rates:</span>
+            </v-row>
+            <div class="row" v-for="rate in viewingItem.motorRates" :key=rate.id>
+              <br>
+              Time Range: {{rate.startTime}} - {{rate.endTime}}
+                <br>
+                Weekday Rate: {{rate.weekdayRate}} per 30 min
+                <br>
+                Saturday Rate: {{rate.satdayRate}} per 30 min
+                <br>
+                Sunday/Public Holiday Rate: {{rate.sunPHRate}} per 30 min
+                <br>
+            </div>
+            <v-row v-if="viewingItem.hvRates != 0">
+              <span class="body-1">Heavy Vehicle Rates:</span>
+            </v-row>
+            <div class="row" v-for="rate in viewingItem.hvRates" :key=rate.id>
+              <br>
+              Time Range: {{rate.startTime}} - {{rate.endTime}}
+                <br>
+                Weekday Rate: {{rate.weekdayRate}} per 30 min
+                <br>
+                Saturday Rate: {{rate.satdayRate}} per 30 min
+                <br>
+                Sunday/Public Holiday Rate: {{rate.sunPHRate}} per 30 min
+                <br>
+            </div>
+            <br>
           </v-container>
         </v-card-text>
         <v-card-actions>
@@ -131,14 +175,53 @@ export default {
       }
     },
     fetchCarparkInfo: function(carparkID) {
-      //Retrieve Carpark information from GetCarpark API call using CarparkID
       let cur = this;
-      this.axios
-        .get(
-          `https://parkingslotapi.azurewebsites.net/api/carpark/${carparkID}`
-        )
-        .then(function(response) {
-          if (response.status == "200") {
+      this.axios.all(
+        [this.axios.get(
+          `https://parkingslotapi.azurewebsites.net/api/carpark/${carparkID}` //Retrieve Carpark information from GetCarpark API call using CarparkID
+        ), this.axios.get(`https://parkingslotapi.azurewebsites.net/api/CarparkRates/${carparkID}`)]) //Retrieve Carpark Rates from GetCarpark API call using CarparkID
+        .then(this.axios.spread((response, response2) => {
+          console.log(response);
+          console.log(response2);
+          var MotorcycleRates = [];
+          var HVRates = [];
+          var CarRates = [];
+          if (response.status == "200" && response2.status == "200") {
+
+            response2.data.forEach((rate)=>{
+              if (rate.vehicleType == "Motorcycle"){
+                  MotorcycleRates.push({
+                    startTime: rate.startTime,
+                    endTime: rate.endTime,
+                    weekdayRate: rate.weekdayRate,
+                    satdayRate: rate.satdayRate,
+                    sunPHRate : rate.sunPHRate
+                  })
+              }
+              if (rate.vehicleType == "Heavy Vehicle"){
+                  HVRates.push({
+                    startTime: rate.startTime,
+                    endTime: rate.endTime,
+                    weekdayRate: rate.weekdayRate,
+                    satdayRate: rate.satdayRate,
+                    sunPHRate : rate.sunPHRate
+                  })
+              }
+              if (rate.vehicleType == "Car"){
+                  CarRates.push({
+                    startTime: rate.startTime,
+                    endTime: rate.endTime,
+                    weekdayRate: rate.weekdayRate,
+                    satdayRate: rate.satdayRate,
+                    sunPHRate : rate.sunPHRate
+                  })
+              }
+          });
+
+          if (CarRates == [] ) CarRates = 0; //So that can clear in v-if
+          if (MotorcycleRates == []) MotorcycleRates = 0; //So can clear in v-if
+          if (HVRates == []) HVRates = 0;
+
             cur.items.push({
               id: response.data.id,
               carparkId: response.data.carparkId,
@@ -153,10 +236,13 @@ export default {
               hvAvailability: response.data.hvAvailability,
               carCapacity: response.data.carCapacity,
               mCapacity: response.data.mCapacity,
-              hvCapacity: response.data.hvCapacity
+              hvCapacity: response.data.hvCapacity,
+              motorRates : MotorcycleRates,
+              carRates: CarRates,
+              hvRates : HVRates
             });
           }
-        });
+        }));
     },
     displayCarparkInfo: function(item) {
       this.viewingItem = item;
