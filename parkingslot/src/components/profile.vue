@@ -133,7 +133,7 @@ export default {
         this.generalErrorText = "New password is the same as before.";
         return;
       }
-
+      
       this.$store
         .dispatch("CHANGEPASSWORD", {
           OldPassword: this.userPassword.currentpassword,

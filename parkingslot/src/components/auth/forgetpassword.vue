@@ -54,7 +54,7 @@ export default {
     getResetEmail() {
       this.axios
         .post(
-          "https://parkingslotapi.azurewebsites.net/api/users/resetpassword",
+          "https://parkingslotapi.azurewebsites.net/api/users/forgetpassword",
           {
             email: this.email
           }
