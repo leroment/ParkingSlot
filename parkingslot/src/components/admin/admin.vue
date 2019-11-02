@@ -18,6 +18,12 @@
             <template v-slot:activator="{ on }">
               <v-spacer></v-spacer>
               <v-btn
+                color="teal"
+                dark
+                class="ml-5 mb-2 mt-3"
+                to="/feedback"
+              >Manage Feedbacks</v-btn>
+              <v-btn
                 color="primary"
                 dark
                 class="ml-5 mb-2 mt-3"
@@ -379,6 +385,7 @@ export default {
             const index = cur.getUserIndex(item.id);
             if (~index) {
               cur.users.splice(index, 1);
+              cur.totalUsers = cur.totalUsers-1;
             }
             console.log("User have been deleted!");
           });
@@ -388,5 +395,5 @@ export default {
 };
 </script>
 <style>
-@import url("../assets/table.css");
+@import url("../../assets/table.css");
 </style>

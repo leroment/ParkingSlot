@@ -9,6 +9,14 @@
       display: block;
     }
   
+    .mobile table tr:nth-child(even) {
+      border-left: 6px solid cyan;
+    }
+  
+    .mobile table tr:nth-child(odd) {
+      border-left: 6px solid deeppink;
+    }
+  
     .mobile table tr td ul li {
       margin-left: -30px;
     }
