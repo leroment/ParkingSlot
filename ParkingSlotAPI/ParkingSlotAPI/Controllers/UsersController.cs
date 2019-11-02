@@ -105,7 +105,7 @@ namespace ParkingSlotAPI.Controllers
             }
         }
 
-        [Authorize(Roles = Role.Admin)]
+        [AllowAnonymous]
         [HttpGet(Name = "GetUsers")]
         public IActionResult GetUsers([FromQuery] UserResourceParameters userResourceParameters)
         {
@@ -140,11 +140,16 @@ namespace ParkingSlotAPI.Controllers
             Response.Headers.Add("X-Pagination",
                 Newtonsoft.Json.JsonConvert.SerializeObject(paginationMetadata));
 
-            Response.Headers.Add("Access-Control-Allow-Origin", "*");
-
             var userDtos = _mapper.Map<IEnumerable<UserDto>>(usersFromRepo);
 
-            return Ok(userDtos);
+            Users users = new Users
+            {
+                UserDtos = userDtos
+            };
+
+            users.TotalCount = usersFromRepo.TotalCount;
+
+            return Ok(users);
         }
 
         [AllowAnonymous]

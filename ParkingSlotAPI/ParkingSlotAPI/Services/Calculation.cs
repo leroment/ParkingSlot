@@ -117,7 +117,12 @@ namespace ParkingSlotAPI
 		public double getPeriodDuration(DateTime st,DateTime et)
 		{
 			double result = 0;
-			if((et- st).TotalHours<0)
+			if(et.TimeOfDay.TotalMinutes == 0 && st.TimeOfDay.TotalMinutes == 0)
+			{
+				return 1440;
+			}
+
+			else if((et- st).TotalHours<0)
 			{
 				result=((et - st).TotalMinutes) + (24 * 60);
 			}
@@ -131,13 +136,18 @@ namespace ParkingSlotAPI
 		{
 			double result = 0;
 	
-			if (st.TimeOfDay.TotalMinutes == 0)
+			if (st.TimeOfDay.TotalMinutes == 0&&et.TimeOfDay.TotalMinutes != 0 )
 			{
 				result = et.TimeOfDay.TotalMinutes - 24 * 60;
 			}
-			else if (et.TimeOfDay.TotalMinutes == 0)
+			else if (et.TimeOfDay.TotalMinutes == 0&&  st.TimeOfDay.TotalMinutes != 0)
 			{
 				result = 24 * 60 - st.TimeOfDay.TotalMinutes;
+			}
+			else if(et.TimeOfDay.TotalMinutes == 0&& st.TimeOfDay.TotalMinutes == 0)
+			{
+				
+				return 0;
 			}
 			else
 			{
@@ -147,9 +157,125 @@ namespace ParkingSlotAPI
 		//	}
 			return result;
 		}
+		public  bool TimePeriodOverlaps(DateTime BS, DateTime BE, DateTime TS, DateTime TE)
+		{
+			// More simple?
+			// return !((TS < BS && TE < BS) || (TS > BE && TE > BE));
 
+			// The version below, without comments 
+			/*
+			return (
+				(TS >= BS && TS < BE) || (TE <= BE && TE > BS) || (TS <= BS && TE >= BE)
+			);
+			*/
 
+			return (
+				// 1. Case:
+				//
+				//       TS-------TE
+				//    BS------BE 
+				//
+				// TS is after BS but before BE
+				//   (TS.TimeOfDay >= BS.TimeOfDay && TS.TimeOfDay < BE.TimeOfDay)
+				//  || // or
 
+				// 2. Case
+				//
+				//    TS-------TE
+				//        BS---------BE
+				//
+				// TE is before BE but after BS
+				// (TE.TimeOfDay <= BE.TimeOfDay && TE.TimeOfDay > BS.TimeOfDay)
+				// || // or
 
+				// 3. Case
+				//
+				//  TS----------TE
+				//     BS----BE
+				//
+				// TS is before BS and TE is after BE
+				(TS.TimeOfDay <= BS.TimeOfDay && TE.TimeOfDay >= BE.TimeOfDay)
+			);
+		}
+		public bool TimePeriodOverlapsLeft(DateTime BS, DateTime BE, DateTime TS, DateTime TE)
+		{
+			// More simple?
+			// return !((TS < BS && TE < BS) || (TS > BE && TE > BE));
+
+			// The version below, without comments 
+			/*
+			return (
+				(TS >= BS && TS < BE) || (TE <= BE && TE > BS) || (TS <= BS && TE >= BE)
+			);
+			*/
+
+			return (
+				// 1. Case:
+				//
+				//       TS-------TE
+				//    BS------BE 
+				//
+				// TS is after BS but before BE
+				   (TS.TimeOfDay >= BS.TimeOfDay && TS.TimeOfDay < BE.TimeOfDay)
+				//  || // or
+
+				// 2. Case
+				//
+				//    TS-------TE
+				//        BS---------BE
+				//
+				// TE is before BE but after BS
+				// (TE.TimeOfDay <= BE.TimeOfDay && TE.TimeOfDay > BS.TimeOfDay)
+				// || // or
+
+				// 3. Case
+				//
+				//  TS----------TE
+				//     BS----BE
+				//
+				// TS is before BS and TE is after BE
+				//(TS.TimeOfDay <= BS.TimeOfDay && TE.TimeOfDay >= BE.TimeOfDay)
+			);
+		}
+		public bool TimePeriodOverlapsRight(DateTime BS, DateTime BE, DateTime TS, DateTime TE)
+		{
+			// More simple?
+			// return !((TS < BS && TE < BS) || (TS > BE && TE > BE));
+
+			// The version below, without comments 
+			/*
+			return (
+				(TS >= BS && TS < BE) || (TE <= BE && TE > BS) || (TS <= BS && TE >= BE)
+			);
+			*/
+
+			return (
+				// 1. Case:
+				//
+				//       TS-------TE
+				//    BS------BE 
+				//
+				// TS is after BS but before BE
+				//   (TS.TimeOfDay >= BS.TimeOfDay && TS.TimeOfDay < BE.TimeOfDay)
+				//  || // or
+
+				// 2. Case
+				//
+				//    TS-------TE
+				//        BS---------BE
+				//
+				// TE is before BE but after BS
+				 (TE.TimeOfDay <= BE.TimeOfDay && TE.TimeOfDay > BS.TimeOfDay)
+				// || // or
+
+				// 3. Case
+				//
+				//  TS----------TE
+				//     BS----BE
+				//
+				// TS is before BS and TE is after BE
+			//	(TS.TimeOfDay <= BS.TimeOfDay && TE.TimeOfDay >= BE.TimeOfDay)
+			);
+		}
 	}
 }

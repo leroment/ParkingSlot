@@ -6,7 +6,7 @@
           <v-alert
             type="error"
             :value="passwordError"
-          >Confirm Password is not the same as new password!</v-alert>
+          >{{passwordErrorText}}</v-alert>
           <v-alert
             :value="notifyStatus"
             dismissible
@@ -50,7 +50,8 @@ export default {
         cfmnewpassword: ""
       },
       notifyStatus: false,
-      passwordError: false
+      passwordError: false,
+      passwordErrorText: ""
     };
   },
   created: function() {
@@ -62,6 +63,12 @@ export default {
   },
   methods: {
     changePassword() {
+      if (this.userPassword.newpassword != this.userPassword.cfmnewpassword) { //pw do not match
+        this.passwordError = true;
+        this.passwordErrorText = "New passwords do not match.";
+        return;
+      }
+
       //update password
       var userId = this.$route.params.userId;
       var update = {
@@ -70,10 +77,16 @@ export default {
       };
       this.$store.dispatch("SETNEWPASSWORD", update).then(response => {
         if (response == true) {
+          this.passwordError = false;
           this.notifyStatus = true;
           this.updated = true;
         }
-      });
+      })
+      .catch(error => {
+          console.log(error.response);
+          this.passwordError = true;
+          this.passwordErrorText = "Passwords must be at least 8 characters and contain at 3 of 4 of the following: upper case (A-Z), lower case (a-z), number (0-9) and special character (e.g. !@#$%^&*)";
+        });
     }
   }
 };
