@@ -128,11 +128,6 @@ export default {
         this.generalErrorText = "New passwords do not match.";
         return;
       }
-      if (this.userPassword.currentpassword == this.userPassword.newpassword && this.userPassword.currentpassword == this.userPassword.cfmnewpassword) {
-        this.generalError = true;
-        this.generalErrorText = "New password is the same as before.";
-        return;
-      }
 
       this.$store
         .dispatch("CHANGEPASSWORD", {
@@ -152,8 +147,18 @@ export default {
           this.userPassword.cfmnewpassword = "";
         })
         .catch((error) => {
+          console.log(error.response);
+          console.log(error.response.data);
+          
           this.generalError = true;
-          this.generalErrorText = "Please enter the correct current password.";
+          if (error.response.data == "Incorrect current password entered."){ // Wrong Password
+            this.generalErrorText = error.response.data;
+          }
+          else{
+            this.generalErrorText = "Passwords must be at least 8 characters and contain at 3 of 4 of the following: upper case (A-Z), lower case (a-z), number (0-9) and special character (e.g. !@#$%^&*)";
+          }
+          
+          
         });
     },
     reset() {

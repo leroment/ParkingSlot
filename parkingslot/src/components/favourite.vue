@@ -181,8 +181,6 @@ export default {
           `https://parkingslotapi.azurewebsites.net/api/carpark/${carparkID}` //Retrieve Carpark information from GetCarpark API call using CarparkID
         ), this.axios.get(`https://parkingslotapi.azurewebsites.net/api/CarparkRates/${carparkID}`)]) //Retrieve Carpark Rates from GetCarpark API call using CarparkID
         .then(this.axios.spread((response, response2) => {
-          console.log(response);
-          console.log(response2);
           var MotorcycleRates = [];
           var HVRates = [];
           var CarRates = [];
