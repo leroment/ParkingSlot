@@ -164,7 +164,12 @@ export default {
         UPDATE: ({ commit }, payload) => {
             return new Promise((resolve, reject) => {
                 /* PUT to the Web API */
-                axios.put(`https://parkingslotapi.azurewebsites.net/api/users/${store.getters.USERID}`, payload, { headers: { Authorization: "Bearer "+ store.getters.TOKEN } }).then(({ data, status }) => {
+                let userid = store.getters.USERID;
+                //Handle for admin side editing of user information
+                if (payload.UserId != undefined) {
+                    userid = payload.UserId;
+                }
+                axios.put(`https://parkingslotapi.azurewebsites.net/api/users/${userid}`, payload, { headers: { Authorization: "Bearer " + store.getters.TOKEN } }).then(({ data, status }) => {
                     if (status === 204) {
                         //Update user info to store
                         store.commit('SETFIRSTNAME', payload.FirstName);
@@ -176,7 +181,6 @@ export default {
                 }).catch(error => {
                     reject(error);
                 })
-
             });
         },
         CHANGEPASSWORD: ({ commit }, payload) => {
