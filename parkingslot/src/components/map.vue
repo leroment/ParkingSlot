@@ -1,0 +1,309 @@
+<template>
+  <gmap-map id="google-map" :center="center" ref="mapRef" :zoom="zoom" :options="mapStyle">
+    <gmap-marker :position="center" :icon="userMarkerOptions" @click="selectUserLocation()">
+      <gmap-info-window :position="center" @closeclick="currentinfo=false" :opened="currentinfo">
+        <h2>Current location</h2>
+        <v-container class>
+          <v-row>
+            <span class="body-1">Select a carpark to get more information and directions</span>
+          </v-row>
+        </v-container>
+      </gmap-info-window>
+    </gmap-marker>
+    <gmap-info-window
+      @closeclick="window_open=false"
+      :opened="window_open"
+      :position="markerPos"
+      :options="{
+              pixelOffset: {
+                width: 0,
+                height: -35
+              }
+            }"
+    >
+      <h2>
+        {{ markerItem.carparkName }}
+        <v-chip
+          v-if="markerItem.agencyType != '-1'"
+          class="ma-2"
+          color="primary"
+          outlined
+        >{{ markerItem.agencyType }}</v-chip>
+      </h2>
+      <v-container class>
+        <v-row v-if="markerItem.address != '-1'">
+          <span class="body-1">Address: {{ markerItem.address }}</span>
+        </v-row>
+        <v-row v-if="markerItem.totalAvailableLots != '-1'">
+          <span class="body-1">Total Available Lots: {{ markerItem.totalAvailableLots }}</span>
+        </v-row>
+        <v-row v-if="markerItem.totalLots != '-1'">
+          <span class="body-1">Total Lots: {{ markerItem.totalLots }}</span>
+        </v-row>
+        <v-row v-if="markerItem.carAvailability != '-1'">
+          <span class="body-1">Car Availability: {{ markerItem.carAvailability }}</span>
+        </v-row>
+        <v-row v-if="markerItem.mAvailability != '-1'">
+          <span class="body-1">Motorcycle Availability: {{ markerItem.mAvailability }}</span>
+        </v-row>
+        <v-row v-if="markerItem.hvAvailability != '-1'">
+          <span class="body-1">Heavy Vehicle Availability: {{ markerItem.hvAvailability }}</span>
+        </v-row>
+        <v-row v-if="markerItem.carCapacity != '-1'">
+          <span class="body-1">Car Capacity: {{ markerItem.carCapacity }}</span>
+        </v-row>
+        <v-row v-if="markerItem.mCapacity != '-1'">
+          <span class="body-1">Motorcycle Capacity: {{ markerItem.mCapacity }}</span>
+        </v-row>
+        <v-row v-if="markerItem.hvCapacity != '-1'">
+          <span class="body-1">Heavy Vehicle Capacity: {{ markerItem.hvCapacity }}</span>
+        </v-row>
+      </v-container>
+      <v-btn class="mt-5" color="info" @click="getDirection(markerPos)" type="submit">Directions</v-btn>
+    </gmap-info-window>
+    <CarparkFilter class="filterBtn" id="filter" @clicked="onFilter"></CarparkFilter>
+    <v-toolbar id="filterBar" dense floating>
+      <v-text-field hide-details prepend-icon="mdi-magnify" single-line></v-text-field>
+      <v-btn icon>
+        <v-icon color="blue">mdi-crosshairs-gps</v-icon>
+      </v-btn>
+      <v-btn icon>
+        <v-icon>mdi-dots-horizontal</v-icon>
+      </v-btn>
+    </v-toolbar>
+    <v-btn id="gpsBtn" @click="geolocation" class="ma-2 gmcontrol1">
+      <v-icon size="28" color="blue darken-1">mdi-crosshairs-gps</v-icon>
+    </v-btn>
+  </gmap-map>
+</template>
+
+<script>
+/*global google*/
+import mapStyles from "@/assets/mapStyle";
+import * as MarkerClusterer from "marker-clusterer-plus";
+import CarparkFilter from "./utils/filter";
+const mapMarker = require("../assets/mapmarker.png");
+const carMarker = require("../assets/usermarker.png");
+var gmap;
+var directionsDisplay;
+var directionsService;
+export default {
+  components: {
+    CarparkFilter
+  },
+  data() {
+    return {
+      center: {
+        lat: 1.3521,
+        lng: 103.8198
+      },
+      zoom: 14,
+      markers: [],
+      markerItem: {},
+      carparkItem: {},
+      filterConfig: this.$store.getters.FILTER,
+      mapStyle: {
+        styles: mapStyles,
+        disableDefaultUi: false,
+        zoomControl: false,
+        mapTypeControl: false,
+        scaleControl: true,
+        streetViewControl: false,
+        rotateControl: true,
+        fullscreenControl: false
+      },
+      markerOptions: {
+        url: mapMarker,
+        size: { width: 30, height: 30 },
+        scaledSize: { width: 30, height: 30 }
+      },
+      userMarkerOptions: {
+        url: carMarker,
+        size: { width: 40, height: 40 },
+        scaledSize: { width: 40, height: 40 }
+      },
+      currentinfo: true,
+      window_open: false,
+      markerPos: {
+        lat: 1.3521,
+        lng: 103.8198
+      }
+    };
+  },
+  mounted: function() {
+    /* Do not remove */
+    /* Need to add mapref on gmaps */
+    /* https://github.com/xkjyeah/vue-google-maps/issues/403 */
+    this.$refs.mapRef.$mapPromise.then(map => {
+      //google api global object - important
+      gmap = map;
+      this.initGmaps();
+      this.geolocation();
+      this.fetchCaparks();
+    });
+  },
+  methods: {
+    onFilter(filterConfig) {
+      //Pass the updated filter config
+      //Filter by the markers
+      this.filterConfig = filterConfig;
+    },
+    initGmaps: function() {
+      var filterBar = document.getElementById("filter");
+      var gpsBtn = document.getElementById("gpsBtn");
+      this.mapObject = this.$refs.mapRef.$mapObject;
+      this.mapObject.controls[google.maps.ControlPosition.TOP_RIGHT].push(
+        filterBar
+      );
+      this.mapObject.controls[google.maps.ControlPosition.RIGHT_BOTTOM].push(
+        gpsBtn
+      );
+      //To change the polyline color
+      //polylineOptions:{strokeColor:"#4a4a4a",strokeWeight:5},
+      //Initialise it once
+      directionsDisplay = new google.maps.DirectionsRenderer({
+        suppressMarkers: true,
+        polylineOptions: { strokeColor: "green", strokeWeight: 5 }
+      });
+    },
+    geolocation: function() {
+      navigator.geolocation.getCurrentPosition(position => {
+        this.center = {
+          lat: parseFloat(position.coords.latitude),
+          lng: parseFloat(position.coords.longitude)
+        };
+        this.window_open = false;
+        this.currentinfo = !this.currentinfo;
+        this.$refs.mapRef.panTo(this.center);
+      });
+    },
+    selectUserLocation: function() {
+      this.currentinfo = !this.currentinfo;
+      this.$refs.mapRef.panTo(this.center);
+    },
+    fetchCaparks: function() {
+      let cur = this;
+      this.axios
+        .get("https://parkingslotapi.azurewebsites.net/api/carpark/all")
+        .then(function(response) {
+          var markers = [];
+          for (var i = 0; i < response.data.length; i++) {
+            //Remove zero coordinates marker
+            if (
+              response.data[i].xCoord != "0" &&
+              response.data[i].yCoord != "0"
+            ) {
+              var userloc = {
+                position: {
+                  id: response.data[i].id,
+                  carparkId: response.data[i].carparkId,
+                  lat: parseFloat(response.data[i].xCoord),
+                  lng: parseFloat(response.data[i].yCoord)
+                }
+              };
+              var marker = new google.maps.Marker({
+                position: userloc.position,
+                map: gmap,
+                icon: cur.markerOptions
+              });
+              cur.addClickEvent(marker, userloc.position);
+              markers.push(marker);
+            }
+          }
+          var markerCluster = new MarkerClusterer(gmap, markers);
+        });
+    },
+    fetchCarparkItem: function(id) {
+      let cur = this;
+      this.axios
+        .get("https://parkingslotapi.azurewebsites.net/api/carpark/" + id)
+        .then(function(response) {
+          cur.markerItem = response.data;
+        });
+    },
+    addClickEvent: function(marker, markerInfo) {
+      //Add a listener for each marker
+      //Render information on one infowindow
+      //Update the position
+      let cur = this;
+      marker.addListener("click", function() {
+        cur.window_open = true;
+        cur.currentinfo = false;
+        var position = {
+          lat: parseFloat(markerInfo.lat),
+          lng: parseFloat(markerInfo.lng)
+        };
+        cur.markerPos = position;
+        cur.$refs.mapRef.panTo(cur.markerPos);
+        cur.fetchCarparkItem(markerInfo.id);
+      });
+    },
+    getDirection: function(markerInfo) {
+      //Close the infowindow
+      this.window_open = false;
+      var destination = new Object();
+      destination.lat = parseFloat(markerInfo.lat);
+      destination.lng = parseFloat(markerInfo.lng);
+      directionsService = new google.maps.DirectionsService();
+      directionsDisplay.setMap(this.$refs.mapRef.$mapObject);
+      directionsService.route(
+        {
+          origin: this.center,
+          destination: destination,
+          travelMode: "DRIVING"
+          /* More configurations
+          transitOptions: TransitOptions,
+          drivingOptions: DrivingOptions,
+          unitSystem: UnitSystem,
+          waypoints[]: DirectionsWaypoint,
+          optimizeWaypoints: Boolean,
+          provideRouteAlternatives: Boolean,
+          avoidFerries: Boolean,
+          avoidHighways: Boolean,
+          avoidTolls: Boolean,
+          */
+        },
+        function(response, status) {
+          if (status === "OK") {
+            directionsDisplay.setDirections(response);
+            console.log(response.routes[0].legs[0].steps);
+          } else {
+            console.error("Directions request failed due to " + status);
+          }
+        }
+      );
+      console.log("Finished getting the route!");
+    }
+  }
+};
+</script>
+<style>
+/* Infowindow styling */
+.gm-style-iw {
+  width: 350px !important;
+  background-color: #fff !important;
+  box-shadow: 0 1px 6px rgba(178, 178, 178, 0.6);
+}
+
+.gmcontrol1 {
+  position: absolute;
+  background-color: white;
+  top: 90%;
+  right: 0;
+  bottom: 0;
+  z-index: 10;
+  width: 40px !important;
+  height: 40px !important;
+}
+
+#google-map {
+  width: 100%;
+  height: 100%;
+}
+
+#filterBar {
+  width: 300px;
+  margin-top: 10px !important;
+  margin: 0 auto;
+}
+</style>
