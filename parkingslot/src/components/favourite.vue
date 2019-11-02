@@ -24,36 +24,46 @@
     <v-dialog v-model="dialog" width="500">
       <v-card>
         <v-card-title class="headline grey lighten-2" primary-title>Carpark Information</v-card-title>
-
         <v-card-text>
-          <br />
-          {{"Carpark ID: " + viewingItem.carparkId}}
-          <br />
-          {{"Carpark Name: " + viewingItem.carparkName}}
-          <br />
-          {{"Agency Type: " + viewingItem.agencyType}}
-          <br />
-          {{"Carpark Location: " + viewingItem.carparkLocation}}
-          <br />
-          {{"Total Available Lots: " + viewingItem.totalAvailableLots}}
-          <br />
-          {{"Total Available Car Lots: " + viewingItem.carAvailability}}
-          <br />
-          {{"Total Available Motorcycle Lots: " + viewingItem.mAvailability}}
-          <br />
-          {{"Total Available Heavy Vehicle Lots: " + viewingItem.hvAvailability}}
-          <br />
-          {{"Total Lots: " + viewingItem.totalLots}}
-          <br />
-          {{"Total Car Lots: " + viewingItem.carCapacity}}
-          <br />
-          {{"Total Motorcycle Lots: " + viewingItem.mCapacity}}
-          <br />
-          {{"Total Heavy Vehicle Lots: " + viewingItem.hvCapacity}}
-          <br />
-          {{"Parking Rate: " +viewingItem.parkingFee}}
+          <v-container>
+            <v-row>
+              <span class="body-1">Carpark ID: {{ viewingItem.carparkId }}</span>
+            </v-row>
+            <v-row>
+              <span class="body-1">Carpark Name: {{ viewingItem.name }}</span>
+            </v-row>
+            <v-row>
+              <span class="body-1">Agency Type: {{ viewingItem.agency }}</span>
+            </v-row>
+            <v-row>
+              <span class="body-1">Address: {{ viewingItem.address }}</span>
+            </v-row>
+            <v-row v-if="viewingItem.totalAvailableLots != '-1'">
+              <span class="body-1">Total Available Lots: {{ viewingItem.totalAvailableLots }}</span>
+            </v-row>
+            <v-row v-if="viewingItem.totalLots != '-1'">
+              <span class="body-1">Total Lots: {{ viewingItem.totalLots }}</span>
+            </v-row>
+            <v-row v-if="viewingItem.carAvailability != '-1'">
+              <span class="body-1">Car Availability: {{ viewingItem.carAvailability }}</span>
+            </v-row>
+            <v-row v-if="viewingItem.mAvailability != '-1'">
+              <span class="body-1">Motorcycle Availability: {{ viewingItem.mAvailability }}</span>
+            </v-row>
+            <v-row v-if="viewingItem.hvAvailability != '-1'">
+              <span class="body-1">Heavy Vehicle Availability: {{ viewingItem.hvAvailability }}</span>
+            </v-row>
+            <v-row v-if="viewingItem.carCapacity != '-1'">
+              <span class="body-1">Car Capacity: {{ viewingItem.carCapacity }}</span>
+            </v-row>
+            <v-row v-if="viewingItem.mCapacity != '-1'">
+              <span class="body-1">Motorcycle Capacity: {{ viewingItem.mCapacity }}</span>
+            </v-row>
+            <v-row v-if="viewingItem.hvCapacity != '-1'">
+              <span class="body-1">Heavy Vehicle Capacity: {{ viewingItem.hvCapacity }}</span>
+            </v-row>
+          </v-container>
         </v-card-text>
-
         <v-card-actions>
           <div class="flex-grow-1"></div>
           <v-btn color="primary" text @click="dialog = false">Go Back</v-btn>
@@ -136,39 +146,14 @@ export default {
               lotType: response.data.lotType,
               agencyType: response.data.agencyType,
               carparkLocation: response.data.address,
-              totalAvailableLots:
-                response.data.totalAvailableLots != -1
-                  ? response.data.totalAvailableLots
-                  : "Not Available",
-              totalLots:
-                response.data.totalLots != -1
-                  ? response.data.totalLots
-                  : "Not Available",
-              carAvailability:
-                response.data.carAvailability != -1
-                  ? response.data.carAvailability
-                  : "Not Available",
-              mAvailability:
-                response.data.mAvailability != -1
-                  ? response.data.mAvailability
-                  : "Not Available",
-              hvAvailability:
-                response.data.hvAvailability != -1
-                  ? response.data.hvAvailability
-                  : "Not Available",
-              carCapacity:
-                response.data.carCapacity != -1
-                  ? response.data.carCapacity
-                  : "Not Available",
-              mCapacity:
-                response.data.mCapacity != -1
-                  ? response.data.mCapacity
-                  : "Not Available",
-              hvCapacity:
-                response.data.hvCapacity != -1
-                  ? response.data.hvCapacity
-                  : "Not Available",
-              parkingFee: "$1/h"
+              totalAvailableLots: response.data.totalAvailableLots,
+              totalLots: response.data.totalLots,
+              carAvailability: response.data.carAvailability,
+              mAvailability: response.data.mAvailability ,
+              hvAvailability: response.data.hvAvailability,
+              carCapacity: response.data.carCapacity,
+              mCapacity: response.data.mCapacity,
+              hvCapacity: response.data.hvCapacity
             });
           }
         });
