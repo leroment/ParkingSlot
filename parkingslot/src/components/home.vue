@@ -41,7 +41,7 @@
     </v-list>
     <v-dialog v-model="dialog" width="500">
       <v-card>
-        <v-card-title class="headline grey lighten-2" primary-title>Carpark Information</v-card-title>
+        <v-card-title class="headline blue font-weight-light darken-2" style="color:white" primary-title>Carpark Information</v-card-title>
         <v-card-text>
           <v-container>
             <v-row>
@@ -80,50 +80,34 @@
             <v-row v-if="viewingItem.hvCapacity != '-1'">
               <span class="body-1">Heavy Vehicle Capacity: {{ viewingItem.hvCapacity }}</span>
             </v-row>
-           <v-row v-if="viewingItem.carRates != 0">
-              <span class="body-1">Car Rates:</span>
+            <br />
+            <v-row v-if="viewingItem.carRates != 0">
+              <span style="text-decoration: underline !important;" class="body-1">Car Rates:</span>
             </v-row>
-            <div class="row" v-for="rate in viewingItem.carRates" :key=rate.id>
-              <br>
-              Time Range: {{rate.startTime}} - {{rate.endTime}}
-                <br>
-                Weekday Rate: {{rate.weekdayRate}} per 30 min
-                <br>
-                Saturday Rate: {{rate.satdayRate}} per 30 min
-                <br>
-                Sunday/Public Holiday Rate: {{rate.sunPHRate}} per 30 min
-                <br>
-            </div>
-            <br>
+            <v-row v-for="rate in viewingItem.carRates" :key="rate.id">
+              <span class="body-1">Time Range: {{rate.startTime}} - {{rate.endTime}}</span>
+              <span class="body-1">Weekday Rate: {{rate.weekdayRate}} per 30 min</span>
+              <span class="body-1">Saturday Rate: {{rate.satdayRate}} per 30 min</span>
+              <span class="body-1 mb-5">Sunday/Public Holiday Rate: {{rate.sunPHRate}} per 30 min</span>
+            </v-row>
             <v-row v-if="viewingItem.motorRates != 0">
-              <span class="body-1">Motorcycle Rates:</span>
+              <span style="text-decoration: underline !important;" class="body-1">Motorcycle Rates:</span>
             </v-row>
-            <div class="row" v-for="rate in viewingItem.motorRates" :key=rate.id>
-              <br>
-              Time Range: {{rate.startTime}} - {{rate.endTime}}
-                <br>
-                Weekday Rate: {{rate.weekdayRate}} per 30 min
-                <br>
-                Saturday Rate: {{rate.satdayRate}} per 30 min
-                <br>
-                Sunday/Public Holiday Rate: {{rate.sunPHRate}} per 30 min
-                <br>
-            </div>
+            <v-row class="row" v-for="rate in viewingItem.motorRates" :key="rate.id">
+              <span class="body-1">Time Range: {{rate.startTime}} - {{rate.endTime}}</span>
+              <span class="body-1">Weekday Rate: {{rate.weekdayRate}} per 30 min</span>
+              <span class="body-1">Saturday Rate: {{rate.satdayRate}} per 30 min</span>
+              <span class="body-1 mb-5">Sunday/Public Holiday Rate: {{rate.sunPHRate}} per 30 min</span>
+            </v-row>
             <v-row v-if="viewingItem.hvRates != 0">
-              <span class="body-1">Heavy Vehicle Rates:</span>
+              <span style="text-decoration: underline !important;" class="body-1">Heavy Vehicle Rates:</span>
             </v-row>
-            <div class="row" v-for="rate in viewingItem.hvRates" :key=rate.id>
-              <br>
-              Time Range: {{rate.startTime}} - {{rate.endTime}}
-                <br>
-                Weekday Rate: {{rate.weekdayRate}} per 30 min
-                <br>
-                Saturday Rate: {{rate.satdayRate}} per 30 min
-                <br>
-                Sunday/Public Holiday Rate: {{rate.sunPHRate}} per 30 min
-                <br>
-            </div>
-            <br>
+            <v-row class="row" v-for="rate in viewingItem.hvRates" :key="rate.id">
+              <span class="body-1">Time Range: {{rate.startTime}} - {{rate.endTime}}</span>
+              <span class="body-1">Weekday Rate: {{rate.weekdayRate}} per 30 min</span>
+              <span class="body-1">Saturday Rate: {{rate.satdayRate}} per 30 min</span>
+              <span class="body-1 mt-5">Sunday/Public Holiday Rate: {{rate.sunPHRate}} per 30 min</span>
+            </v-row>
           </v-container>
         </v-card-text>
         <v-card-actions>
@@ -250,50 +234,48 @@ export default {
           var HVRates = [];
           var CarRates = [];
           if (response.status == "200") {
-            
-            response.data.forEach((rate)=>{
-              if (rate.vehicleType == "Motorcycle"){
-                  MotorcycleRates.push({
-                    startTime: rate.startTime,
-                    endTime: rate.endTime,
-                    weekdayRate: rate.weekdayRate,
-                    satdayRate: rate.satdayRate,
-                    sunPHRate : rate.sunPHRate
-                  })
+            response.data.forEach(rate => {
+              if (rate.vehicleType == "Motorcycle") {
+                MotorcycleRates.push({
+                  startTime: rate.startTime,
+                  endTime: rate.endTime,
+                  weekdayRate: rate.weekdayRate,
+                  satdayRate: rate.satdayRate,
+                  sunPHRate: rate.sunPHRate
+                });
               }
-              if (rate.vehicleType == "Heavy Vehicle"){
-                  HVRates.push({
-                    startTime: rate.startTime,
-                    endTime: rate.endTime,
-                    weekdayRate: rate.weekdayRate,
-                    satdayRate: rate.satdayRate,
-                    sunPHRate : rate.sunPHRate
-                  })
+              if (rate.vehicleType == "Heavy Vehicle") {
+                HVRates.push({
+                  startTime: rate.startTime,
+                  endTime: rate.endTime,
+                  weekdayRate: rate.weekdayRate,
+                  satdayRate: rate.satdayRate,
+                  sunPHRate: rate.sunPHRate
+                });
               }
-              if (rate.vehicleType == "Car"){
-                  CarRates.push({
-                    startTime: rate.startTime,
-                    endTime: rate.endTime,
-                    weekdayRate: rate.weekdayRate,
-                    satdayRate: rate.satdayRate,
-                    sunPHRate : rate.sunPHRate
-                  })
+              if (rate.vehicleType == "Car") {
+                CarRates.push({
+                  startTime: rate.startTime,
+                  endTime: rate.endTime,
+                  weekdayRate: rate.weekdayRate,
+                  satdayRate: rate.satdayRate,
+                  sunPHRate: rate.sunPHRate
+                });
               }
-          });
+            });
 
-          if (CarRates == [] ) CarRates = 0; //So that can clear in v-if
-          if (MotorcycleRates == []) MotorcycleRates = 0; //So can clear in v-if
-          if (HVRates == []) HVRates = 0;
-            
+            if (CarRates == []) CarRates = 0; //So that can clear in v-if
+            if (MotorcycleRates == []) MotorcycleRates = 0; //So can clear in v-if
+            if (HVRates == []) HVRates = 0;
+
             item.motorRates = MotorcycleRates;
             item.carRates = CarRates;
             item.hvRates = HVRates;
           }
 
-      cur.viewingItem = item;
-      cur.dialog = true;
+          cur.viewingItem = item;
+          cur.dialog = true;
         });
-      
     }
   }
 };

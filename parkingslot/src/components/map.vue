@@ -71,6 +71,26 @@
         <v-icon>mdi-dots-horizontal</v-icon>
       </v-btn>
     </v-toolbar>
+    <template>
+      <div class="text-center">
+        <v-bottom-sheet v-model="sheet">
+          <template v-slot:activator="{ on }">
+            <v-btn
+              color="purple"
+              v-show="route_open"
+              id="routeModal"
+              style="top:92%;"
+              dark
+              v-on="on"
+            >Show Route</v-btn>
+          </template>
+          <v-sheet class="text-center" height="200px">
+            <span></span>
+            <v-btn class="mt-6" color="red" @click="sheet = !sheet">close</v-btn>
+          </v-sheet>
+        </v-bottom-sheet>
+      </div>
+    </template>
     <v-btn id="gpsBtn" @click="geolocation" class="ma-2 gmcontrol1">
       <v-icon size="28" color="blue darken-1">mdi-crosshairs-gps</v-icon>
     </v-btn>
@@ -127,7 +147,9 @@ export default {
       markerPos: {
         lat: 1.3521,
         lng: 103.8198
-      }
+      },
+      sheet: false,
+      route_open: false
     };
   },
   mounted: function() {
@@ -151,12 +173,16 @@ export default {
     initGmaps: function() {
       var filterBar = document.getElementById("filter");
       var gpsBtn = document.getElementById("gpsBtn");
+      var routeModal = document.getElementById("routeModal");
       this.mapObject = this.$refs.mapRef.$mapObject;
       this.mapObject.controls[google.maps.ControlPosition.TOP_RIGHT].push(
         filterBar
       );
       this.mapObject.controls[google.maps.ControlPosition.RIGHT_BOTTOM].push(
         gpsBtn
+      );
+      this.mapObject.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(
+        routeModal
       );
       //To change the polyline color
       //polylineOptions:{strokeColor:"#4a4a4a",strokeWeight:5},
@@ -226,6 +252,7 @@ export default {
       marker.addListener("click", function() {
         cur.window_open = true;
         cur.currentinfo = false;
+        cur.route_open = false;
         var position = {
           lat: parseFloat(markerInfo.lat),
           lng: parseFloat(markerInfo.lng)
@@ -237,6 +264,7 @@ export default {
     },
     getDirection: function(markerInfo) {
       //Close the infowindow
+      let cur = this;
       this.window_open = false;
       var destination = new Object();
       destination.lat = parseFloat(markerInfo.lat);
@@ -263,7 +291,9 @@ export default {
         },
         function(response, status) {
           if (status === "OK") {
+            cur.route_open = true;
             directionsDisplay.setDirections(response);
+            console.log(response);
           } else {
             console.error("Directions request failed due to " + status);
           }
