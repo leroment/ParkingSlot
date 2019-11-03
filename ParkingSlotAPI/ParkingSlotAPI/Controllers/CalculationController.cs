@@ -29,7 +29,7 @@ namespace ParkingSlotAPI.Controllers
 		}
 
 		[HttpGet("{id}")]
-		public ActionResult Index(Guid id, [FromQuery] DateTime StartTime, [FromQuery] DateTime EndTime, [FromQuery] String vehicleType)
+		public IActionResult Index(Guid id, [FromQuery] DateTime StartTime, [FromQuery] DateTime EndTime, [FromQuery] String vehicleType)
 		{
 			var duration = 0.0;
 		
@@ -63,14 +63,9 @@ namespace ParkingSlotAPI.Controllers
 
 			var result = new Calculation(StartTime, (int)duration);
 			List<HoursPerDay> dayOfWeek = result.getparkingDay(StartTime, EndTime);
-
 			
 			foreach (HoursPerDay EachHoursPerDay in dayOfWeek)
 			{
-
-
-
-
 				if (EachHoursPerDay.getDay() > 0 && EachHoursPerDay.getDay() < 6)
 				{
 						//weekdays calculation

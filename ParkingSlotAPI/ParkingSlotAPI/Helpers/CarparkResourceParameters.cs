@@ -26,12 +26,14 @@ namespace ParkingSlotAPI.Helpers
 
         public string AgencyType { get; set; }
 
-        public string VehType { get; set; }
+        public string VehType { get; set; } = "All";
 
         public DateTime StartDateTime { get; set; }
 
         public DateTime EndDateTime { get; set; }
 
         public string SearchQuery { get; set; }
+
+        public double Price { get; set; } = Double.MaxValue;
     }
 }

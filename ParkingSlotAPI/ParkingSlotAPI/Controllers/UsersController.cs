@@ -21,6 +21,7 @@ using ParkingSlotAPI.Entities;
 using ParkingSlotAPI.Helpers;
 using ParkingSlotAPI.Models;
 using ParkingSlotAPI.Repository;
+using ParkingSlotAPI.Services;
 
 namespace ParkingSlotAPI.Controllers
 {
