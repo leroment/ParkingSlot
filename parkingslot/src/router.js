@@ -10,8 +10,9 @@ const ResetPassword = () => import('@/components/auth/resetpassword.vue');
 const Profile = () => import('@/components/profile.vue');
 const Favourite = () => import('@/components/favourite.vue');
 const Map = () => import('@/components/map.vue');
-const Filter = () => import('@/components/utils/filter.vue');
-const Admin = () => import('@/components/admin.vue');
+const Admin = () => import('@/components/admin/admin.vue');
+const Feedback = () => import('@/components/admin/feedback.vue');
+//const Filter = () => import('@/components/utils/filter.vue');
 
 Vue.use(Router);
 
@@ -39,6 +40,19 @@ const redirect = (to, from, next) => {
   next('/main')
 }
 
+const checkAdmin = (to, from, next) => {
+  if (store.getters.ISLOGGEDIN) {
+    if (store.getters.ROLE == "Admin") {
+      next()
+      return
+    }
+    next('/home')
+  }
+  else {
+    next('/login')
+  }
+}
+
 export default new Router({
   scrollBehavior() {
     return { x: 0, y: 0 };
@@ -54,6 +68,7 @@ export default new Router({
       name: 'main',
       path: '/main',
       component: Main,
+      beforeEnter: ifNotAuthenticated
     },
     {
       name: 'login',
@@ -103,15 +118,22 @@ export default new Router({
       component: ResetPassword,
     },
     {
+      name: 'admin',
+      path: '/admin',
+      component: Admin,
+      beforeEnter: checkAdmin
+    },
+    {
+      name: 'feedback',
+      path: '/feedback',
+      component: Feedback,
+      beforeEnter: checkAdmin
+    },
+    /*{
       name: 'filter',
       path: '/filter',
       component: Filter
-    },
-    {
-      name: 'admin',
-      path: '/admin',
-      component: Admin
-    },
+    },*/
     { path: '*', redirect: '/home' }
   ],
   mode: 'history'

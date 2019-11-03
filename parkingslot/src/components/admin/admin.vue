@@ -18,6 +18,12 @@
             <template v-slot:activator="{ on }">
               <v-spacer></v-spacer>
               <v-btn
+                color="teal"
+                dark
+                class="ml-5 mb-2 mt-3"
+                to="/feedback"
+              >Manage Feedbacks</v-btn>
+              <v-btn
                 color="primary"
                 dark
                 class="ml-5 mb-2 mt-3"
@@ -77,6 +83,7 @@
             </v-card>
           </v-dialog>
         </v-toolbar>
+
         <v-dialog v-model="showEdit" max-width="1000px">
           <v-card>
             <v-card-title>
@@ -109,6 +116,7 @@
                 </v-form>
               </v-container>
             </v-card-text>
+
             <v-card-actions>
               <div class="flex-grow-1"></div>
               <v-btn color="blue darken-1" text @click="cancelEdit">Cancel</v-btn>
@@ -116,6 +124,7 @@
             </v-card-actions>
           </v-card>
         </v-dialog>
+
         <v-dialog v-model="showUser" max-width="1000px">
           <v-card>
             <v-card-title>
@@ -148,14 +157,18 @@
                 <v-card-actions>
                   <div class="flex-grow-1"></div>
                 </v-card-actions>
+                <v-card-actions>
+                  <div class="flex-grow-1"></div>
+                </v-card-actions>
               </v-container>
             </v-card-text>
           </v-card>
         </v-dialog>
       </template>
+
       <template v-slot:body="{ items }">
         <tbody>
-          <tr v-for="item in items" :key="item.id" v-on:click="selectUser(item)">
+          <tr v-for="item in items" :key="item._id" v-on:click="selectDiscount(item)">
             <template v-if="!isMobile">
               <td>{{item.username}}</td>
               <td>{{item.firstName}}</td>
@@ -167,8 +180,8 @@
                   <v-card-actions>
                     <v-spacer></v-spacer>
                     <v-btn color="blue darken-1" text @click.stop="viewItem(item)">View</v-btn>
-                    <v-btn color="blue darken-1" text @click.stop="editUser(item)">Edit</v-btn>
-                    <v-btn color="blue darken-1" text @click.stop="deleteUser(item)">Delete</v-btn>
+                    <v-btn color="orange darken-1" text @click.stop="editUser(item)">Edit</v-btn>
+                    <v-btn color="red darken-1" text @click.stop="deleteUser(item)">Delete</v-btn>
                   </v-card-actions>
                 </v-layout>
               </td>
@@ -184,8 +197,8 @@
                   <li class="flex-item" data-label="Status">
                     <v-card-actions>
                       <v-btn color="blue darken-1" text @click.stop="viewItem(item)">View</v-btn>
-                      <v-btn color="blue darken-1" text @click.stop="editItem(item)">Edit</v-btn>
-                      <v-btn color="blue darken-1" text @click.stop="deleteUser(item)">Delete</v-btn>
+                      <v-btn color="orange darken-1" text @click.stop="editItem(item)">Edit</v-btn>
+                      <v-btn color="red darken-1" text @click.stop="deleteUser(item)">Delete</v-btn>
                     </v-card-actions>
                   </li>
                 </ul>
@@ -201,47 +214,52 @@
 <script>
 export default {
   data: () => ({
+    selected: [],
+    showUser: false,
+    showCreate: false,
+    showEdit: false,
     headers: [
       {
         text: "Username",
-        value: "username",
-        width: 150
+        value: "username"
       },
-      { text: "First Name", width: 150, value: "firstName" },
-      { text: "Last Name", width: 150, value: "lastName" },
-      { text: "Email", width: 150, value: "email" },
-      { text: "Phone Number", width: 150, value: "phoneNumber" },
+      { text: "First Name", value: "firstName" },
+      { text: "Last Name", value: "lastName" },
+      { text: "Email", value: "email" },
+      {
+        text: "Phone Number",
+        value: "phoneNumber",
+        filterable: false,
+        sortable: false
+      },
       {
         text: "Actions",
         value: "actions",
         align: "center",
         filterable: false,
-        sortable: false
+        sortable: false,
+        width: 150
       }
     ],
     users: [],
-    selected: [],
+    viewUser: {},
+    editUserInfo: {},
+    newUser: {},
     totalUsers: 0,
     pagination: {},
     PageNumber: 1,
-    sortingName: "username",
     loading: true,
+    sortingName: "username",
     isMobile: false,
-    showCreate: false,
-    showUser: false,
-    showEdit: false,
-    newUser: {},
-    viewUser: {},
-    editUserInfo: {}
+    isAscending: true
   }),
   watch: {
-    handler() {
-      this.fetchUsers();
-    },
-    deep: true
-  },
-  created: function() {
-    this.fetchUsers();
+    options: {
+      handler() {
+        this.fetchUsers();
+      },
+      deep: true
+    }
   },
   computed: {
     options(nv) {
@@ -255,33 +273,30 @@ export default {
       if (window.innerWidth < 769) this.isMobile = true;
       else this.isMobile = false;
     },
-    selectUser(user) {
-      var userId = user.id;
-      if (this.selected.includes(userId)) {
-        // Removing the event id
-        this.selected.splice(this.selected.indexOf(userId), 1);
-      } else {
-        this.selected.push(userId);
-      }
-    },
     fetchUsers() {
       let cur = this;
       this.loading = true;
-
       const { sortBy, sortDesc, itemsPerPage } = this.pagination;
-      console.log(this.pagination);
+      this.PageNumber = this.pagination.page;
+
+      this.sortingName = sortBy[0];
+      this.isAscending = sortDesc[0];
+
+      if (this.isAscending != true && this.isAscending != undefined) {
+        this.sortingName = this.sortingName + " desc";
+      }
+
+      let config = {
+        params: {
+          PageNumber: this.PageNumber,
+          OrderBy: this.sortingName
+        }
+      };
       this.axios
-        .get("https://parkingslotapi.azurewebsites.net/api/users", {
-          headers: { Authorization: "Bearer " + cur.$store.getters.TOKEN },
-          params: {
-            PageNumber: cur.PageNumber,
-            //OrderBy: ""
-          }
-        })
+        .get("https://parkingslotapi.azurewebsites.net/api/users", config)
         .then(function(response) {
-            console.log(response);
-          cur.users = response.data;
-          cur.totalUsers = 12;
+          cur.users = response.data.userDtos;
+          cur.totalUsers = response.data.totalCount;
           setTimeout(() => {
             cur.loading = false;
           }, 500);
@@ -291,19 +306,18 @@ export default {
       this.viewUser = Object.assign({}, item);
       this.showUser = true;
     },
-    getUserIndex(userId) {
+    getUserIndex(userid) {
       let userIndex = this.users
         .map(user => {
           return user.id;
         })
-        .indexOf(userId);
+        .indexOf(userid);
       return userIndex;
     },
     createUser() {
       this.showCreate = true;
     },
     submitUser() {
-      console.log(this.newUser);
       if (this.newUser.Password != this.newUser.ConfirmPassword) {
         console.log("Password do not match");
       } else {
@@ -311,6 +325,7 @@ export default {
           .dispatch("REGISTER", this.newUser)
           .then(success => {
             this.users.push(this.newUser);
+            for (let keys in this.newUser) delete this.newUser[keys];
             this.showCreate = false;
             console.log("User have been created");
           })
@@ -339,13 +354,17 @@ export default {
             FirstName: this.editUserInfo.firstName,
             LastName: this.editUserInfo.lastName,
             Email: this.editUserInfo.email,
-            PhoneNumber: this.editUserInfo.contact,
+            PhoneNumber: this.editUserInfo.phoneNumber,
             UserId: this.editUserInfo.id
           })
           .then(success => {
-              console.log(success);
             cur.showEdit = false;
+            var index = this.getUserIndex(cur.editUserInfo.id);
+            this.$set(this.users, index, this.editUserInfo);
             console.log("Profile have been successfully updated!");
+          })
+          .catch(error => {
+            console.log(error);
           });
       } else {
         console.log("Form not validated");
@@ -366,6 +385,7 @@ export default {
             const index = cur.getUserIndex(item.id);
             if (~index) {
               cur.users.splice(index, 1);
+              cur.totalUsers = cur.totalUsers-1;
             }
             console.log("User have been deleted!");
           });
@@ -375,5 +395,5 @@ export default {
 };
 </script>
 <style>
-@import url("../assets/table.css");
+@import url("../../assets/table.css");
 </style>

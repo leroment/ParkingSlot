@@ -23,7 +23,7 @@
     </v-list>
     <v-dialog v-model="dialog" width="500">
       <v-card>
-        <v-card-title class="headline grey lighten-2" primary-title>Carpark Information</v-card-title>
+        <v-card-title class="headline blue font-weight-light darken-2" style="color:white" primary-title>Carpark Information</v-card-title>
         <v-card-text>
           <v-container>
             <v-row>
@@ -62,50 +62,34 @@
             <v-row v-if="viewingItem.hvCapacity != '-1'">
               <span class="body-1">Heavy Vehicle Capacity: {{ viewingItem.hvCapacity }}</span>
             </v-row>
+            <br />
             <v-row v-if="viewingItem.carRates != 0">
-              <span class="body-1">Car Rates:</span>
+              <span style="text-decoration: underline !important;" class="body-1">Car Rates:</span>
             </v-row>
-            <div class="row" v-for="rate in viewingItem.carRates" :key=rate.id>
-              <br>
-              Time Range: {{rate.startTime}} - {{rate.endTime}}
-                <br>
-                Weekday Rate: {{rate.weekdayRate}} per 30 min
-                <br>
-                Saturday Rate: {{rate.satdayRate}} per 30 min
-                <br>
-                Sunday/Public Holiday Rate: {{rate.sunPHRate}} per 30 min
-                <br>
-            </div>
-            <br>
+            <v-row v-for="rate in viewingItem.carRates" :key="rate.id">
+              <span class="body-1">Time Range: {{rate.startTime}} - {{rate.endTime}}</span>
+              <span class="body-1">Weekday Rate: {{rate.weekdayRate}} per 30 min</span>
+              <span class="body-1">Saturday Rate: {{rate.satdayRate}} per 30 min</span>
+              <span class="body-1 mb-5">Sunday/Public Holiday Rate: {{rate.sunPHRate}} per 30 min</span>
+            </v-row>
             <v-row v-if="viewingItem.motorRates != 0">
-              <span class="body-1">Motorcycle Rates:</span>
+              <span style="text-decoration: underline !important;" class="body-1">Motorcycle Rates:</span>
             </v-row>
-            <div class="row" v-for="rate in viewingItem.motorRates" :key=rate.id>
-              <br>
-              Time Range: {{rate.startTime}} - {{rate.endTime}}
-                <br>
-                Weekday Rate: {{rate.weekdayRate}} per 30 min
-                <br>
-                Saturday Rate: {{rate.satdayRate}} per 30 min
-                <br>
-                Sunday/Public Holiday Rate: {{rate.sunPHRate}} per 30 min
-                <br>
-            </div>
+            <v-row class="row" v-for="rate in viewingItem.motorRates" :key="rate.id">
+              <span class="body-1">Time Range: {{rate.startTime}} - {{rate.endTime}}</span>
+              <span class="body-1">Weekday Rate: {{rate.weekdayRate}} per 30 min</span>
+              <span class="body-1">Saturday Rate: {{rate.satdayRate}} per 30 min</span>
+              <span class="body-1 mb-5">Sunday/Public Holiday Rate: {{rate.sunPHRate}} per 30 min</span>
+            </v-row>
             <v-row v-if="viewingItem.hvRates != 0">
-              <span class="body-1">Heavy Vehicle Rates:</span>
+              <span style="text-decoration: underline !important;" class="body-1">Heavy Vehicle Rates:</span>
             </v-row>
-            <div class="row" v-for="rate in viewingItem.hvRates" :key=rate.id>
-              <br>
-              Time Range: {{rate.startTime}} - {{rate.endTime}}
-                <br>
-                Weekday Rate: {{rate.weekdayRate}} per 30 min
-                <br>
-                Saturday Rate: {{rate.satdayRate}} per 30 min
-                <br>
-                Sunday/Public Holiday Rate: {{rate.sunPHRate}} per 30 min
-                <br>
-            </div>
-            <br>
+            <v-row class="row" v-for="rate in viewingItem.hvRates" :key="rate.id">
+              <span class="body-1">Time Range: {{rate.startTime}} - {{rate.endTime}}</span>
+              <span class="body-1">Weekday Rate: {{rate.weekdayRate}} per 30 min</span>
+              <span class="body-1">Saturday Rate: {{rate.satdayRate}} per 30 min</span>
+              <span class="body-1 mt-5">Sunday/Public Holiday Rate: {{rate.sunPHRate}} per 30 min</span>
+            </v-row>
           </v-container>
         </v-card-text>
         <v-card-actions>
@@ -143,8 +127,7 @@ export default {
             idArr.forEach(carparkID => {
               this.fetchCarparkInfo(carparkID);
             });
-          }
-          else{
+          } else {
             this.displayMsg = true;
           }
         })
@@ -165,7 +148,7 @@ export default {
                 cur.items.splice(index, 1);
               }
             });
-            if(cur.items.length == 0){
+            if (cur.items.length == 0) {
               this.displayMsg = true;
             }
           })
@@ -176,71 +159,77 @@ export default {
     },
     fetchCarparkInfo: function(carparkID) {
       let cur = this;
-      this.axios.all(
-        [this.axios.get(
-          `https://parkingslotapi.azurewebsites.net/api/carpark/${carparkID}` //Retrieve Carpark information from GetCarpark API call using CarparkID
-        ), this.axios.get(`https://parkingslotapi.azurewebsites.net/api/CarparkRates/${carparkID}`)]) //Retrieve Carpark Rates from GetCarpark API call using CarparkID
-        .then(this.axios.spread((response, response2) => {
-          var MotorcycleRates = [];
-          var HVRates = [];
-          var CarRates = [];
-          if (response.status == "200" && response2.status == "200") {
-
-            response2.data.forEach((rate)=>{
-              if (rate.vehicleType == "Motorcycle"){
+      this.axios
+        .all([
+          this.axios.get(
+            `https://parkingslotapi.azurewebsites.net/api/carpark/${carparkID}` //Retrieve Carpark information from GetCarpark API call using CarparkID
+          ),
+          this.axios.get(
+            `https://parkingslotapi.azurewebsites.net/api/CarparkRates/${carparkID}`
+          )
+        ]) //Retrieve Carpark Rates from GetCarpark API call using CarparkID
+        .then(
+          this.axios.spread((response, response2) => {
+            var MotorcycleRates = [];
+            var HVRates = [];
+            var CarRates = [];
+            if (response.status == "200" && response2.status == "200") {
+              response2.data.forEach(rate => {
+                if (rate.vehicleType == "Motorcycle") {
                   MotorcycleRates.push({
                     startTime: rate.startTime,
                     endTime: rate.endTime,
                     weekdayRate: rate.weekdayRate,
                     satdayRate: rate.satdayRate,
-                    sunPHRate : rate.sunPHRate
-                  })
-              }
-              if (rate.vehicleType == "Heavy Vehicle"){
+                    sunPHRate: rate.sunPHRate
+                  });
+                }
+                if (rate.vehicleType == "Heavy Vehicle") {
                   HVRates.push({
                     startTime: rate.startTime,
                     endTime: rate.endTime,
                     weekdayRate: rate.weekdayRate,
                     satdayRate: rate.satdayRate,
-                    sunPHRate : rate.sunPHRate
-                  })
-              }
-              if (rate.vehicleType == "Car"){
+                    sunPHRate: rate.sunPHRate
+                  });
+                }
+                if (rate.vehicleType == "Car") {
                   CarRates.push({
                     startTime: rate.startTime,
                     endTime: rate.endTime,
                     weekdayRate: rate.weekdayRate,
                     satdayRate: rate.satdayRate,
-                    sunPHRate : rate.sunPHRate
-                  })
-              }
-          });
+                    sunPHRate: rate.sunPHRate
+                  });
+                }
+              });
 
-          if (CarRates == [] ) CarRates = 0; //So that can clear in v-if
-          if (MotorcycleRates == []) MotorcycleRates = 0; //So can clear in v-if
-          if (HVRates == []) HVRates = 0;
+              if (CarRates == []) CarRates = 0; //So that can clear in v-if
+              if (MotorcycleRates == []) MotorcycleRates = 0; //So can clear in v-if
+              if (HVRates == []) HVRates = 0;
 
-            cur.items.push({
-              id: response.data.id,
-              carparkId: response.data.carparkId,
-              carparkName: response.data.carparkName,
-              lotType: response.data.lotType,
-              agencyType: response.data.agencyType,
-              carparkLocation: response.data.address,
-              totalAvailableLots: response.data.totalAvailableLots,
-              totalLots: response.data.totalLots,
-              carAvailability: response.data.carAvailability,
-              mAvailability: response.data.mAvailability ,
-              hvAvailability: response.data.hvAvailability,
-              carCapacity: response.data.carCapacity,
-              mCapacity: response.data.mCapacity,
-              hvCapacity: response.data.hvCapacity,
-              motorRates : MotorcycleRates,
-              carRates: CarRates,
-              hvRates : HVRates
-            });
-          }
-        }));
+              cur.items.push({
+                id: response.data.id,
+                carparkId: response.data.carparkId,
+                carparkName: response.data.carparkName,
+                lotType: response.data.lotType,
+                agencyType: response.data.agencyType,
+                carparkLocation: response.data.address,
+                totalAvailableLots: response.data.totalAvailableLots,
+                totalLots: response.data.totalLots,
+                carAvailability: response.data.carAvailability,
+                mAvailability: response.data.mAvailability,
+                hvAvailability: response.data.hvAvailability,
+                carCapacity: response.data.carCapacity,
+                mCapacity: response.data.mCapacity,
+                hvCapacity: response.data.hvCapacity,
+                motorRates: MotorcycleRates,
+                carRates: CarRates,
+                hvRates: HVRates
+              });
+            }
+          })
+        );
     },
     displayCarparkInfo: function(item) {
       this.viewingItem = item;
