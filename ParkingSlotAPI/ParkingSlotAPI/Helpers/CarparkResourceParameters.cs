@@ -28,9 +28,9 @@ namespace ParkingSlotAPI.Helpers
 
         public string VehType { get; set; } = "All";
 
-        public DateTime StartDateTime { get; set; }
+        public DateTime StartDateTime { get; set; } = DateTime.MinValue;
 
-        public DateTime EndDateTime { get; set; }
+        public DateTime EndDateTime { get; set; } = DateTime.MinValue;
 
         public string SearchQuery { get; set; }
 

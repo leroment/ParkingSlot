@@ -28,7 +28,159 @@ namespace ParkingSlotAPI.Controllers
 			_mapper = mapper;
 		}
 
-		[HttpGet("{id}")]
+        [HttpGet("calculate/{id}")]
+        public IActionResult CalculateCarparkPrice(Guid id, [FromQuery] DateTime StartTime, [FromQuery] DateTime EndTime, [FromQuery] String vehicleType)
+        {
+            double price = 0.0;
+            // get the carpark rates from the specified carpark
+            var carparkRatesRecords = ICarparkRateRepository.GetCarparkRateById(id, vehicleType).ToList();
+
+            // start time component
+            var startTimeDayComponent = StartTime.DayOfWeek;
+            var startTimeHourComponent = StartTime.Hour;
+            var startTimeMinuteComponent = StartTime.Minute;
+
+
+            // end time component
+            var endTimeDayComponent = EndTime.DayOfWeek;
+            var endTimeHourComponent = EndTime.Hour;
+            var endTimeMinuteComponent = EndTime.Minute;
+
+            // get duration
+            var duration = EndTime - StartTime;
+
+
+            // if the start time and end time are in the same day
+            if (StartTime.DayOfWeek == EndTime.DayOfWeek)
+            {
+                var flatRateCarparkRatesRecords = carparkRatesRecords.Where(a => Double.Parse(a.WeekdayMin.Substring(0, a.WeekdayMin.Length - 5)) > 30).ToList();
+
+                var startTimeWithinCarparkRatesRecords = carparkRatesRecords.Where(a => StartTime.TimeOfDay >= DateTime.Parse(a.StartTime).TimeOfDay).ToList();
+
+                var endTimeWithinCarparkRatesRecords = carparkRatesRecords.Where(a => EndTime.TimeOfDay <= DateTime.Parse(a.EndTime).TimeOfDay).ToList();
+
+                var startTimeOutsideCarparkRatesRecords = carparkRatesRecords.Where(a => StartTime.TimeOfDay < DateTime.Parse(a.EndTime).TimeOfDay).Except(endTimeWithinCarparkRatesRecords).Except(flatRateCarparkRatesRecords).ToList();
+
+                var endTimeOutsideCarparkRatesRecords = carparkRatesRecords.Where(a => EndTime.TimeOfDay > DateTime.Parse(a.StartTime).TimeOfDay).ToList().Except(startTimeWithinCarparkRatesRecords).Except(flatRateCarparkRatesRecords).ToList();
+
+                if (endTimeOutsideCarparkRatesRecords.Count() == endTimeWithinCarparkRatesRecords.Count())
+                {
+                    endTimeOutsideCarparkRatesRecords.Clear();
+                }
+
+                if (startTimeOutsideCarparkRatesRecords.Count() == startTimeWithinCarparkRatesRecords.Count())
+                {
+                    startTimeOutsideCarparkRatesRecords.Clear();
+                }
+
+                if (startTimeOutsideCarparkRatesRecords.Count() == endTimeOutsideCarparkRatesRecords.Count())
+                {
+                    startTimeOutsideCarparkRatesRecords.RemoveAt(startTimeOutsideCarparkRatesRecords.Count - 1);
+                    endTimeOutsideCarparkRatesRecords.RemoveAt(0);
+                }
+
+                // if only one record is shown, this means time is within the database timeframe.
+                if (startTimeWithinCarparkRatesRecords.Count() == 1 && endTimeWithinCarparkRatesRecords.Count() == 1 && startTimeOutsideCarparkRatesRecords.Count() == 0 && endTimeOutsideCarparkRatesRecords.Count() == 0)
+                {
+                    if (startTimeDayComponent == DayOfWeek.Saturday)
+                    {
+                        price = duration.TotalMinutes / Double.Parse(startTimeWithinCarparkRatesRecords[0].SatdayMin.Substring(0, startTimeWithinCarparkRatesRecords[0].SatdayMin.Length - 5)) * Double.Parse(startTimeWithinCarparkRatesRecords[0].SatdayRate.Remove(0, 1));
+                    }
+                    else if (startTimeDayComponent == DayOfWeek.Sunday)
+                    {
+                        price = duration.TotalMinutes / Double.Parse(startTimeWithinCarparkRatesRecords[0].SunPHMin.Substring(0, startTimeWithinCarparkRatesRecords[0].SunPHMin.Length - 5)) * Double.Parse(startTimeWithinCarparkRatesRecords[0].SunPHRate.Remove(0, 1));
+                    }
+                    else
+                    {
+                        price = duration.TotalMinutes / Double.Parse(startTimeWithinCarparkRatesRecords[0].WeekdayMin.Substring(0, startTimeWithinCarparkRatesRecords[0].WeekdayMin.Length - 5)) * Double.Parse(startTimeWithinCarparkRatesRecords[0].WeekdayRate.Remove(0, 1));
+                    }
+                }
+
+                if (startTimeOutsideCarparkRatesRecords.Count() == 1 && endTimeWithinCarparkRatesRecords.Count() == 1 && startTimeWithinCarparkRatesRecords.Count() == 0 && endTimeOutsideCarparkRatesRecords.Count() == 0)
+                {
+                    var fromStartTimeToDatabaseEndTimeDuration = (DateTime.Parse(startTimeOutsideCarparkRatesRecords[0].EndTime).TimeOfDay - StartTime.TimeOfDay).TotalMinutes;
+
+                    var fromDatabaseStartTimetoEndTimeDuration = (EndTime.TimeOfDay - DateTime.Parse(endTimeWithinCarparkRatesRecords[0].StartTime).TimeOfDay).TotalMinutes;
+
+                    if (startTimeDayComponent == DayOfWeek.Saturday)
+                    {
+                        price += fromStartTimeToDatabaseEndTimeDuration / Double.Parse(startTimeOutsideCarparkRatesRecords[0].SatdayMin.Substring(0, startTimeOutsideCarparkRatesRecords[0].SatdayMin.Length - 5)) * Double.Parse(startTimeOutsideCarparkRatesRecords[0].SatdayRate.Remove(0, 1));
+                        price += fromDatabaseStartTimetoEndTimeDuration / Double.Parse(endTimeWithinCarparkRatesRecords[0].SatdayMin.Substring(0, endTimeWithinCarparkRatesRecords[0].SatdayMin.Length - 5)) * Double.Parse(endTimeWithinCarparkRatesRecords[0].SatdayRate.Remove(0, 1));
+                    }
+                    else if (startTimeDayComponent == DayOfWeek.Sunday)
+                    {
+                        price += fromStartTimeToDatabaseEndTimeDuration / Double.Parse(startTimeOutsideCarparkRatesRecords[0].SunPHMin.Substring(0, startTimeOutsideCarparkRatesRecords[0].SunPHMin.Length - 5)) * Double.Parse(startTimeOutsideCarparkRatesRecords[0].SunPHRate.Remove(0, 1));
+                        price += fromDatabaseStartTimetoEndTimeDuration / Double.Parse(endTimeWithinCarparkRatesRecords[0].SunPHMin.Substring(0, endTimeWithinCarparkRatesRecords[0].SunPHMin.Length - 5)) * Double.Parse(endTimeWithinCarparkRatesRecords[0].SunPHRate.Remove(0, 1));
+                    }
+                    else
+                    {
+                        price += fromStartTimeToDatabaseEndTimeDuration / Double.Parse(startTimeOutsideCarparkRatesRecords[0].WeekdayMin.Substring(0, startTimeOutsideCarparkRatesRecords[0].WeekdayMin.Length - 5)) * Double.Parse(startTimeOutsideCarparkRatesRecords[0].WeekdayRate.Remove(0, 1));
+                        price += fromDatabaseStartTimetoEndTimeDuration / Double.Parse(endTimeWithinCarparkRatesRecords[0].WeekdayMin.Substring(0, endTimeWithinCarparkRatesRecords[0].WeekdayMin.Length - 5)) * Double.Parse(endTimeWithinCarparkRatesRecords[0].WeekdayRate.Remove(0, 1));
+                    }
+                }
+
+                if (startTimeWithinCarparkRatesRecords.Count() == 1 && endTimeOutsideCarparkRatesRecords.Count() == 1 && startTimeOutsideCarparkRatesRecords.Count() == 0 && endTimeWithinCarparkRatesRecords.Count() == 0)
+                {
+                    var fromStartTimeToDatabaseEndTimeDuration = (DateTime.Parse(startTimeWithinCarparkRatesRecords[0].EndTime).TimeOfDay - StartTime.TimeOfDay).TotalMinutes;
+
+                    var fromDatabaseStartTimeToEndTimeDuration = (EndTime.TimeOfDay - DateTime.Parse(endTimeOutsideCarparkRatesRecords[0].StartTime).TimeOfDay).TotalMinutes;
+
+                    if (startTimeDayComponent == DayOfWeek.Saturday)
+                    {
+                        price += fromStartTimeToDatabaseEndTimeDuration / Double.Parse(startTimeWithinCarparkRatesRecords[0].SatdayMin.Substring(0, startTimeWithinCarparkRatesRecords[0].SatdayMin.Length - 5)) * Double.Parse(startTimeWithinCarparkRatesRecords[0].SatdayRate.Remove(0, 1));
+                        price += fromDatabaseStartTimeToEndTimeDuration / Double.Parse(endTimeOutsideCarparkRatesRecords[0].SatdayMin.Substring(0, endTimeOutsideCarparkRatesRecords[0].SatdayMin.Length - 5)) * Double.Parse(endTimeOutsideCarparkRatesRecords[0].SatdayRate.Remove(0, 1));
+
+                    }
+                    else if (startTimeDayComponent == DayOfWeek.Sunday)
+                    {
+                        price += fromStartTimeToDatabaseEndTimeDuration / Double.Parse(startTimeWithinCarparkRatesRecords[0].SunPHMin.Substring(0, startTimeWithinCarparkRatesRecords[0].SunPHMin.Length - 5)) * Double.Parse(startTimeWithinCarparkRatesRecords[0].SunPHRate.Remove(0, 1));
+                        price += fromDatabaseStartTimeToEndTimeDuration / Double.Parse(endTimeOutsideCarparkRatesRecords[0].SunPHMin.Substring(0, endTimeOutsideCarparkRatesRecords[0].SunPHMin.Length - 5)) * Double.Parse(endTimeOutsideCarparkRatesRecords[0].SunPHRate.Remove(0, 1));
+
+                    }
+                    else
+                    {
+                        price += fromStartTimeToDatabaseEndTimeDuration / Double.Parse(startTimeWithinCarparkRatesRecords[0].WeekdayMin.Substring(0, startTimeWithinCarparkRatesRecords[0].WeekdayMin.Length - 5)) * Double.Parse(startTimeWithinCarparkRatesRecords[0].WeekdayRate.Remove(0, 1));
+                        price += fromDatabaseStartTimeToEndTimeDuration / Double.Parse(endTimeOutsideCarparkRatesRecords[0].WeekdayMin.Substring(0, endTimeOutsideCarparkRatesRecords[0].WeekdayMin.Length - 5)) * Double.Parse(endTimeOutsideCarparkRatesRecords[0].WeekdayRate.Remove(0, 1));
+
+                    }
+                }
+
+                if (startTimeOutsideCarparkRatesRecords.Count() == 1 && endTimeOutsideCarparkRatesRecords.Count() == 1 && startTimeWithinCarparkRatesRecords.Count() == 0 && endTimeWithinCarparkRatesRecords.Count() == 0)
+                {
+                    var fromStartTimeToDatabaseEndTime = (DateTime.Parse(startTimeOutsideCarparkRatesRecords[0].EndTime).TimeOfDay - StartTime.TimeOfDay).TotalMinutes;
+                    var fromDatabaseStartTimeToDatabaseEndTime = (DateTime.Parse(endTimeOutsideCarparkRatesRecords[0].EndTime) - DateTime.Parse(endTimeOutsideCarparkRatesRecords[0].StartTime)).TotalMinutes;
+                    var fromDatabaseStartTimeToEndTime = (EndTime.TimeOfDay - DateTime.Parse(startTimeOutsideCarparkRatesRecords[0].StartTime).TimeOfDay).TotalMinutes;
+
+                    if (startTimeDayComponent == DayOfWeek.Saturday)
+                    {
+                        price += fromStartTimeToDatabaseEndTime / Double.Parse(startTimeOutsideCarparkRatesRecords[0].SatdayMin.Substring(0, startTimeOutsideCarparkRatesRecords[0].SatdayMin.Length - 5)) * Double.Parse(startTimeOutsideCarparkRatesRecords[0].SatdayRate.Remove(0, 1));
+                        price += fromDatabaseStartTimeToDatabaseEndTime / Double.Parse(endTimeOutsideCarparkRatesRecords[0].SatdayMin.Substring(0, endTimeOutsideCarparkRatesRecords[0].SatdayMin.Length - 5)) * Double.Parse(endTimeOutsideCarparkRatesRecords[0].SatdayRate.Remove(0, 1));
+                        price += fromDatabaseStartTimeToEndTime / Double.Parse(startTimeOutsideCarparkRatesRecords[0].SatdayMin.Substring(0, startTimeOutsideCarparkRatesRecords[0].SatdayMin.Length - 5)) * Double.Parse(startTimeOutsideCarparkRatesRecords[0].SatdayRate.Remove(0, 1));
+                    }
+                    else if (startTimeDayComponent == DayOfWeek.Sunday)
+                    {
+                        price += fromStartTimeToDatabaseEndTime / Double.Parse(startTimeOutsideCarparkRatesRecords[0].SunPHMin.Substring(0, startTimeOutsideCarparkRatesRecords[0].SunPHMin.Length - 5)) * Double.Parse(startTimeOutsideCarparkRatesRecords[0].SunPHRate.Remove(0, 1));
+                        price += fromDatabaseStartTimeToDatabaseEndTime / Double.Parse(endTimeOutsideCarparkRatesRecords[0].SunPHMin.Substring(0, endTimeOutsideCarparkRatesRecords[0].SunPHMin.Length - 5)) * Double.Parse(endTimeOutsideCarparkRatesRecords[0].SunPHRate.Remove(0, 1));
+                        price += fromDatabaseStartTimeToEndTime / Double.Parse(startTimeOutsideCarparkRatesRecords[0].SunPHMin.Substring(0, startTimeOutsideCarparkRatesRecords[0].SunPHMin.Length - 5)) * Double.Parse(startTimeOutsideCarparkRatesRecords[0].SunPHRate.Remove(0, 1));
+                    }
+                    else
+                    {
+                        price += fromStartTimeToDatabaseEndTime / Double.Parse(startTimeOutsideCarparkRatesRecords[0].WeekdayMin.Substring(0, startTimeOutsideCarparkRatesRecords[0].WeekdayMin.Length - 5)) * Double.Parse(startTimeOutsideCarparkRatesRecords[0].WeekdayRate.Remove(0, 1));
+                        price += fromDatabaseStartTimeToDatabaseEndTime / Double.Parse(endTimeOutsideCarparkRatesRecords[0].WeekdayMin.Substring(0, endTimeOutsideCarparkRatesRecords[0].WeekdayMin.Length - 5)) * Double.Parse(endTimeOutsideCarparkRatesRecords[0].WeekdayRate.Remove(0, 1));
+                        price += fromDatabaseStartTimeToEndTime / Double.Parse(startTimeOutsideCarparkRatesRecords[0].WeekdayMin.Substring(0, startTimeOutsideCarparkRatesRecords[0].WeekdayMin.Length - 5)) * Double.Parse(startTimeOutsideCarparkRatesRecords[0].WeekdayRate.Remove(0, 1));
+                    }
+                }
+            }
+            else
+            {
+
+            }
+
+
+            return Ok(new { Price = price });
+        }
+
+        [HttpGet("{id}")]
 		public ActionResult Index(Guid id, [FromQuery] DateTime StartTime, [FromQuery] DateTime EndTime, [FromQuery] String vehicleType)
 		{
 			var duration = 0.0;
