@@ -256,6 +256,15 @@ export default {
                 store.commit('SETFILTERCONFIG', filterConfig);
                 resolve(true);
             })
+        },
+        CREATEFEEDBACK: ({ commit }, feedback) => {
+            return new Promise((resolve, reject) => {
+                axios.post("https://parkingslotapi.azurewebsites.net/api/feedbacks" + "/user/" + store.getters.USERID, feedback).then(function (response) {
+                    resolve(response);
+                }).catch(error => {
+                    reject(error);
+                });
+            });
         }
     }
 };

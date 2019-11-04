@@ -9,11 +9,51 @@
         <router-link to="/" tag="span" class="tb-title">ParkingSlot</router-link>
       </v-toolbar-title>
       <div class="flex-grow-1"></div>
-      <template>
-        <v-btn icon>
-          <v-icon>mdi-comment-question-outline</v-icon>
-        </v-btn>
-      </template>
+      <v-menu v-model="feedbackMenu" :close-on-content-click="false" :nudge-width="200" offset-x>
+        <template v-slot:activator="{ on }">
+          <v-btn v-on="on" icon>
+            <v-icon>mdi-comment-question-outline</v-icon>
+          </v-btn>
+        </template>
+        <v-card>
+          <v-list>
+            <v-list-item>
+              <v-list-item-avatar>
+                <v-icon class="mdi-48px">mdi-account-box-outline</v-icon>
+              </v-list-item-avatar>
+              <v-list-item-content>
+                <v-list-item-title>Facing any difficulties</v-list-item-title>
+                <v-list-item-subtitle>Feel free to leave a feedback! :)</v-list-item-subtitle>
+              </v-list-item-content>
+            </v-list-item>
+          </v-list>
+          <v-divider></v-divider>
+          <v-container>
+            <v-container>
+              <v-row>
+                <v-col cols="12">
+                  <v-text-field v-model="newFeedback.topic" label="Topic" outlined></v-text-field>
+                </v-col>
+              </v-row>
+              <v-row>
+                <v-col cols="12">
+                  <v-textarea
+                    v-model="newFeedback.description"
+                    auto-grow
+                    label="Description"
+                    outlined
+                  ></v-textarea>
+                </v-col>
+              </v-row>
+            </v-container>
+          </v-container>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn color="primary" text @click="submitUserFeedback">Save</v-btn>
+            <v-btn text @click="feedbackMenu = false">Cancel</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-menu>
     </v-app-bar>
     <v-navigation-drawer absolute temporary v-model="navdraw" app>
       <template v-slot:prepend v-if="login">
@@ -110,7 +150,9 @@
 export default {
   data() {
     return {
-      navdraw: false
+      navdraw: false,
+      feedbackMenu: false,
+      newFeedback: {}
     };
   },
   computed: {
@@ -131,6 +173,19 @@ export default {
       this.$store.commit("SETAUTHSTATUS", false);
       localStorage.clear();
       this.$router.push({ path: "/login" });
+    },
+    submitUserFeedback() {
+      this.$store
+        .dispatch("CREATEFEEDBACK", {
+          topic: this.newFeedback.topic,
+          description: this.newFeedback.description
+        })
+        .then(success => {
+          console.log("success");
+        })
+        .catch(error => {
+          this.error = true;
+        });
     }
   }
 };
