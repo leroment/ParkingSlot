@@ -74,13 +74,13 @@
                   <v-btn
                     color="green darken-1"
                     text
-                    v-if="viewFeedback.isResolved == 'False'"
+                    v-if="viewFeedback.isResolved == 'False' || viewFeedback.isResolved == false"
                     @click="update(viewFeedback, true)"
                   >Resolve</v-btn>
                   <v-btn
                     color="red darken-1"
                     text
-                    v-if="viewFeedback.isResolved == 'True'"
+                    v-if="viewFeedback.isResolved == 'True' || viewFeedback.isResolved == true"
                     @click="update(viewFeedback, false)"
                   >Revoke</v-btn>
                 </v-card-actions>
@@ -104,12 +104,12 @@
                     <v-icon
                       size="30"
                       color="green darken-1"
-                      v-if="item.isResolved == 'True'"
+                      v-if="item.isResolved == 'True' || item.isResolved == true"
                     >mdi-checkbox-marked-circle</v-icon>
                     <v-icon
                       size="30"
                       color="orange darken-1"
-                      v-if="item.isResolved == 'False'"
+                      v-if="item.isResolved == 'False' || item.isResolved == false"
                     >mdi-alert-circle-outline</v-icon>
                     <v-btn color="blue darken-1" text @click.stop="viewItem(item)">View</v-btn>
                     <v-btn color="red darken-1" text @click.stop="deleteItem(item)">Delete</v-btn>
@@ -242,7 +242,7 @@ export default {
       } else {
         item.isResolved = false;
       }
-      console.log(item.isResolved);
+      console.log(item);
       let cur = this;
       cur.showFeedback = false;
       if (item.comments.length > 0) {
@@ -253,11 +253,13 @@ export default {
               "/user/" +
               item.userId,
             {
-              params: item,
-              headers: { Authorization: "Bearer " + this.$store.getters.TOKEN }
+              params: item
             }
           )
           .then(function(response) {
+            console.log(response);
+            const index = cur.getFeedbackIndex(item.id);
+            cur.$set(cur.feedbacks, index, item);
             console.log("updated");
             cur.showFeedback = false;
           });

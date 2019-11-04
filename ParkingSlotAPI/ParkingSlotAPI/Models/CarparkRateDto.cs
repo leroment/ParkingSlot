@@ -17,5 +17,6 @@ namespace ParkingSlotAPI.Models
         public string SunPHMin { get; set; }
         public string VehicleType { get; set; }
         public string Remarks { get; set; }
-    }
+		public string Duration { get; set; }
+	}
 }
