@@ -3,8 +3,8 @@
     <v-layout align-center justify-center>
       <v-flex style="overflow:auto" xs12 sm8 md4>
         <v-card>
-          <v-alert dismissible type="error" :value="passwordError">Password does not match</v-alert>
-          <v-alert dismissible type="error" :value="matchError">{{this.errorMsg}}</v-alert>
+          <v-alert type="error" :value="passwordError">Password does not match</v-alert>
+          <v-alert type="error" :value="matchError">{{this.errorMsg}}</v-alert>
           <v-card-text>
             <v-container>
               <form @submit.prevent="register">

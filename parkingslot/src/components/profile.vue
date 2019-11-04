@@ -102,22 +102,14 @@ export default {
           this.notifyText = "Profile have been successfully updated!";
         })
         .catch(error => {
-          console.log(error.response);
-          if (this.userProfile.firstName === "") {
-            this.generalErrorText = error.response.data.FirstName[1];
+          this.notifyStatus = false;
+          if (this.userProfile.firstName.length <= 1) {
+            this.generalErrorText = error.response.data.FirstName[0];
             this.generalError = true;      
           }
-          else if (this.userProfile.lastName === "") {
-            this.generalErrorText = error.response.data.LastName[1];
+          else if (this.userProfile.lastName.length <= 1) {
+            this.generalErrorText = error.response.data.LastName[0];
             this.generalError = true;      
-          }
-          else if (this.userProfile.Email === "") {
-            this.generalErrorText = error.response.data.Email[1];
-            this.generalError = true;      
-          }
-          else if (this.userProfile.Contact === ""){
-            this.generalErrorText = error.response.data.PhoneNumber[1];
-            this.generalError = true;   
           }
           
         });
