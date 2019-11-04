@@ -109,6 +109,7 @@ namespace ParkingSlotAPI
 				}
 				result += getWholeNumber * rate;
 			}
+
 			return Math.Round(result, 2, MidpointRounding.ToEven);
 
 		
@@ -132,31 +133,7 @@ namespace ParkingSlotAPI
 			}
 			return result;
 		}
-		public double getPeriodDurationBasedOnDayTime(DateTime st, DateTime et)
-		{
-			double result = 0;
-	
-			if (st.TimeOfDay.TotalMinutes == 0&&et.TimeOfDay.TotalMinutes != 0 )
-			{
-				result = et.TimeOfDay.TotalMinutes - 24 * 60;
-			}
-			else if (et.TimeOfDay.TotalMinutes == 0&&  st.TimeOfDay.TotalMinutes != 0)
-			{
-				result = 24 * 60 - st.TimeOfDay.TotalMinutes;
-			}
-			else if(et.TimeOfDay.TotalMinutes == 0&& st.TimeOfDay.TotalMinutes == 0)
-			{
-				
-				return 0;
-			}
-			else
-			{
-				result = ((et.TimeOfDay - st.TimeOfDay).TotalMinutes);
-			}
-				
-		//	}
-			return result;
-		}
+
 		public  bool TimePeriodOverlaps(DateTime BS, DateTime BE, DateTime TS, DateTime TE)
 		{
 		
