@@ -88,7 +88,7 @@
               <span class="body-1">Time Range: {{rate.startTime}} - {{rate.endTime}}</span>
               <span class="body-1">Weekday Rate: {{rate.weekdayRate}} per 30 min</span>
               <span class="body-1">Saturday Rate: {{rate.satdayRate}} per 30 min</span>
-              <span class="body-1 mt-5">Sunday/Public Holiday Rate: {{rate.sunPHRate}} per 30 min</span>
+              <span class="body-1 mb-5">Sunday/Public Holiday Rate: {{rate.sunPHRate}} per 30 min</span>
             </v-row>
           </v-container>
         </v-card-text>

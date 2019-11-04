@@ -16,16 +16,13 @@ export default {
         favorites: [],
         filterConfig: {
             IsAscending: true,
+            IsElectronic: true,
+            IsCentral: false,
             PageSize: 20,
             PageNumber: 1,
             VehType: "",
             AgencyType: "",
-            Price: 0,
-            StartDate: "",
-            StartTime: "",
-            EndDate: "",
-            EndTime: "",
-            IsMinPrice: true
+            Radius: 100
         }
     },
     getters: {

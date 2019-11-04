@@ -4,7 +4,7 @@
     <v-list>
       <v-list-item-group active-class="blue--text">
         <template v-for="item in carparkItem">
-          <v-list-item :key="item.id" @click.stop="displayCarparkInfo(item)">
+          <v-list-item :key="item.carparkId" @click.stop="displayCarparkInfo(item)">
             <template>
               <v-list-item-content>
                 <v-list-item-title v-text="item.carparkName"></v-list-item-title>
@@ -113,7 +113,7 @@
               <span class="body-1">Time Range: {{rate.startTime}} - {{rate.endTime}}</span>
               <span class="body-1">Weekday Rate: {{rate.weekdayRate}} per 30 min</span>
               <span class="body-1">Saturday Rate: {{rate.satdayRate}} per 30 min</span>
-              <span class="body-1 mt-5">Sunday/Public Holiday Rate: {{rate.sunPHRate}} per 30 min</span>
+              <span class="body-1 mb-5">Sunday/Public Holiday Rate: {{rate.sunPHRate}} per 30 min</span>
             </v-row>
           </v-container>
         </v-card-text>
@@ -168,9 +168,21 @@ export default {
       this.changeType();
     },
     infiniteHandler($state) {
+      var ascending = "carparkname";
+      if (this.filterConfig.IsAscending == false) {
+        ascending = "carparkname desc";
+      }
       this.axios
         .get("https://parkingslotapi.azurewebsites.net/api/carpark", {
-          params: this.filterConfig
+          params: {
+            Orderby: ascending,
+            IsElectronic: this.filterConfig.IsElectronic,
+            IsCentral: this.filterConfig.IsCentral,
+            PageNumber: this.filterConfig.PageNumber,
+            VehType: this.filterConfig.VehType,
+            AgencyType: this.filterConfig.AgencyType,
+            Radius: this.filterConfig.Radius
+          }
         })
         .then(({ data }) => {
           setTimeout(() => {

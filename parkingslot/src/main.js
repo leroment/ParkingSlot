@@ -20,7 +20,6 @@ import InfiniteLoading from 'vue-infinite-loading';
 import NProgress from 'nprogress';
 import 'nprogress/nprogress.css'
 
-
 // Install Javascript Libraries
 // Must be called before new Vue()
 Vue.use(VueAxios, axios);
@@ -42,7 +41,6 @@ Vue.use(InfiniteLoading, {
     /* other settings need to configure */
   },
 });
-
 Vue.config.productionTip = false
 
 

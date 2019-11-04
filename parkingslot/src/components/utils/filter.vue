@@ -35,7 +35,15 @@
                 <v-switch v-model="filterConfig.IsAscending" label="Ascending Order"></v-switch>
               </v-col>
               <v-col cols="12" sm="6" md="6">
-                <v-switch v-model="filterConfig.IsMinPrice" label="Sort Min Price"></v-switch>
+                <v-switch v-model="filterConfig.IsElectronic" label="Electronic Parking"></v-switch>
+              </v-col>
+              <v-col cols="12" sm="6" md="6">
+                <v-switch v-model="filterConfig.IsCentral" label="Central Area"></v-switch>
+              </v-col>
+              <v-col col="12" sm="6" md="6">
+                <div class="map-search-input">
+                  <gmap-autocomplete @place_changed="setPlace"></gmap-autocomplete>
+                </div>
               </v-col>
               <v-col cols="12" sm="6" md="6">
                 <v-select :items="vehType" v-model="filterConfig.VehType" label="Vehicle Type" solo></v-select>
@@ -48,107 +56,8 @@
                   solo
                 ></v-select>
               </v-col>
-              <v-col cols="12" sm="6" md="6">
-                <v-menu v-model="startDateMenu" :close-on-content-click="false" max-width="290">
-                  <template v-slot:activator="{ on }">
-                    <v-text-field
-                      :value="filterConfig.startdate"
-                      clearable
-                      label="Start Date"
-                      readonly
-                      v-on="on"
-                      required
-                    ></v-text-field>
-                  </template>
-                  <v-date-picker
-                    v-model="filterConfig.startdate"
-                    scrollable
-                    @change="startDateMenu = false"
-                  ></v-date-picker>
-                </v-menu>
-              </v-col>
-              <v-col cols="12" sm="6" md="6">
-                <v-menu
-                  ref="startTime"
-                  v-model="startTimeMenu"
-                  :close-on-content-click="false"
-                  :nudge-right="40"
-                  :return-value.sync="starttime"
-                  transition="scale-transition"
-                  offset-y
-                  max-width="290px"
-                  min-width="290px"
-                >
-                  <template v-slot:activator="{ on }">
-                    <v-text-field
-                      v-model="filterConfig.starttime"
-                      label="Start Time"
-                      readonly
-                      v-on="on"
-                      required
-                    ></v-text-field>
-                  </template>
-                  <v-time-picker
-                    v-if="startTimeMenu"
-                    v-model="filterConfig.starttime"
-                    full-width
-                    scrollable
-                    @click:minute="$refs.startTime.save(starttime)"
-                  ></v-time-picker>
-                </v-menu>
-              </v-col>
-              <!-- stop here -->
-              <v-col cols="12" sm="6" md="6">
-                <v-menu v-model="endDateMenu" :close-on-content-click="false" max-width="290">
-                  <template v-slot:activator="{ on }">
-                    <v-text-field
-                      :value="filterConfig.enddate"
-                      clearable
-                      label="End Date"
-                      readonly
-                      v-on="on"
-                      required
-                    ></v-text-field>
-                  </template>
-                  <v-date-picker
-                    v-model="filterConfig.enddate"
-                    scrollable
-                    @change="endDateMenu = false"
-                  ></v-date-picker>
-                </v-menu>
-              </v-col>
-              <v-col cols="12" sm="6" md="6">
-                <v-menu
-                  ref="endTime"
-                  v-model="endTimeMenu"
-                  :close-on-content-click="false"
-                  :nudge-right="40"
-                  :return-value.sync="endtime"
-                  transition="scale-transition"
-                  offset-y
-                  max-width="290px"
-                  min-width="290px"
-                >
-                  <template v-slot:activator="{ on }">
-                    <v-text-field
-                      v-model="filterConfig.endtime"
-                      label="End Time"
-                      readonly
-                      v-on="on"
-                      required
-                    ></v-text-field>
-                  </template>
-                  <v-time-picker
-                    v-if="endTimeMenu"
-                    v-model="filterConfig.endtime"
-                    full-width
-                    scrollable
-                    @click:minute="$refs.endTime.save(endtime)"
-                  ></v-time-picker>
-                </v-menu>
-              </v-col>
-              <v-col col="12" sm="12" md="12">
-                <v-text-field v-model="filterConfig.price" label="Price"></v-text-field>
+              <v-col col="12" sm="6" md="6">
+                <v-text-field v-model="filterConfig.Radius" label="Range (m)"></v-text-field>
               </v-col>
             </v-list-item-content>
           </v-list-item>
@@ -178,15 +87,17 @@ export default {
       endDateMenu: false,
       endTimeMenu: false,
       starttime: null,
-      endtime: null
+      endtime: null,
+      description: "Singapore",
+      latLng: {}
     };
   },
   watch: {
     filterText: function(filterText) {
       //When user type more than 2, filter the text
       //When user delete the input, return back the original list
-      if(this.filterText.length >= 3 || this.filterText.length == 0){
-      this.$emit("change", this.filterText);
+      if (this.filterText.length >= 3 || this.filterText.length == 0) {
+        this.$emit("change", this.filterText);
       }
     }
   },
@@ -206,11 +117,18 @@ export default {
       event.stopPropagation();
       this.filterConfig = {
         //Set back default values
-        IsAscending: false,
-        IsMinPrice: false,
+        IsAscending: true,
+        IsElectronic: true,
+        IsCentral: false,
         PageSize: 20,
-        PageNumber: 1
+        PageNumber: 1,
+        VehType: "",
+        AgencyType: "",
+        Radius: 100
       };
+    },
+    setPlace: function(place) {
+      console.log(place);
     }
   }
 };
@@ -230,5 +148,16 @@ export default {
   color: black;
   font-weight: 300;
   font-size: 18px;
+}
+
+.map-search-input {
+  width: 100%;
+}
+
+.map-search-input input {
+  width: 100%;
+  padding: 8px;
+  border-color: #37474f !important;
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 </style>
