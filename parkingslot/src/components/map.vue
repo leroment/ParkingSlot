@@ -73,7 +73,7 @@
     </v-toolbar>
     <template>
       <div class="text-center">
-        <v-bottom-sheet v-model="sheet">
+        <v-dialog v-model="sheet" height="90%" width="500px">
           <template v-slot:activator="{ on }">
             <v-btn
               color="purple"
@@ -84,11 +84,50 @@
               v-on="on"
             >Show Route</v-btn>
           </template>
-          <v-sheet class="text-center" height="200px">
-            <span></span>
-            <v-btn class="mt-6" color="red" @click="sheet = !sheet">close</v-btn>
-          </v-sheet>
-        </v-bottom-sheet>
+
+          <v-card scrollable>
+            <v-card style="border-radius:0;" class="mx-auto mb-5" color="#26c6da" dark>
+              <v-card-title>
+                <v-icon large left>mdi-routes</v-icon>
+                <span class="title font-weight-light">Routing Information</span>
+              </v-card-title>
+              <v-card-text
+                class="headline py-1 font-weight-regular"
+              >Start: {{routeInfo.startaddress}}</v-card-text>
+              <v-card-text class="headline py-1 font-weight-regular">End: {{routeInfo.endaddress}}</v-card-text>
+              <v-card-text
+                class="headline py-1 font-weight-regular"
+              >Total Distance: {{routeInfo.distance}}</v-card-text>
+              <v-card-text
+                class="headline py-1 mb-5 font-weight-regular"
+              >Total Duration: {{routeInfo.duration}}</v-card-text>
+            </v-card>
+            <template v-for="(item, index) in steps">
+              <v-card-text :key="index" class="ml-4">
+                <v-col py-1>
+                  <v-badge color="orange" left>
+                    <template v-slot:badge>
+                      <span>{{index+1}}</span>
+                    </template>
+                  </v-badge>
+                </v-col>
+                <v-row>
+                  <span class="body-1">Distance: {{item.distance.text}}</span>
+                </v-row>
+                <v-row>
+                  <span class="body-1">Duration: {{item.duration.text}}</span>
+                </v-row>
+                <v-row>
+                  <span class="body-1">Instructions:</span>
+                </v-row>
+                <v-row>
+                  <span class="body-1" v-html="item.instructions"></span>
+                </v-row>
+                <v-divider></v-divider>
+              </v-card-text>
+            </template>
+          </v-card>
+        </v-dialog>
       </div>
     </template>
     <v-btn id="gpsBtn" @click="geolocation" class="ma-2 gmcontrol1">
@@ -149,7 +188,9 @@ export default {
         lng: 103.8198
       },
       sheet: false,
-      route_open: false
+      route_open: false,
+      steps: [],
+      routeInfo: {}
     };
   },
   mounted: function() {
@@ -293,7 +334,12 @@ export default {
           if (status === "OK") {
             cur.route_open = true;
             directionsDisplay.setDirections(response);
-            console.log(response);
+            cur.steps = response.routes[0].legs[0].steps;
+            cur.routeInfo.startaddress =
+              response.routes[0].legs[0].start_address;
+            cur.routeInfo.endaddress = response.routes[0].legs[0].end_address;
+            cur.routeInfo.distance = response.routes[0].legs[0].distance.text;
+            cur.routeInfo.duration = response.routes[0].legs[0].duration.text;
           } else {
             console.error("Directions request failed due to " + status);
           }
