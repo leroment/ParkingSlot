@@ -41,7 +41,11 @@
     </v-list>
     <v-dialog v-model="dialog" width="500">
       <v-card>
-        <v-card-title class="headline blue font-weight-light darken-2" style="color:white" primary-title>Carpark Information</v-card-title>
+        <v-card-title
+          class="headline blue font-weight-light darken-2"
+          style="color:white"
+          primary-title
+        >Carpark Information</v-card-title>
         <v-card-text>
           <v-container>
             <v-row>
@@ -100,7 +104,10 @@
               <span class="body-1 mb-5">Sunday/Public Holiday Rate: {{rate.sunPHRate}} per 30 min</span>
             </v-row>
             <v-row v-if="viewingItem.hvRates != 0">
-              <span style="text-decoration: underline !important;" class="body-1">Heavy Vehicle Rates:</span>
+              <span
+                style="text-decoration: underline !important;"
+                class="body-1"
+              >Heavy Vehicle Rates:</span>
             </v-row>
             <v-row class="row" v-for="rate in viewingItem.hvRates" :key="rate.id">
               <span class="body-1">Time Range: {{rate.startTime}} - {{rate.endTime}}</span>

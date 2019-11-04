@@ -20,7 +20,7 @@ export default {
             PageNumber: 1,
             VehType: "",
             AgencyType: "",
-            Price: "",
+            Price: 0,
             StartDate: "",
             StartTime: "",
             EndDate: "",

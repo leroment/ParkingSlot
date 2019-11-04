@@ -242,7 +242,7 @@ export default {
       } else {
         item.isResolved = false;
       }
-      console.log(item);
+
       let cur = this;
       cur.showFeedback = false;
       this.axios
@@ -254,7 +254,6 @@ export default {
           }
         )
         .then(function(response) {
-          console.log(response);
           const index = cur.getFeedbackIndex(item.id);
           cur.$set(cur.feedbacks, index, item);
           console.log("updated");

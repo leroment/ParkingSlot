@@ -22,7 +22,7 @@
                 <v-icon class="mdi-48px">mdi-account-box-outline</v-icon>
               </v-list-item-avatar>
               <v-list-item-content>
-                <v-list-item-title>Facing any difficulties</v-list-item-title>
+                <v-list-item-title>Facing any difficulties?</v-list-item-title>
                 <v-list-item-subtitle>Feel free to leave a feedback! :)</v-list-item-subtitle>
               </v-list-item-content>
             </v-list-item>
@@ -50,12 +50,12 @@
           <v-card-actions>
             <v-spacer></v-spacer>
             <v-btn color="primary" text @click="submitUserFeedback">Save</v-btn>
-            <v-btn text @click="feedbackMenu = false">Cancel</v-btn>
+            <v-btn text @click="cancelFeedback">Cancel</v-btn>
           </v-card-actions>
         </v-card>
       </v-menu>
     </v-app-bar>
-    <v-navigation-drawer absolute temporary v-model="navdraw" app>
+    <v-navigation-drawer temporary v-model="navdraw" app>
       <template v-slot:prepend v-if="login">
         <v-list-item two-line>
           <v-list-item-avatar>
@@ -181,11 +181,15 @@ export default {
           description: this.newFeedback.description
         })
         .then(success => {
-          console.log("success");
+          console.log("Feedback created");
         })
         .catch(error => {
           this.error = true;
         });
+    },
+    cancelFeedback(){
+      this.feedbackMenu = false;
+      this.newFeedback = {};
     }
   }
 };
