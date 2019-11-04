@@ -70,6 +70,7 @@ namespace ParkingSlotAPI.Repository
             }
             else
             {
+               
                 duration = (EndTime - StartTime).TotalMinutes;
             }
             if (duration >= 0)
@@ -526,9 +527,9 @@ namespace ParkingSlotAPI.Repository
             
             // filtering of price
             // if start date time and end date time are specified.
-            if (carparkResourceParameters.StartDateTime != null || carparkResourceParameters.EndDateTime != null)
+            if (carparkResourceParameters.StartDateTime != DateTime.MinValue || carparkResourceParameters.EndDateTime != DateTime.MinValue)
             {
-                var carparks = collectionBeforePaging.Skip((carparkResourceParameters.PageNumber - 1) * carparkResourceParameters.PageSize).Take(carparkResourceParameters.PageSize).ToList();
+                var carparks = collectionBeforePaging.ToList();
 
 
                 carparks.ForEach(a =>
@@ -540,15 +541,15 @@ namespace ParkingSlotAPI.Repository
                         {
                             if (a.LotType.Contains("C"))
                             {
-                                carPrice = CalculateCarparkPrice(a.Id, DateTime.Now, DateTime.Now.AddHours(1), "Car");
+                                carPrice = CalculateCarparkPrice(a.Id, FormatDateTime(carparkResourceParameters.StartDateTime), FormatDateTime(carparkResourceParameters.EndDateTime), "Car");
                             }
                             else if (a.LotType.Contains("M"))
                             {
-                                mPrice = CalculateCarparkPrice(a.Id, DateTime.Now, DateTime.Now.AddHours(1), "Motorcycle");
+                                mPrice = CalculateCarparkPrice(a.Id, FormatDateTime(carparkResourceParameters.StartDateTime), FormatDateTime(carparkResourceParameters.EndDateTime), "Motorcycle");
                             }
                             else if (a.LotType.Contains("H"))
                             {
-                                hvPrice = CalculateCarparkPrice(a.Id, DateTime.Now, DateTime.Now.AddHours(1), "Heavy Vehicle");
+                                hvPrice = CalculateCarparkPrice(a.Id, FormatDateTime(carparkResourceParameters.StartDateTime), FormatDateTime(carparkResourceParameters.EndDateTime), "Heavy Vehicle");
                             }
                         }
 
@@ -557,7 +558,7 @@ namespace ParkingSlotAPI.Repository
                     }
                     else
                     {
-                        var price = CalculateCarparkPrice(a.Id, carparkResourceParameters.StartDateTime, carparkResourceParameters.EndDateTime, carparkResourceParameters.VehType);
+                        var price = CalculateCarparkPrice(a.Id, FormatDateTime(carparkResourceParameters.StartDateTime), FormatDateTime(carparkResourceParameters.EndDateTime), carparkResourceParameters.VehType);
 
                         a.Price = price;
                     }
@@ -581,15 +582,15 @@ namespace ParkingSlotAPI.Repository
                         {
                             if (a.LotType.Contains("C"))
                             {
-                                carPrice = CalculateCarparkPrice(a.Id, DateTime.Now, DateTime.Now.AddHours(1), "Car");
+                                carPrice = CalculateCarparkPrice(a.Id, FormatDateTime(DateTime.Now), FormatDateTime(DateTime.Now.AddHours(1)), "Car");
                             }
                             else if (a.LotType.Contains("M"))
                             {
-                                mPrice = CalculateCarparkPrice(a.Id, DateTime.Now, DateTime.Now.AddHours(1), "Motorcycle");
+                                mPrice = CalculateCarparkPrice(a.Id, FormatDateTime(DateTime.Now), FormatDateTime(DateTime.Now.AddHours(1)), "Motorcycle");
                             }
                             else if (a.LotType.Contains("H"))
                             {
-                                hvPrice = CalculateCarparkPrice(a.Id, DateTime.Now, DateTime.Now.AddHours(1), "Heavy Vehicle");
+                                hvPrice = CalculateCarparkPrice(a.Id, FormatDateTime(DateTime.Now), FormatDateTime(DateTime.Now.AddHours(1)), "Heavy Vehicle");
                             }
                         }
 
@@ -599,7 +600,7 @@ namespace ParkingSlotAPI.Repository
                     else
                     {
                         // set start datetime to now and end datetime to one hour after now
-                        var price = CalculateCarparkPrice(a.Id, DateTime.Now, DateTime.Now.AddHours(1), carparkResourceParameters.VehType);
+                        var price = CalculateCarparkPrice(a.Id, FormatDateTime(DateTime.Now), FormatDateTime(DateTime.Now.AddHours(1)), carparkResourceParameters.VehType);
 
                         a.Price = price;
                     }
@@ -628,7 +629,12 @@ namespace ParkingSlotAPI.Repository
             return PagedList<Carpark>.Create(collectionBeforePaging, carparkResourceParameters.PageNumber, carparkResourceParameters.PageSize);
         }
 
-        
+        public DateTime FormatDateTime(DateTime time)
+        {
+            var datetime = DateTime.ParseExact($"{time.Month}/{time.Day}/{time.Year} {time.Hour}:{time.Minute}:0", "M/d/yyyy H:m:s", CultureInfo.InvariantCulture);
+
+            return datetime;
+        }
 
         public Carpark GetCarpark(Guid carparkId)
         {
