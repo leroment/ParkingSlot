@@ -7,6 +7,7 @@ using ParkingSlotAPI.Models;
 using ParkingSlotAPI.Services;
 using System;
 using System.Collections.Generic;
+using System.Device.Location;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
@@ -30,11 +31,13 @@ namespace ParkingSlotAPI.Repository
         private ParkingContext _context;
         private IMapper _mapper;
         private ICarparkRatesRepository _carparkRatesRepository;
-        public ParkingRepository(ParkingContext context, IMapper mapper, ICarparkRatesRepository carparkRatesRepository)
+        private readonly IPropertyMappingService _propertyMappingService;
+        public ParkingRepository(ParkingContext context, IMapper mapper, ICarparkRatesRepository carparkRatesRepository, IPropertyMappingService propertyMappingService)
         {
             _context = context;
             _mapper = mapper;
             _carparkRatesRepository = carparkRatesRepository;
+            _propertyMappingService = propertyMappingService;
         }
 
         public IEnumerable<Carpark> GetAllCarparks()
@@ -655,6 +658,18 @@ namespace ParkingSlotAPI.Repository
 
         }
 
+        public double GetDistance(double fromLatitude, double fromLongitude, double toLatitude, double toLongitude)
+        {
+            var fromCoord = new GeoCoordinate(fromLatitude, fromLongitude);
+            var toCoord = new GeoCoordinate(toLatitude, toLongitude);
+
+            
+
+            var distance = fromCoord.GetDistanceTo(toCoord);
+
+            return distance;
+        }
+
         public PagedList<Carpark> GetCarparks(CarparkResourceParameters carparkResourceParameters)
         {
             var error = "";
@@ -700,94 +715,186 @@ namespace ParkingSlotAPI.Repository
                 }
             }
             
+            if (carparkResourceParameters.Latitude != Double.MinValue || carparkResourceParameters.Longitude != Double.MinValue)
+            {
+                collectionBeforePaging = collectionBeforePaging.Where(carpark => GetDistance(carparkResourceParameters.Latitude, carparkResourceParameters.Longitude, Double.Parse(carpark.XCoord), Double.Parse(carpark.YCoord)) <= carparkResourceParameters.Range);
+            }
+
             // filtering of price
             // if start date time and end date time are specified.
-            if (carparkResourceParameters.StartDateTime != DateTime.MinValue || carparkResourceParameters.EndDateTime != DateTime.MinValue)
+            //if (carparkResourceParameters.StartDateTime != DateTime.MinValue || carparkResourceParameters.EndDateTime != DateTime.MinValue)
+            //{
+            //    var carparks = collectionBeforePaging.ToList();
+
+
+            //    carparks.ForEach(a =>
+            //    {
+            //        if (carparkResourceParameters.VehType == "All")
+            //        {
+            //            double carPrice = 0.0, hvPrice = 0.0, mPrice = 0.0;
+
+            //            var asplit = a.LotType.Split(",");
+
+            //            foreach (var x in asplit)
+            //            {
+            //                if (x.Contains("C"))
+            //                {
+            //                    carPrice = CalculateCarparkPrice(a.Id, FormatDateTime(carparkResourceParameters.StartDateTime), FormatDateTime(carparkResourceParameters.EndDateTime), "Car");
+            //                }
+            //                else if (x.Contains("M"))
+            //                {
+            //                    mPrice = CalculateCarparkPrice(a.Id, FormatDateTime(carparkResourceParameters.StartDateTime), FormatDateTime(carparkResourceParameters.EndDateTime), "Motorcycle");
+            //                }
+            //                else if (x.Contains("H"))
+            //                {
+            //                    hvPrice = CalculateCarparkPrice(a.Id, FormatDateTime(carparkResourceParameters.StartDateTime), FormatDateTime(carparkResourceParameters.EndDateTime), "Heavy Vehicle");
+            //                }
+            //            }
+
+            //            if (asplit.Length == 1)
+            //            {
+            //                if (carPrice != 0.0)
+            //                {
+            //                    a.Price = carPrice;
+            //                }
+            //                else if (mPrice != 0.0)
+            //                {
+            //                    a.Price = mPrice;
+            //                }
+            //                else if (hvPrice != 0.0)
+            //                {
+            //                    a.Price = hvPrice;
+            //                }
+            //            }
+            //            else if (asplit.Length == 2)
+            //            {
+            //                if (carPrice != 0.0 && mPrice != 0.0)
+            //                {
+            //                    a.Price = Math.Min(carPrice, mPrice);
+            //                }
+            //                else if (carPrice != 0.0 && hvPrice != 0.0)
+            //                {
+            //                    a.Price = Math.Min(carPrice, hvPrice);
+            //                }
+            //                else if (mPrice != 0.0 && hvPrice != 0.0)
+            //                {
+            //                    a.Price = Math.Min(mPrice, hvPrice);
+            //                }
+            //            }
+            //            else if (asplit.Length == 3)
+            //            {
+            //                a.Price = Math.Min(Math.Min(carPrice, mPrice), hvPrice);
+            //            }
+
+            //        }
+            //        else
+            //        {
+            //            var price = CalculateCarparkPrice(a.Id, FormatDateTime(carparkResourceParameters.StartDateTime), FormatDateTime(carparkResourceParameters.EndDateTime), carparkResourceParameters.VehType);
+
+            //            a.Price = price;
+            //        }
+            //    });
+
+            //    // price is defaulted to max double, but if specified then it will set to lower or equal to that price.
+            //    collectionBeforePaging = collectionBeforePaging.Where(a => a.Price <= carparkResourceParameters.Price).OrderBy(a => a.Price);
+
+            //}
+            //else
+            //// if datetime not specified.
+            //{
+            //    var carparks = collectionBeforePaging.ToList();
+
+            //    carparks.ForEach(a =>
+            //    {
+            //        if (carparkResourceParameters.VehType == "All")
+            //        {
+            //            double carPrice = 0.0, hvPrice = 0.0, mPrice = 0.0;
+
+            //            var asplit = a.LotType.Split(",");
+
+            //            foreach (var x in asplit)
+            //            {
+            //                if (x.Contains("C"))
+            //                {
+            //                    carPrice = CalculateCarparkPrice(a.Id, FormatDateTime(DateTime.Now), FormatDateTime(DateTime.Now.AddHours(1)), "Car");
+            //                }
+            //                else if (x.Contains("M"))
+            //                {
+            //                    mPrice = CalculateCarparkPrice(a.Id, FormatDateTime(DateTime.Now), FormatDateTime(DateTime.Now.AddHours(1)), "Motorcycle");
+            //                }
+            //                else if (x.Contains("H"))
+            //                {
+            //                    hvPrice = CalculateCarparkPrice(a.Id, FormatDateTime(DateTime.Now), FormatDateTime(DateTime.Now.AddHours(1)), "Heavy Vehicle");
+            //                }
+            //            }
+
+            //            if (asplit.Length == 1)
+            //            {
+            //                if (carPrice != 0.0)
+            //                {
+            //                    a.Price = carPrice;
+            //                }
+            //                else if (mPrice != 0.0)
+            //                {
+            //                    a.Price = mPrice;
+            //                }
+            //                else if (hvPrice != 0.0)
+            //                {
+            //                    a.Price = hvPrice;
+            //                }
+            //            }
+            //            else if (asplit.Length == 2)
+            //            {
+            //                if (carPrice != 0.0 && mPrice != 0.0)
+            //                {
+            //                    a.Price = Math.Min(carPrice, mPrice);
+            //                }
+            //                else if (carPrice != 0.0 && hvPrice != 0.0)
+            //                {
+            //                    a.Price = Math.Min(carPrice, hvPrice);
+            //                }
+            //                else if (mPrice != 0.0 && hvPrice != 0.0)
+            //                {
+            //                    a.Price = Math.Min(mPrice, hvPrice);
+            //                }
+            //            }
+            //            else if (asplit.Length == 3)
+            //            {
+            //                a.Price = Math.Min(Math.Min(carPrice, mPrice), hvPrice);
+            //            }
+
+            //        }
+            //        else
+            //        {
+            //            // set start datetime to now and end datetime to one hour after now
+            //            var price = CalculateCarparkPrice(a.Id, FormatDateTime(DateTime.Now), FormatDateTime(DateTime.Now.AddHours(1)), carparkResourceParameters.VehType);
+
+            //            a.Price = price;
+            //        }
+            //    });
+
+            //    // price is defaulted to max double, but if specified then it will set to lower or equal to that price.
+            //    collectionBeforePaging = collectionBeforePaging.Where(a => a.Price <= carparkResourceParameters.Price).OrderBy(a => a.Price);
+            //}
+
+            // Electronic or Coupon Parking
+            if (carparkResourceParameters.IsElectronic == true)
             {
-                var carparks = collectionBeforePaging.ToList();
-
-
-                carparks.ForEach(a =>
-                {
-                    if (carparkResourceParameters.VehType == "All")
-                    {
-                        double carPrice = 0.0, hvPrice = 0.0, mPrice = 0.0;
-                        for (int i = 0; i <= 3; i++)
-                        {
-                            if (a.LotType.Contains("C"))
-                            {
-                                carPrice = CalculateCarparkPrice(a.Id, FormatDateTime(carparkResourceParameters.StartDateTime), FormatDateTime(carparkResourceParameters.EndDateTime), "Car");
-                            }
-                            else if (a.LotType.Contains("M"))
-                            {
-                                mPrice = CalculateCarparkPrice(a.Id, FormatDateTime(carparkResourceParameters.StartDateTime), FormatDateTime(carparkResourceParameters.EndDateTime), "Motorcycle");
-                            }
-                            else if (a.LotType.Contains("H"))
-                            {
-                                hvPrice = CalculateCarparkPrice(a.Id, FormatDateTime(carparkResourceParameters.StartDateTime), FormatDateTime(carparkResourceParameters.EndDateTime), "Heavy Vehicle");
-                            }
-                        }
-
-                        a.Price = Math.Min(Math.Min(carPrice, mPrice), hvPrice);
-
-                    }
-                    else
-                    {
-                        var price = CalculateCarparkPrice(a.Id, FormatDateTime(carparkResourceParameters.StartDateTime), FormatDateTime(carparkResourceParameters.EndDateTime), carparkResourceParameters.VehType);
-
-                        a.Price = price;
-                    }
-                });
-
-                // price is defaulted to max double, but if specified then it will set to lower or equal to that price.
-                collectionBeforePaging = collectionBeforePaging.Where(a => a.Price <= carparkResourceParameters.Price).OrderBy(a => a.Price);
-
+                collectionBeforePaging = collectionBeforePaging.Where(a => a.ParkingSystem == "ELECTRONIC PARKING");
             }
             else
-            // if datetime not specified.
             {
-                var carparks = collectionBeforePaging.ToList();
-
-                carparks.ForEach(a =>
-                {
-                    if (carparkResourceParameters.VehType == "All")
-                    {
-                        double carPrice = 0.0, hvPrice = 0.0, mPrice = 0.0;
-                        for (int i = 0; i <= 3; i++)
-                        {
-                            if (a.LotType.Contains("C"))
-                            {
-                                carPrice = CalculateCarparkPrice(a.Id, FormatDateTime(DateTime.Now), FormatDateTime(DateTime.Now.AddHours(1)), "Car");
-                            }
-                            else if (a.LotType.Contains("M"))
-                            {
-                                mPrice = CalculateCarparkPrice(a.Id, FormatDateTime(DateTime.Now), FormatDateTime(DateTime.Now.AddHours(1)), "Motorcycle");
-                            }
-                            else if (a.LotType.Contains("H"))
-                            {
-                                hvPrice = CalculateCarparkPrice(a.Id, FormatDateTime(DateTime.Now), FormatDateTime(DateTime.Now.AddHours(1)), "Heavy Vehicle");
-                            }
-                        }
-
-                        a.Price = Math.Min(Math.Min(carPrice, mPrice), hvPrice);
-
-                    }
-                    else
-                    {
-                        // set start datetime to now and end datetime to one hour after now
-                        var price = CalculateCarparkPrice(a.Id, FormatDateTime(DateTime.Now), FormatDateTime(DateTime.Now.AddHours(1)), carparkResourceParameters.VehType);
-
-                        a.Price = price;
-                    }
-
-
-
-                });
-
-                // price is defaulted to max double, but if specified then it will set to lower or equal to that price.
-                collectionBeforePaging = collectionBeforePaging.Where(a => a.Price <= carparkResourceParameters.Price).OrderBy(a => a.Price);
+                collectionBeforePaging = collectionBeforePaging.Where(a => a.ParkingSystem == "COUPON PARKING");
             }
 
+            // Is Central or Not
+            if (carparkResourceParameters.IsCentral)
+            {
+                collectionBeforePaging = collectionBeforePaging.Where(a => a.IsCentral);
+            }
+
+
+            // Search Query
             if (!string.IsNullOrEmpty(carparkResourceParameters.SearchQuery))
             {
                 var searchQueryForWhereClause = carparkResourceParameters.SearchQuery
@@ -795,6 +902,12 @@ namespace ParkingSlotAPI.Repository
 
                 collectionBeforePaging = collectionBeforePaging.Where(a => a.CarparkName.ToLowerInvariant().Contains(searchQueryForWhereClause));
             }
+
+            // Sorting By CarparkName
+            collectionBeforePaging = collectionBeforePaging.ApplySort(carparkResourceParameters.OrderBy,
+                                _propertyMappingService.GetPropertyMapping<CarparkDto, Carpark>());
+
+            
 
             if (error.Any())
             {

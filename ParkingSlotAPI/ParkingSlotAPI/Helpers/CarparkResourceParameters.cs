@@ -28,12 +28,23 @@ namespace ParkingSlotAPI.Helpers
 
         public string VehType { get; set; } = "All";
 
-        public DateTime StartDateTime { get; set; } = DateTime.MinValue;
+        //public DateTime StartDateTime { get; set; } = DateTime.MinValue;
 
-        public DateTime EndDateTime { get; set; } = DateTime.MinValue;
+        //public DateTime EndDateTime { get; set; } = DateTime.MinValue;
 
         public string SearchQuery { get; set; }
 
-        public double Price { get; set; } = Double.MaxValue;
+        // public double Price { get; set; } = Double.MaxValue;
+
+        public double Latitude { get; set; } = Double.MinValue;
+
+        public double Longitude { get; set; } = Double.MinValue;
+
+        public double Range { get; set; } = 100;
+
+        public string OrderBy { get; set; } = "CarparkName";
+
+        public bool IsElectronic { get; set; } = true;
+        public bool IsCentral { get; set; }
     }
 }
