@@ -138,7 +138,7 @@
         <v-card-text>
           <v-container>
             <v-col cols="12">
-              <v-datetime-picker label="Enter Start Date/Time" v-model="priceFilter.starttime">
+              <v-datetime-picker label="Enter Start Date/Time" format="YYYY-MM-DD HH:mm:ss" v-model="priceFilter.starttime">
                 <template slot="dateIcon">
                   <v-icon>mdi-calendar</v-icon>
                 </template>
@@ -148,7 +148,7 @@
               </v-datetime-picker>
             </v-col>
             <v-col cols="12">
-              <v-datetime-picker label="Enter End Date/Time" v-model="priceFilter.endtime">
+              <v-datetime-picker label="Enter End Date/Time" format="YYYY-MM-DD HH:mm:ss"  v-model="priceFilter.endtime">
                 <template slot="dateIcon">
                   <v-icon>mdi-calendar</v-icon>
                 </template>
@@ -158,7 +158,12 @@
               </v-datetime-picker>
             </v-col>
             <v-col cols="12">
-              <v-select :items="vehType" v-model="priceFilter.vehtype" label="Vehicle Type" solo></v-select>
+              <v-select
+                :items="vehType"
+                v-model="priceFilter.vehicletype"
+                label="Vehicle Type"
+                solo
+              ></v-select>
             </v-col>
             <v-alert
               :value="alertPrice"
@@ -173,7 +178,7 @@
               color="green"
               dark
               border="top"
-              icon="mdi-alert"
+              icon="mdi-cash-usd"
               transition="scale-transition"
             >Carpark price is ${{ calculatedPrice }}</v-alert>
           </v-container>
@@ -181,6 +186,7 @@
         <v-card-actions>
           <div class="flex-grow-1"></div>
           <v-btn color="primary" text @click="calcPrice">Calculate</v-btn>
+          <v-btn color="primary" text @click="costDialog = false">Go Back</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -188,6 +194,7 @@
 </template>
 
 <script>
+import moment from "moment";
 import CarparkFilter from "./utils/filter";
 export default {
   components: {
@@ -368,16 +375,16 @@ export default {
       this.vehType = [];
       this.priceFilter = {};
       this.costDialog = true;
+      this.alertPrice = false;
+      this.successPrice = false;
       this.carparkPriceItem = item;
-      var lottype = item.lotType.split(',').map(item => item.trim());
-      for(var i = 0; i < lottype.length; i++){
-        if(lottype[i] == "C"){
-          this.vehType.push("Car")
-        }
-        else if(lottype[i] == "M"){
+      var lottype = item.lotType.split(",").map(item => item.trim());
+      for (var i = 0; i < lottype.length; i++) {
+        if (lottype[i] == "C") {
+          this.vehType.push("Car");
+        } else if (lottype[i] == "M") {
           this.vehType.push("Motorcycle");
-        }
-        else if(lottype[i] == "H"){
+        } else if (lottype[i] == "H") {
           this.vehType.push("Heavy Vehicle");
         }
       }
@@ -388,10 +395,12 @@ export default {
         .get(
           "https://parkingslotapi.azurewebsites.net/api/calculation/" +
             this.carparkPriceItem.id,
-          this.priceFilter
+          {
+            params: this.priceFilter
+          }
         )
         .then(response => {
-          console.log(response);
+          cur.priceFilter = {};
           if (response.data.isNUll == true) {
             cur.alertPrice = true;
             cur.successPrice = false;
@@ -399,6 +408,7 @@ export default {
             cur.successPrice = true;
             cur.alertPrice = false;
             cur.calculatedPrice = response.data.price;
+            cur.priceFilter = {};
           }
         })
         .catch(error => {

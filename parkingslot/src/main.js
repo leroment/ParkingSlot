@@ -21,6 +21,8 @@ import NProgress from 'nprogress';
 import 'nprogress/nprogress.css'
 /* 8. Datetimepicker */
 import DatetimePicker from 'vuetify-datetime-picker'
+/* 9. Time Parser */
+import moment from "moment";
 
 // Install Javascript Libraries
 // Must be called before new Vue()
@@ -43,7 +45,8 @@ Vue.use(InfiniteLoading, {
     /* other settings need to configure */
   },
 });
-Vue.use(DatetimePicker)
+Vue.use(DatetimePicker);
+Vue.prototype.moment = moment;
 Vue.config.productionTip = false
 
 
