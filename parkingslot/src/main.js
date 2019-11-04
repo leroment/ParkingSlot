@@ -19,6 +19,8 @@ import InfiniteLoading from 'vue-infinite-loading';
 /* 7. NProgress */
 import NProgress from 'nprogress';
 import 'nprogress/nprogress.css'
+/* 8. Datetimepicker */
+import DatetimePicker from 'vuetify-datetime-picker'
 
 // Install Javascript Libraries
 // Must be called before new Vue()
@@ -41,6 +43,7 @@ Vue.use(InfiniteLoading, {
     /* other settings need to configure */
   },
 });
+Vue.use(DatetimePicker)
 Vue.config.productionTip = false
 
 

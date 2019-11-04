@@ -17,12 +17,7 @@
           <v-dialog v-model="showCreate" max-width="1000px">
             <template v-slot:activator="{ on }">
               <v-spacer></v-spacer>
-              <v-btn
-                color="teal"
-                dark
-                class="ml-5 mb-2 mt-3"
-                to="/feedback"
-              >Manage Feedbacks</v-btn>
+              <v-btn color="teal" dark class="ml-5 mb-2 mt-3" to="/feedback">Manage Feedbacks</v-btn>
               <v-btn
                 color="primary"
                 dark
@@ -168,7 +163,7 @@
 
       <template v-slot:body="{ items }">
         <tbody>
-          <tr v-for="item in items" :key="item._id" v-on:click="selectDiscount(item)">
+          <tr v-for="item in items" :key="item._id">
             <template v-if="!isMobile">
               <td>{{item.username}}</td>
               <td>{{item.firstName}}</td>
@@ -385,7 +380,7 @@ export default {
             const index = cur.getUserIndex(item.id);
             if (~index) {
               cur.users.splice(index, 1);
-              cur.totalUsers = cur.totalUsers-1;
+              cur.totalUsers = cur.totalUsers - 1;
             }
             console.log("User have been deleted!");
           });

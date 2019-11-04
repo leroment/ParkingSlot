@@ -11,6 +11,11 @@
                 <v-list-item-subtitle v-text="item.address"></v-list-item-subtitle>
               </v-list-item-content>
               <v-list-item-action>
+                <v-btn color="orange" text @click.stop="displayCalcCost(item)">
+                  <v-icon>mdi-currency-usd</v-icon>cost
+                </v-btn>
+              </v-list-item-action>
+              <v-list-item-action>
                 <v-list-item-action-text
                   v-if="item.totalAvailableLots != '-1'"
                   v-text="item.totalAvailableLots"
@@ -123,6 +128,62 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+    <v-dialog v-model="costDialog" width="500px">
+      <v-card>
+        <v-card-title
+          class="headline blue font-weight-light darken-2"
+          style="color:white"
+          primary-title
+        >Calculate Price</v-card-title>
+        <v-card-text>
+          <v-container>
+            <v-col cols="12">
+              <v-datetime-picker label="Enter Start Date/Time" v-model="priceFilter.starttime">
+                <template slot="dateIcon">
+                  <v-icon>mdi-calendar</v-icon>
+                </template>
+                <template slot="timeIcon">
+                  <v-icon>mdi-clock</v-icon>
+                </template>
+              </v-datetime-picker>
+            </v-col>
+            <v-col cols="12">
+              <v-datetime-picker label="Enter End Date/Time" v-model="priceFilter.endtime">
+                <template slot="dateIcon">
+                  <v-icon>mdi-calendar</v-icon>
+                </template>
+                <template slot="timeIcon">
+                  <v-icon>mdi-clock</v-icon>
+                </template>
+              </v-datetime-picker>
+            </v-col>
+            <v-col cols="12">
+              <v-select :items="vehType" v-model="priceFilter.vehtype" label="Vehicle Type" solo></v-select>
+            </v-col>
+            <v-alert
+              :value="alertPrice"
+              color="pink"
+              dark
+              border="top"
+              icon="mdi-alert"
+              transition="scale-transition"
+            >Pricing information for this carpark is unavailable at this moment. Please try again in the future</v-alert>
+            <v-alert
+              :value="successPrice"
+              color="green"
+              dark
+              border="top"
+              icon="mdi-alert"
+              transition="scale-transition"
+            >Carpark price is ${{ calculatedPrice }}</v-alert>
+          </v-container>
+        </v-card-text>
+        <v-card-actions>
+          <div class="flex-grow-1"></div>
+          <v-btn color="primary" text @click="calcPrice">Calculate</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-card>
 </template>
 
@@ -135,8 +196,15 @@ export default {
   data() {
     return {
       dialog: false,
+      costDialog: false,
       carparkItem: [],
       viewingItem: {},
+      priceFilter: {},
+      alertPrice: false,
+      successPrice: false,
+      carparkPriceItem: {},
+      calculatedPrice: "",
+      vehType: [],
       infiniteId: +new Date(),
       filterConfig: this.$store.getters.FILTER
     };
@@ -294,6 +362,47 @@ export default {
 
           cur.viewingItem = item;
           cur.dialog = true;
+        });
+    },
+    displayCalcCost: function(item) {
+      this.vehType = [];
+      this.priceFilter = {};
+      this.costDialog = true;
+      this.carparkPriceItem = item;
+      var lottype = item.lotType.split(',').map(item => item.trim());
+      for(var i = 0; i < lottype.length; i++){
+        if(lottype[i] == "C"){
+          this.vehType.push("Car")
+        }
+        else if(lottype[i] == "M"){
+          this.vehType.push("Motorcycle");
+        }
+        else if(lottype[i] == "H"){
+          this.vehType.push("Heavy Vehicle");
+        }
+      }
+    },
+    calcPrice: function() {
+      let cur = this;
+      this.axios
+        .get(
+          "https://parkingslotapi.azurewebsites.net/api/calculation/" +
+            this.carparkPriceItem.id,
+          this.priceFilter
+        )
+        .then(response => {
+          console.log(response);
+          if (response.data.isNUll == true) {
+            cur.alertPrice = true;
+            cur.successPrice = false;
+          } else {
+            cur.successPrice = true;
+            cur.alertPrice = false;
+            cur.calculatedPrice = response.data.price;
+          }
+        })
+        .catch(error => {
+          console.log(error);
         });
     }
   }
