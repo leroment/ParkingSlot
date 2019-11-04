@@ -245,27 +245,21 @@ export default {
       console.log(item);
       let cur = this;
       cur.showFeedback = false;
-      if (item.comments.length > 0) {
-        this.axios
-          .put(
-            "https://parkingslotapi.azurewebsites.net/api/feedbacks/" +
-              item.id +
-              "/user/" +
-              item.userId,
-            {
-              params: item
-            }
-          )
-          .then(function(response) {
-            console.log(response);
-            const index = cur.getFeedbackIndex(item.id);
-            cur.$set(cur.feedbacks, index, item);
-            console.log("updated");
-            cur.showFeedback = false;
-          });
-      } else {
-        //show an alert to ask admin to key in feedback
-      }
+      this.axios
+        .put(
+          "https://parkingslotapi.azurewebsites.net/api/feedbacks/" + item.id,
+          {
+            isResolved: item.isResolved,
+            comments: item.comments
+          }
+        )
+        .then(function(response) {
+          console.log(response);
+          const index = cur.getFeedbackIndex(item.id);
+          cur.$set(cur.feedbacks, index, item);
+          console.log("updated");
+          cur.showFeedback = false;
+        });
     },
     deleteItem(item) {
       var result = confirm("Delete Feedback?");
