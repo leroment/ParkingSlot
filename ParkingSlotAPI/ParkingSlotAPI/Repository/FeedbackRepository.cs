@@ -18,6 +18,7 @@ namespace ParkingSlotAPI.Repository
         void AddFeedbackForUser(Guid userId, Feedback feedback);
         void DeleteFeedback(Feedback feedback);
         void UpdateFeedback(Feedback feedback);
+        Feedback GetFeedback(Guid feedbackId);
         bool Save();
     }
 
@@ -51,6 +52,11 @@ namespace ParkingSlotAPI.Repository
         public Feedback GetFeedbackForUser(Guid userId, Guid feedbackId)
         {
             return _context.Feedbacks.FirstOrDefault(a => a.Id == feedbackId && a.UserId == userId);
+        }
+
+        public Feedback GetFeedback(Guid feedbackId)
+        {
+            return _context.Feedbacks.FirstOrDefault(a => a.Id == feedbackId);
         }
 
         private bool FeedbackExists(Guid userId, Guid feedbackId)

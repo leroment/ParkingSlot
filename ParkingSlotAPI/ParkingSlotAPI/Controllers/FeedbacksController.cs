@@ -202,28 +202,23 @@ namespace ParkingSlotAPI.Controllers
             return NoContent();
         }
 
-        [HttpPut("{id}/user/{userId}")]
-        [Authorize(Roles = Role.Admin)]
-        public IActionResult UpdateFeedback(Guid userId, Guid id, [FromBody] FeedbackForUpdateDto feedback)
+        [HttpPut("{id}")]
+        [AllowAnonymous]
+        public IActionResult UpdateFeedback(Guid id, [FromBody] FeedbackForUpdateDto feedbackForUpdateDto)
         {
-            if (feedback == null)
+            if (feedbackForUpdateDto == null)
             {
                 return BadRequest();
             }
 
-            if (!_userRepository.UserExists(userId))
+            var feedbackFromRepo = _feedbackRepository.GetFeedback(id);
+
+            if (feedbackFromRepo == null)
             {
                 return NotFound();
             }
 
-            var feedbackForUserFromRepo = _feedbackRepository.GetFeedbackForUser(userId, id);
-
-            if (feedbackForUserFromRepo == null)
-            {
-                return NotFound();
-            }
-
-            var feedbackFromRepo = _mapper.Map(feedback, feedbackForUserFromRepo);
+            _mapper.Map(feedbackForUpdateDto, feedbackFromRepo);
 
             _feedbackRepository.UpdateFeedback(feedbackFromRepo);
 
