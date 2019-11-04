@@ -17,6 +17,10 @@ namespace ParkingSlotAPI.Models
 
         public string AgencyType { get; set; }
 
+        public string ParkingSystem { get; set; }
+
+        public bool IsCentral { get; set; }
+
         public string Address { get; set; }
 
         public string XCoord { get; set; }

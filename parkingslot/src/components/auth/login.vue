@@ -9,7 +9,6 @@
                 <v-layout row>
                   <v-flex xs12>
                     <v-alert
-                      dismissible
                       type="error"
                       :value="error"
                     >The username/password is incorrect</v-alert>
