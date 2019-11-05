@@ -199,7 +199,7 @@
                   <li class="flex-item" data-label="Status">
                     <v-card-actions>
                       <v-btn color="blue darken-1" text @click.stop="viewItem(item)">View</v-btn>
-                      <v-btn color="orange darken-1" text @click.stop="editItem(item)">Edit</v-btn>
+                      <v-btn color="orange darken-1" text @click.stop="editUser(item)">Edit</v-btn>
                       <v-btn color="red darken-1" text @click.stop="deleteUser(item)">Delete</v-btn>
                     </v-card-actions>
                   </li>
