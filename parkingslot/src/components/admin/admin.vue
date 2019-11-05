@@ -331,9 +331,9 @@ export default {
         } else {
           this.$store
             .dispatch("REGISTER", this.newUser)
-            .then(success => {
+            .then(response => {
               var username = this.newUser.username;
-              this.users.push(newUser);
+              this.users.push(response);
               this.newUser = {};
               this.showCreate = false;
               this.alertSuccess = true;

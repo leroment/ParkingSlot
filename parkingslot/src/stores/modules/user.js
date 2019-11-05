@@ -135,7 +135,7 @@ export default {
                     .post(`https://parkingslotapi.azurewebsites.net/api/users`, payload)
                     .then(({ data, status }) => {
                         if (status === 200) {
-                            resolve(true);
+                            resolve(data);
                         }
                     })
                     .catch(error => {
