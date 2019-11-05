@@ -7,11 +7,6 @@
           <v-alert :value="notifyStatus" type="success">{{notifyText}}</v-alert>
           <form @submit.prevent="updateProfile">
           <v-card-text v-show="updateAccount">
-            <v-flex class="mb-6">
-              <v-avatar size="96" class="mr-4">
-                <img src="https://randomuser.me/api/portraits/men/81.jpg" alt="Avatar" />
-              </v-avatar>
-            </v-flex>
             <v-text-field readonly name="username" label="Username" v-model="userProfile.username"></v-text-field>
             <v-text-field name="firstName" label="First Name" v-model="userProfile.firstName"></v-text-field>
             <v-text-field name="lastName" label="Last Name" v-model="userProfile.lastName"></v-text-field>
