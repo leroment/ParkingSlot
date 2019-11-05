@@ -199,8 +199,8 @@ export default {
       //Filter by the markers
       this.filterConfig = filterConfig;
     },
-    initGmaps: function() {
-      var filterBar = document.getElementById("filter");
+  initGmaps: function() {
+     /*   var filterBar = document.getElementById("filter");
       var gpsBtn = document.getElementById("gpsBtn");
       var routeModal = document.getElementById("routeModal");
       this.mapObject = this.$refs.mapRef.$mapObject;
@@ -212,7 +212,7 @@ export default {
       );
       this.mapObject.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(
         routeModal
-      );
+      );*/
       //To change the polyline color
       //polylineOptions:{strokeColor:"#4a4a4a",strokeWeight:5},
       directionsDisplay = new google.maps.DirectionsRenderer({
