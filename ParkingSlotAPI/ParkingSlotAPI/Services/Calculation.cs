@@ -10,10 +10,10 @@ namespace ParkingSlotAPI
 	{
 
 		private DateTime dateTime;
-		private int duration;
+		private double duration;
 
 
-		public Calculation(DateTime dt, int duration)
+		public Calculation(DateTime dt, double duration)
 		{
 			this.dateTime = dt;
 			this.duration = duration;
@@ -79,7 +79,7 @@ namespace ParkingSlotAPI
 		{
 			this.dateTime = dt;
 		}
-		public int getDuration()
+		public double getDuration()
 		{
 			return this.duration;
 		}
@@ -102,7 +102,7 @@ namespace ParkingSlotAPI
 			}
 				else
 			{
-				int getWholeNumber = (int)finalDuration;
+				double getWholeNumber = finalDuration-(finalDuration%1);
 				if ((finalDuration-(double)getWholeNumber) >0)
 				{
 					result+= rate;
@@ -110,7 +110,7 @@ namespace ParkingSlotAPI
 				result += getWholeNumber * rate;
 			}
 
-			return Math.Round(result, 2, MidpointRounding.ToEven);
+			return result;
 
 		
 		}
