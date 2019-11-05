@@ -324,7 +324,8 @@ export default {
       this.showCreate = true;
     },
     submitUser() {
-      if (this.$refs.editform.validate()) {
+      var newUser = this.newUser;
+      if (this.$refs.createform.validate()) {
         if (this.newUser.Password != this.newUser.ConfirmPassword) {
           alert("Password do not match");
         } else {
@@ -332,8 +333,8 @@ export default {
             .dispatch("REGISTER", this.newUser)
             .then(success => {
               var username = this.newUser.username;
-              this.users.push(this.newUser);
-              for (let keys in this.newUser) delete this.newUser[keys];
+              this.users.push(newUser);
+              this.newUser = {};
               this.showCreate = false;
               this.alertSuccess = true;
               this.alertError = false;
