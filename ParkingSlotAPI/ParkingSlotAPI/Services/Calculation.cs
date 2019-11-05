@@ -177,10 +177,10 @@ namespace ParkingSlotAPI
 				//        BS---------BE
 				//
 				// TE is before BE but after BS
-				 (TE <= BE && TE > BS)
-				
+				 (TE <= BE && TE > BS&& TS <= BS) //|| (TS <= BS && TE <= BE) 
 
-				
+
+
 			);
 		}
 	}
