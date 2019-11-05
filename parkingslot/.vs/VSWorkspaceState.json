@@ -1,0 +1,13 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\dist",
+    "\\src",
+    "\\src\\components",
+    "\\src\\components\\admin",
+    "\\src\\components\\auth",
+    "\\src\\components\\layouts"
+  ],
+  "SelectedNode": "\\src\\components\\auth\\register.vue",
+  "PreviewInSolutionExplorer": false
+}

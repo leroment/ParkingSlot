@@ -63,12 +63,13 @@
                     </v-row>
                     <v-row>
                       <v-col cols="12" sm="6" md="6">
-                        <v-text-field v-model="newUser.password" label="Password" required></v-text-field>
+                        <v-text-field v-model="newUser.password" label="Password" type="password" required></v-text-field>
                       </v-col>
                       <v-col cols="12" sm="6" md="6">
                         <v-text-field
                           v-model="newUser.confirmPassword"
                           label="Confirm Password"
+                                      type="password"
                           required
                         ></v-text-field>
                       </v-col>
