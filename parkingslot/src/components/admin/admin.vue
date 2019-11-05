@@ -1,5 +1,11 @@
 <template>
-  <v-content v-resize="onResize" column>
+  <v-content style="margin-top:0px" v-resize="onResize" column>
+    <v-alert type="error" style="border-radius:0px;" :value="alertError">{{ errmsg}}</v-alert>
+    <v-alert
+      type="success"
+      style="border-radius:0px;"
+      :value="alertSuccess"
+    >{{successmsg}}</v-alert>
     <v-data-table
       :headers="headers"
       :items="users"
@@ -44,7 +50,7 @@
                     </v-row>
                     <v-row>
                       <v-col cols="12">
-                        <v-text-field v-model="newUser.email" label="Email"></v-text-field>
+                        <v-text-field v-model="newUser.email" label="Email" required></v-text-field>
                       </v-col>
                     </v-row>
                     <v-row>
@@ -246,7 +252,11 @@ export default {
     loading: true,
     sortingName: "username",
     isMobile: false,
-    isAscending: true
+    isAscending: true,
+    alertError: false,
+    alertSuccess: false,
+    errmsg: "",
+    successmsg: ""
   }),
   watch: {
     options: {
@@ -313,21 +323,29 @@ export default {
       this.showCreate = true;
     },
     submitUser() {
-      if (this.newUser.Password != this.newUser.ConfirmPassword) {
-        console.log("Password do not match");
-      } else {
-        this.$store
-          .dispatch("REGISTER", this.newUser)
-          .then(success => {
-            this.users.push(this.newUser);
-            for (let keys in this.newUser) delete this.newUser[keys];
-            this.showCreate = false;
-            console.log("User have been created");
-          })
-          .catch(error => {
-            console.log(error);
-            console.log("Bad request");
-          });
+      if (this.$refs.editform.validate()) {
+        if (this.newUser.Password != this.newUser.ConfirmPassword) {
+          alert("Password do not match");
+        } else {
+          this.$store
+            .dispatch("REGISTER", this.newUser)
+            .then(success => {
+              var username = this.newUser.username;
+              this.users.push(this.newUser);
+              for (let keys in this.newUser) delete this.newUser[keys];
+              this.showCreate = false;
+              this.alertSuccess = true;
+              this.alertError = false;
+              this.successmsg =
+                "User " + username + " have been successfully created!";
+            })
+            .catch(error => {
+              console.log(error);
+              this.alertSuccess = false;
+              this.alertError = true;
+              this.errmsg = "Bad request sent to the server";
+            });
+        }
       }
     },
     cancelCreate() {
@@ -356,13 +374,18 @@ export default {
             cur.showEdit = false;
             var index = this.getUserIndex(cur.editUserInfo.id);
             this.$set(this.users, index, this.editUserInfo);
-            console.log("Profile have been successfully updated!");
+            this.alertSuccess = true;
+            this.alertError = false;
+            this.successmsg = "Profile have been successfully updated!";
           })
           .catch(error => {
             console.log(error);
+            this.alertSuccess = false;
+            this.alertError = true;
+            this.errmsg = "Bad request sent to the server";
           });
       } else {
-        console.log("Form not validated");
+        alert("Form not validated");
       }
     },
     deleteUser(item) {
@@ -382,7 +405,9 @@ export default {
               cur.users.splice(index, 1);
               cur.totalUsers = cur.totalUsers - 1;
             }
-            console.log("User have been deleted!");
+            cur.alertSuccess = true;
+            cur.alertError = false;
+            cur.successmsg = "User have been successfully deleted!";
           });
       }
     }

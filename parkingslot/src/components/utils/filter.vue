@@ -82,12 +82,6 @@ export default {
       filterConfig: this.$store.getters.FILTER,
       vehType: ["Car", "Motorcycle", "Heavy Vehicle", "All"],
       agencyType: ["HDB", "URA", "LTA", "All"],
-      startDateMenu: false,
-      startTimeMenu: false,
-      endDateMenu: false,
-      endTimeMenu: false,
-      starttime: null,
-      endtime: null,
       description: "Singapore",
       latLng: {}
     };

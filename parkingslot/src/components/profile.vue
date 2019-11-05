@@ -4,7 +4,7 @@
       <v-layout column>
         <v-card>
           <v-alert type="error" :value="generalError">{{generalErrorText}}</v-alert>
-          <v-alert :value="notifyStatus" dismissible type="success">{{notifyText}}</v-alert>
+          <v-alert :value="notifyStatus" type="success">{{notifyText}}</v-alert>
           <form @submit.prevent="updateProfile">
           <v-card-text v-show="updateAccount">
             <v-flex class="mb-6">
@@ -120,7 +120,6 @@ export default {
         this.generalErrorText = "New passwords do not match.";
         return;
       }
-
       this.$store
         .dispatch("CHANGEPASSWORD", {
           OldPassword: this.userPassword.currentpassword,
@@ -139,18 +138,13 @@ export default {
           this.userPassword.cfmnewpassword = "";
         })
         .catch((error) => {
-          console.log(error.response);
-          console.log(error.response.data);
-          
           this.generalError = true;
           if (error.response.data == "Incorrect current password entered."){ // Wrong Password
             this.generalErrorText = error.response.data;
           }
           else{
             this.generalErrorText = "Passwords must be at least 8 characters and contain at 3 of 4 of the following: upper case (A-Z), lower case (a-z), number (0-9) and special character (e.g. !@#$%^&*)";
-          }
-          
-          
+          }  
         });
     },
     reset() {

@@ -124,71 +124,90 @@
         </v-card-text>
         <v-card-actions>
           <div class="flex-grow-1"></div>
-          <v-btn color="primary" text @click="dialog = false">Go Back</v-btn>
+          <v-btn color="primary" @click="dialog = false" text>Go Back</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
     <v-dialog v-model="costDialog" width="500px">
-      <v-card>
-        <v-card-title
-          class="headline blue font-weight-light darken-2"
-          style="color:white"
-          primary-title
-        >Calculate Price</v-card-title>
-        <v-card-text>
-          <v-container>
-            <v-col cols="12">
-              <v-datetime-picker label="Enter Start Date/Time" format="YYYY-MM-DD HH:mm:ss" v-model="priceFilter.starttime">
-                <template slot="dateIcon">
-                  <v-icon>mdi-calendar</v-icon>
-                </template>
-                <template slot="timeIcon">
-                  <v-icon>mdi-clock</v-icon>
-                </template>
-              </v-datetime-picker>
-            </v-col>
-            <v-col cols="12">
-              <v-datetime-picker label="Enter End Date/Time" format="YYYY-MM-DD HH:mm:ss"  v-model="priceFilter.endtime">
-                <template slot="dateIcon">
-                  <v-icon>mdi-calendar</v-icon>
-                </template>
-                <template slot="timeIcon">
-                  <v-icon>mdi-clock</v-icon>
-                </template>
-              </v-datetime-picker>
-            </v-col>
-            <v-col cols="12">
-              <v-select
-                :items="vehType"
-                v-model="priceFilter.vehicletype"
-                label="Vehicle Type"
-                solo
-              ></v-select>
-            </v-col>
-            <v-alert
-              :value="alertPrice"
-              color="pink"
-              dark
-              border="top"
-              icon="mdi-alert"
-              transition="scale-transition"
-            >Pricing information for this carpark is unavailable at this moment. Please try again in the future</v-alert>
-            <v-alert
-              :value="successPrice"
-              color="green"
-              dark
-              border="top"
-              icon="mdi-cash-usd"
-              transition="scale-transition"
-            >Carpark price is ${{ calculatedPrice }}</v-alert>
-          </v-container>
-        </v-card-text>
-        <v-card-actions>
-          <div class="flex-grow-1"></div>
-          <v-btn color="primary" text @click="calcPrice">Calculate</v-btn>
-          <v-btn color="primary" text @click="costDialog = false">Go Back</v-btn>
-        </v-card-actions>
-      </v-card>
+      <v-form ref="form">
+        <v-card>
+          <v-card-title
+            class="headline blue font-weight-light darken-2"
+            style="color:white"
+            primary-title
+          >Calculate Price</v-card-title>
+          <v-card-text>
+            <v-container>
+              <v-col cols="12">
+                <v-datetime-picker
+                  label="Enter Start Date/Time"
+                  v-model="priceFilter.starttime"
+                  :date-picker-props="dateProps"
+                  :time-picker-props="timeProps"
+                  dateFormat="yyyy/MM/dd"
+                  timeFormat="HH:mm:ss"
+                  required
+                >
+                  <template slot="dateIcon">
+                    <v-icon>mdi-calendar</v-icon>
+                  </template>
+                  <template slot="timeIcon">
+                    <v-icon>mdi-clock</v-icon>
+                  </template>
+                </v-datetime-picker>
+              </v-col>
+              <v-col cols="12">
+                <v-datetime-picker
+                  label="Enter End Date/Time"
+                  v-model="priceFilter.endtime"
+                  :date-picker-props="dateProps"
+                  :time-picker-props="timeProps"
+                  dateFormat="yyyy/MM/dd"
+                  timeFormat="HH:mm:ss"
+                  required
+                >
+                  <template slot="dateIcon">
+                    <v-icon>mdi-calendar</v-icon>
+                  </template>
+                  <template slot="timeIcon">
+                    <v-icon>mdi-clock</v-icon>
+                  </template>
+                </v-datetime-picker>
+              </v-col>
+              <v-col cols="12">
+                <v-select
+                  :items="vehType"
+                  v-model="priceFilter.vehicletype"
+                  label="Vehicle Type"
+                  required
+                  solo
+                ></v-select>
+              </v-col>
+              <v-alert
+                :value="alertPrice"
+                color="pink"
+                dark
+                border="top"
+                icon="mdi-alert"
+                transition="scale-transition"
+              >Pricing information for this carpark is unavailable at this moment. Please try again in the future</v-alert>
+              <v-alert
+                :value="successPrice"
+                color="green"
+                dark
+                border="top"
+                icon="mdi-cash-usd"
+                transition="scale-transition"
+              >Carpark price is ${{ calculatedPrice }}</v-alert>
+            </v-container>
+          </v-card-text>
+          <v-card-actions>
+            <div class="flex-grow-1"></div>
+            <v-btn color="primary" text @click="calcPrice">Calculate</v-btn>
+            <v-btn color="primary" text @click="closePriceDialog">Go Back</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-form>
     </v-dialog>
   </v-card>
 </template>
@@ -207,6 +226,13 @@ export default {
       carparkItem: [],
       viewingItem: {},
       priceFilter: {},
+      dateProps: {
+        headerColor: "blue"
+      },
+      timeProps: {
+        ampmInTitle: true,
+        height: "100%"
+      },
       alertPrice: false,
       successPrice: false,
       carparkPriceItem: {},
@@ -372,8 +398,8 @@ export default {
         });
     },
     displayCalcCost: function(item) {
+      //reset form
       this.vehType = [];
-      this.priceFilter = {};
       this.costDialog = true;
       this.alertPrice = false;
       this.successPrice = false;
@@ -400,20 +426,23 @@ export default {
           }
         )
         .then(response => {
-          cur.priceFilter = {};
-          if (response.data.isNUll == true) {
+          if (response.data.isNUll == true || response.data.price == 0) {
             cur.alertPrice = true;
             cur.successPrice = false;
           } else {
             cur.successPrice = true;
             cur.alertPrice = false;
             cur.calculatedPrice = response.data.price;
-            cur.priceFilter = {};
           }
+          cur.$refs.form.reset();
         })
         .catch(error => {
           console.log(error);
         });
+    },
+    closePriceDialog() {
+      this.$refs.form.reset();
+      this.costDialog = false;
     }
   }
 };
