@@ -1,5 +1,5 @@
 <template>
-  <v-content v-resize="onResize" column>
+  <v-content style="margin-top:0px" v-resize="onResize" column>
     <v-alert type="success" style="border-radius:0px;" :value="alertSuccess">{{successmsg}}</v-alert>
     <v-data-table
       :headers="headers"
@@ -260,9 +260,9 @@ export default {
           const index = cur.getFeedbackIndex(item.id);
           cur.$set(cur.feedbacks, index, item);
           cur.showFeedback = false;
-          this.alertSuccess = true;
-          this.alertError = false;
-          this.successmsg = "Feedback have been successfully updated!";
+          cur.alertSuccess = true;
+          cur.alertError = false;
+          cur.successmsg = "Feedback have been successfully updated!";
         });
     },
     deleteItem(item) {
@@ -285,9 +285,9 @@ export default {
               cur.feedbacks.splice(index, 1);
               cur.totalFeedbacks = cur.totalFeedbacks - 1;
             }
-            this.alertSuccess = true;
-            this.alertError = false;
-            this.successmsg = "Feedback have been successfully deleted!";
+            cur.alertSuccess = true;
+            cur.alertError = false;
+            cur.successmsg = "Feedback have been successfully deleted!";
           });
       }
     }

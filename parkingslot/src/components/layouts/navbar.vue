@@ -181,7 +181,8 @@ export default {
           description: this.newFeedback.description
         })
         .then(success => {
-          console.log("Feedback created");
+          this.feedbackMenu = false;
+          alert("Feedback created");
         })
         .catch(error => {
           this.error = true;
