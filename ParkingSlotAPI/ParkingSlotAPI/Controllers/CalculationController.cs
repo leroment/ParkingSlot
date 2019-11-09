@@ -181,7 +181,7 @@ namespace ParkingSlotAPI.Controllers
         }
 
 		[HttpGet("{id}")]
-		public ActionResult Index(Guid id, [FromQuery] DateTime StartTime, [FromQuery] DateTime EndTime, [FromQuery] String vehicleType)
+		public ActionResult CalculateCarparkPriceOverLongPeriod(Guid id, [FromQuery] DateTime StartTime, [FromQuery] DateTime EndTime, [FromQuery] String vehicleType)
 		{
 
 			var duration = 0.0;

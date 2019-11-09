@@ -26,7 +26,7 @@ namespace ParkingSlotAPI.Controllers
 		}
 
 		[HttpGet("{id}")]
-		public ActionResult index(Guid id)
+		public ActionResult getCarparkRateById(Guid id)
 
 		{
 			var carpark = ICarparkRateRepository.GetCarparkRateByIdPerHour(id);
