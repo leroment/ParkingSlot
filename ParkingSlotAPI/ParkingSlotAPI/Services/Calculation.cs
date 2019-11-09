@@ -22,55 +22,55 @@ namespace ParkingSlotAPI
 
 		public List<HoursPerDay> getparkingDay(DateTime startDate, DateTime endDate)
 		{
-			List<HoursPerDay> result = new  List<HoursPerDay>();
-			
-			if ((endDate.Day-startDate.Day)==0)
+			List<HoursPerDay> result = new List<HoursPerDay>();
+
+			if ((endDate.Day - startDate.Day) == 0)
 			{
 
 				result.Add(new HoursPerDay(startDate, endDate, getPeriodDuration(startDate, endDate), (int)startDate.DayOfWeek));
-				
+
 			}
 			else
 			{
 				DateTime tempStartDate = startDate, AfterCalculation = startDate, BeforeCalculation = startDate;
-				double totalSec = getPeriodDuration(startDate, endDate)*60;
+				double totalSec = getPeriodDuration(startDate, endDate) * 60;
 
 
 
-				for (int i=0;i<= (endDate.Date - startDate.Date).TotalDays;i++)
+				for (int i = 0; i <= (endDate.Date - startDate.Date).TotalDays; i++)
 				{
-					
-					if(result.Count==0)
+
+					if (result.Count == 0)
 					{
 						var remaining = TimeSpan.FromHours(24) - tempStartDate.TimeOfDay;
 						AfterCalculation = AfterCalculation.AddSeconds(remaining.TotalSeconds);
 						BeforeCalculation = AfterCalculation;
 						result.Add(new HoursPerDay(startDate, AfterCalculation, (int)remaining.TotalMinutes, (int)tempStartDate.DayOfWeek));
 						totalSec -= (double)remaining.TotalSeconds;
-						
+
 					}
-					else if(totalSec > 24*60*60)
+					else if (totalSec > 24 * 60 * 60)
 					{
-						AfterCalculation = AfterCalculation.AddSeconds(24 * 60*60);
-						
-						result.Add(new HoursPerDay(BeforeCalculation, AfterCalculation, 24*60, (int)BeforeCalculation.DayOfWeek));
+						AfterCalculation = AfterCalculation.AddSeconds(24 * 60 * 60);
+
+						result.Add(new HoursPerDay(BeforeCalculation, AfterCalculation, 24 * 60, (int)BeforeCalculation.DayOfWeek));
 						totalSec -= 24 * 60 * 60;
 						BeforeCalculation = AfterCalculation;
 					}
 					else
 					{
 						AfterCalculation = AfterCalculation.AddSeconds(totalSec);
-						result.Add(new HoursPerDay(BeforeCalculation, AfterCalculation, Math.Ceiling(totalSec /60.0), (int)BeforeCalculation.DayOfWeek));
+						result.Add(new HoursPerDay(BeforeCalculation, AfterCalculation, Math.Ceiling(totalSec / 60.0), (int)BeforeCalculation.DayOfWeek));
 					}
-					
-			
+
+
 				}
 			}
 			return result;
-			
+
 
 		}
-	
+
 		public DateTime getDateTime()
 		{
 			return this.dateTime;
@@ -88,44 +88,44 @@ namespace ParkingSlotAPI
 			this.duration = duration;
 
 		}
-	
 
 
-		public double calculatePrice( double rate, double min)
+
+		public double calculatePrice(double rate, double min)
 		{
 
 			double result = 0;
 			double finalDuration = this.duration / min;
-				if (finalDuration<1)
+			if (finalDuration < 1)
 			{
-				result=  rate;
+				result = rate;
 			}
-				else
+			else
 			{
-				double getWholeNumber = finalDuration-(finalDuration%1);
-				if ((finalDuration-(double)getWholeNumber) >0)
+				double getWholeNumber = finalDuration - (finalDuration % 1);
+				if ((finalDuration - (double)getWholeNumber) > 0)
 				{
-					result+= rate;
+					result += rate;
 				}
 				result += getWholeNumber * rate;
 			}
 
 			return result;
 
-		
+
 		}
 
-		public double getPeriodDuration(DateTime st,DateTime et)
+		public double getPeriodDuration(DateTime st, DateTime et)
 		{
 			double result = 0;
-			if(et.TimeOfDay.TotalMinutes == 0 && st.TimeOfDay.TotalMinutes == 0)
+			if (et.TimeOfDay.TotalMinutes == 0 && st.TimeOfDay.TotalMinutes == 0)
 			{
 				return 1440;
 			}
 
-			else if((et- st).TotalHours<0)
+			else if ((et - st).TotalHours < 0)
 			{
-				result=((et - st).TotalMinutes) + (24 * 60);
+				result = ((et - st).TotalMinutes) + (24 * 60);
 			}
 			else
 			{
@@ -134,12 +134,12 @@ namespace ParkingSlotAPI
 			return result;
 		}
 
-		public  bool TimePeriodOverlaps(DateTime BS, DateTime BE, DateTime TS, DateTime TE)
+		public bool TimePeriodOverlaps(DateTime BS, DateTime BE, DateTime TS, DateTime TE)
 		{
-		
+
 
 			return (
-		
+
 
 				//  Case
 				//
@@ -152,32 +152,32 @@ namespace ParkingSlotAPI
 		}
 		public bool TimePeriodOverlapsLeft(DateTime BS, DateTime BE, DateTime TS, DateTime TE)
 		{
-		
+
 
 			return (
-				//  Case:
-				//
-				//       TS-------TE
-				//    BS------BE 
-				//
-				// TS is after BS but before BE
+				   //  Case:
+				   //
+				   //       TS-------TE
+				   //    BS------BE 
+				   //
+				   // TS is after BS but before BE
 				   (TS >= BS && TS < BE)
-				
+
 			);
 		}
 		public bool TimePeriodOverlapsRight(DateTime BS, DateTime BE, DateTime TS, DateTime TE)
 		{
-		
-			
+
+
 
 			return (
-				//  Case
-				//
-				//    TS-------TE
-				//        BS---------BE
-				//
-				// TE is before BE but after BS
-				 (TE <= BE && TE > BS&& TS <= BS) //|| (TS <= BS && TE <= BE) 
+				 //  Case
+				 //
+				 //    TS-------TE
+				 //        BS---------BE
+				 //
+				 // TE is before BE but after BS
+				 (TE <= BE && TE > BS && TS <= BS) //|| (TS <= BS && TE <= BE) 
 
 
 

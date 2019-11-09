@@ -206,28 +206,6 @@ namespace ParkingSlotAPI.Controllers
                     carparkFromRepo.TotalAvailableLots = carparkFromRepo.CarAvailability + carparkFromRepo.MAvailability + carparkFromRepo.HVAvailability;
                 }
 
-                if (carparkFromRepo.CarAvailability == -1 && carparkFromRepo.HVAvailability == -1 && carparkFromRepo.MAvailability == -1)
-                {
-                    carparkFromRepo.TotalAvailableLots = -1;
-                }
-                else
-                {
-                    if (carparkFromRepo.CarAvailability == -1)
-                    {
-                        carparkFromRepo.TotalAvailableLots++;
-                    }
-
-                    if (carparkFromRepo.HVAvailability == -1)
-                    {
-                        carparkFromRepo.TotalAvailableLots++;
-                    }
-
-                    if (carparkFromRepo.MAvailability == -1)
-                    {
-                        carparkFromRepo.TotalAvailableLots++;
-                    }
-                }
-
 
 
                 _parkingRepository.UpdateCarpark(carparkFromRepo);
@@ -306,30 +284,6 @@ namespace ParkingSlotAPI.Controllers
                     }
 
                     carparkFromRepo.TotalAvailableLots = carparkFromRepo.CarAvailability + carparkFromRepo.HVAvailability + carparkFromRepo.MAvailability;
-
-                    if (carparkFromRepo.CarAvailability == -1 && carparkFromRepo.HVAvailability == -1 && carparkFromRepo.MAvailability == -1)
-                    {
-                        carparkFromRepo.TotalAvailableLots = -1;
-                    }
-                    else
-                    {
-                        if (carparkFromRepo.CarAvailability == -1)
-                        {
-                            carparkFromRepo.TotalAvailableLots++;
-                        }
-
-                        if (carparkFromRepo.HVAvailability == -1)
-                        {
-                            carparkFromRepo.TotalAvailableLots++;
-                        }
-
-                        if (carparkFromRepo.MAvailability == -1)
-                        {
-                            carparkFromRepo.TotalAvailableLots++;
-                        }
-                    }
-
-
 
                     _parkingRepository.UpdateCarpark(carparkFromRepo);
 

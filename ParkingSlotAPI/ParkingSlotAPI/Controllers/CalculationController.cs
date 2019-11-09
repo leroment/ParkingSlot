@@ -180,12 +180,12 @@ namespace ParkingSlotAPI.Controllers
             return Ok(new { Price = price });
         }
 
-        [HttpGet("{id}")]
+		[HttpGet("{id}")]
 		public ActionResult Index(Guid id, [FromQuery] DateTime StartTime, [FromQuery] DateTime EndTime, [FromQuery] String vehicleType)
 		{
 
 			var duration = 0.0;
-				var Totalduration = 0.0;
+			var Totalduration = 0.0;
 			double carryOverValue = 0;
 			double Price = 0;
 			Boolean IsNUll = false, NonExistenceCarparkRate = false, InvalidDate = false, FlatRateExistence = false;
@@ -197,8 +197,8 @@ namespace ParkingSlotAPI.Controllers
 
 			if (EndTime.ToString() == "1/1/0001 12:00:00 AM" && StartTime.ToString() == "1/1/0001 12:00:00 AM")
 			{
-				Totalduration=duration = 60;
-				
+				Totalduration = duration = 60;
+
 			}
 			else if (EndTime.ToString() != "1/1/0001 12:00:00 AM" && StartTime.ToString() == "1/1/0001 12:00:00 AM")
 			{
@@ -215,7 +215,7 @@ namespace ParkingSlotAPI.Controllers
 			{
 				if (CarParkRateList.Count != 0)
 				{
-					
+
 					var result = new Calculation(StartTime, (int)duration);
 					List<HoursPerDay> dayOfWeek = result.getparkingDay(StartTime, EndTime);
 
@@ -241,15 +241,15 @@ namespace ParkingSlotAPI.Controllers
 										if ((Convert.ToInt32(CarParkRateList[i].WeekdayMin.Trim('m', 'i', 'n', 's'))) <= 30)
 										{
 											double durationOfStaticTimeInMin = Convert.ToDouble(CarParkRateList[i].Duration) * 60;
-											if(EachHoursPerDay.getEndTimeOfTheDay().TimeOfDay.TotalMinutes == 0&& EachHoursPerDay.getStartTimeOfTheDay().TimeOfDay.TotalMinutes == 0)
+											if (EachHoursPerDay.getEndTimeOfTheDay().TimeOfDay.TotalMinutes == 0 && EachHoursPerDay.getStartTimeOfTheDay().TimeOfDay.TotalMinutes == 0)
 											{
-												RateEndTimeFromDB = DateTime.ParseExact(EachHoursPerDay.getEndTimeOfTheDay().Day-1 + "/" + EachHoursPerDay.getEndTimeOfTheDay().Month + "/" + EachHoursPerDay.getEndTimeOfTheDay().Year + " " + CarParkRateList[i].EndTime, "d/M/yyyy HH:mm:ss", CultureInfo.InvariantCulture);
+												RateEndTimeFromDB = DateTime.ParseExact(EachHoursPerDay.getEndTimeOfTheDay().Day - 1 + "/" + EachHoursPerDay.getEndTimeOfTheDay().Month + "/" + EachHoursPerDay.getEndTimeOfTheDay().Year + " " + CarParkRateList[i].EndTime, "d/M/yyyy HH:mm:ss", CultureInfo.InvariantCulture);
 												RateStartTimeFromDB = RateEndTimeFromDB.Subtract(new TimeSpan(0, (int)durationOfStaticTimeInMin, 0));
 											}
-											else if(CarParkRateList[i].StartTime=="00:00:00"&& CarParkRateList[i].EndTime=="23:59:59")
+											else if (CarParkRateList[i].StartTime == "00:00:00" && CarParkRateList[i].EndTime == "23:59:59")
 											{
 												RateStartTimeFromDB = DateTime.ParseExact(EachHoursPerDay.getStartTimeOfTheDay().Day + "/" + EachHoursPerDay.getStartTimeOfTheDay().Month + "/" + EachHoursPerDay.getStartTimeOfTheDay().Year + " " + CarParkRateList[i].StartTime, "d/M/yyyy HH:mm:ss", CultureInfo.InvariantCulture);
-												
+
 												RateEndTimeFromDB = RateStartTimeFromDB.AddMinutes(durationOfStaticTimeInMin);
 											}
 											else if (EachHoursPerDay.getEndTimeOfTheDay().TimeOfDay.TotalMinutes == 0)
@@ -278,25 +278,26 @@ namespace ParkingSlotAPI.Controllers
 												durationOfDynamicTimeInMin <= durationOfStaticTimeInMin && TimeChecker > 0)
 											{
 												result.setDuration((int)EachHoursPerDay.getDayDuration());
-												if (result.getDuration()%30==0 ) {
+												if (result.getDuration() % 30 == 0)
+												{
 													Price += result.calculatePrice(Convert.ToDouble(CarParkRateList[i].WeekdayRate.Trim('$')), Convert.ToDouble(CarParkRateList[i].WeekdayMin.Trim('m', 'i', 'n', 's')));
 												}
-												
-												
+
+
 												else if (result.getDuration() % 30 != 0)
 												{
-													if(EachHoursPerDay.getStartTimeOfTheDay().Date==StartTime.Date)
+													if (EachHoursPerDay.getStartTimeOfTheDay().Date == StartTime.Date)
 													{
-														carryOverValue +=(30- (result.getDuration() % 30));
+														carryOverValue += (30 - (result.getDuration() % 30));
 													}
 													else
 													{
 														carryOverValue += (result.getDuration() % 30);
 													}
-													
+
 													result.setDuration((int)(result.getDuration() - (result.getDuration() % 30)));
 													Price += result.calculatePrice(Convert.ToDouble(CarParkRateList[i].WeekdayRate.Trim('$')), Convert.ToDouble(CarParkRateList[i].WeekdayMin.Trim('m', 'i', 'n', 's')));
-													if (carryOverValue == Totalduration - result.getDuration()&& carryOverValue%30==0)
+													if (carryOverValue == Totalduration - result.getDuration() && carryOverValue % 30 == 0)
 													{
 														result.setDuration((int)(carryOverValue));
 														Price += result.calculatePrice(Convert.ToDouble(CarParkRateList[i].WeekdayRate.Trim('$')), Convert.ToDouble(CarParkRateList[i].WeekdayMin.Trim('m', 'i', 'n', 's')));
@@ -318,8 +319,8 @@ namespace ParkingSlotAPI.Controllers
 
 											else if (TimeChecker > 0 && result.TimePeriodOverlaps(EachHoursPerDay.getStartTimeOfTheDay(), EachHoursPerDay.getEndTimeOfTheDay(), RateStartTimeFromDB, RateEndTimeFromDB) == true)
 											{
-												
-												
+
+
 
 												result.setDuration((int)(EachHoursPerDay.getEndTimeOfTheDay() - EachHoursPerDay.getStartTimeOfTheDay()).TotalMinutes);
 												Price += result.calculatePrice(Convert.ToDouble(CarParkRateList[i].WeekdayRate.Trim('$')), Convert.ToDouble(CarParkRateList[i].WeekdayMin.Trim('m', 'i', 'n', 's')));
@@ -333,7 +334,7 @@ namespace ParkingSlotAPI.Controllers
 											{
 												double redundantValue = (double)(EachHoursPerDay.getEndTimeOfTheDay() - RateEndTimeFromDB).TotalMinutes;
 												result.setDuration((int)((EachHoursPerDay.getEndTimeOfTheDay() - EachHoursPerDay.getStartTimeOfTheDay()).TotalMinutes - redundantValue));
-												if (result.getDuration() % 30 == 0 )
+												if (result.getDuration() % 30 == 0)
 												{
 													Price += result.calculatePrice(Convert.ToDouble(CarParkRateList[i].WeekdayRate.Trim('$')), Convert.ToDouble(CarParkRateList[i].WeekdayMin.Trim('m', 'i', 'n', 's')));
 												}
@@ -349,13 +350,13 @@ namespace ParkingSlotAPI.Controllers
 													}
 													result.setDuration((int)(result.getDuration() - (result.getDuration() % 30)));
 													Price += result.calculatePrice(Convert.ToDouble(CarParkRateList[i].WeekdayRate.Trim('$')), Convert.ToDouble(CarParkRateList[i].WeekdayMin.Trim('m', 'i', 'n', 's')));
-												/*	if (carryOverValue == Totalduration - result.getDuration() && carryOverValue % 30 == 0)
-													{
-														result.setDuration((int)(carryOverValue));
-														Price += result.calculatePrice(Convert.ToDouble(CarParkRateList[i].WeekdayRate.Trim('$')), Convert.ToDouble(CarParkRateList[i].WeekdayMin.Trim('m', 'i', 'n', 's')));
-														carryOverValue = 0;
+													/*	if (carryOverValue == Totalduration - result.getDuration() && carryOverValue % 30 == 0)
+														{
+															result.setDuration((int)(carryOverValue));
+															Price += result.calculatePrice(Convert.ToDouble(CarParkRateList[i].WeekdayRate.Trim('$')), Convert.ToDouble(CarParkRateList[i].WeekdayMin.Trim('m', 'i', 'n', 's')));
+															carryOverValue = 0;
 
-													}*/
+														}*/
 												}
 												else if (TimeChecker == Totalduration)
 												{
@@ -364,7 +365,7 @@ namespace ParkingSlotAPI.Controllers
 													carryOverValue = 0;
 
 												}
-												int reminder= ((int)((EachHoursPerDay.getEndTimeOfTheDay() - EachHoursPerDay.getStartTimeOfTheDay()).TotalMinutes - redundantValue));
+												int reminder = ((int)((EachHoursPerDay.getEndTimeOfTheDay() - EachHoursPerDay.getStartTimeOfTheDay()).TotalMinutes - redundantValue));
 												TimeChecker -= reminder;
 												EachHoursPerDay.setDayDuration(EachHoursPerDay.getDayDuration() - reminder);
 												EachHoursPerDay.setStartTimeOfTheDay(EachHoursPerDay.getStartTimeOfTheDay().AddMinutes(reminder));
@@ -385,7 +386,7 @@ namespace ParkingSlotAPI.Controllers
 												break;
 											}
 										}
-										
+
 
 									}
 									if (checkAllIfFailed >= CarParkRateList.Count)
@@ -394,9 +395,10 @@ namespace ParkingSlotAPI.Controllers
 
 										break;
 									}
-									
+
 								}
-								if (FlatRateExistence!=true) {
+								if (FlatRateExistence != true)
+								{
 									int totalDay = (int)(EndTime.Date - StartTime.Date).TotalDays;
 									DateTime st = new DateTime(StartTime.Year, StartTime.Month, StartTime.Day, 22, 30, 0);
 									DateTime et = new DateTime(StartTime.Year, StartTime.Month, StartTime.Day + 1, 7, 0, 0);
@@ -431,11 +433,11 @@ namespace ParkingSlotAPI.Controllers
 								double TimeChecker = EachHoursPerDay.getDayDuration();
 								while (TimeChecker != 0)
 								{
-									
+
 									int checkAllIfFailed = 0;
 									for (int i = 0; i < CarParkRateList.Count; i++)
 									{
-										
+
 										double durationOfStaticTimeInMin = Convert.ToDouble(CarParkRateList[i].Duration) * 60;
 										if (EachHoursPerDay.getEndTimeOfTheDay().TimeOfDay.TotalMinutes == 0)
 										{
@@ -460,7 +462,7 @@ namespace ParkingSlotAPI.Controllers
 													durationOfDynamicTimeInMin <= durationOfStaticTimeInMin && TimeChecker > 0)
 										{
 											result.setDuration((int)EachHoursPerDay.getDayDuration());
-											
+
 											TimeChecker -= durationOfDynamicTimeInMin;
 											checkAllIfFailed--;
 											Totalduration -= result.getDuration();
@@ -469,7 +471,7 @@ namespace ParkingSlotAPI.Controllers
 												Price += result.calculatePrice(Convert.ToDouble(CarParkRateList[i].WeekdayRate.Trim('$')), Convert.ToDouble(CarParkRateList[i].WeekdayMin.Trim('m', 'i', 'n', 's')));
 											}
 
-											
+
 										}
 
 										else if (result.TimePeriodOverlaps(EachHoursPerDay.getStartTimeOfTheDay(), EachHoursPerDay.getEndTimeOfTheDay(), RateStartTimeFromDB, RateEndTimeFromDB) == true)
@@ -477,9 +479,9 @@ namespace ParkingSlotAPI.Controllers
 
 
 											result.setDuration((int)(EachHoursPerDay.getEndTimeOfTheDay() - EachHoursPerDay.getStartTimeOfTheDay()).TotalMinutes);
-											
-												Price += result.calculatePrice(Convert.ToDouble(CarParkRateList[i].WeekdayRate.Trim('$')), Convert.ToDouble(CarParkRateList[i].WeekdayMin.Trim('m', 'i', 'n', 's')));
-												
+
+											Price += result.calculatePrice(Convert.ToDouble(CarParkRateList[i].WeekdayRate.Trim('$')), Convert.ToDouble(CarParkRateList[i].WeekdayMin.Trim('m', 'i', 'n', 's')));
+
 											TimeChecker -= (int)(((EachHoursPerDay.getEndTimeOfTheDay() - EachHoursPerDay.getStartTimeOfTheDay()).TotalMinutes));
 											EachHoursPerDay.setDayDuration(EachHoursPerDay.getDayDuration() - (EachHoursPerDay.getEndTimeOfTheDay() - EachHoursPerDay.getStartTimeOfTheDay()).TotalMinutes);
 											checkAllIfFailed--;
@@ -494,8 +496,8 @@ namespace ParkingSlotAPI.Controllers
 											{
 												Price += result.calculatePrice(Convert.ToDouble(CarParkRateList[i].WeekdayRate.Trim('$')), Convert.ToDouble(CarParkRateList[i].WeekdayMin.Trim('m', 'i', 'n', 's')));
 											}
-												
-											
+
+
 											TimeChecker -= ((int)((EachHoursPerDay.getEndTimeOfTheDay() - EachHoursPerDay.getStartTimeOfTheDay()).TotalMinutes - redundantValue));
 											EachHoursPerDay.setDayDuration(EachHoursPerDay.getDayDuration() - ((EachHoursPerDay.getEndTimeOfTheDay() - EachHoursPerDay.getStartTimeOfTheDay()).TotalMinutes - redundantValue));
 											EachHoursPerDay.setStartTimeOfTheDay(EachHoursPerDay.getStartTimeOfTheDay().AddMinutes(((EachHoursPerDay.getEndTimeOfTheDay() - EachHoursPerDay.getStartTimeOfTheDay()).TotalMinutes - redundantValue)));
@@ -804,7 +806,7 @@ namespace ParkingSlotAPI.Controllers
 										break;
 									}
 								}
-							
+
 
 							}
 						}
@@ -1068,7 +1070,7 @@ namespace ParkingSlotAPI.Controllers
 											double redundantValue = (double)(EachHoursPerDay.getEndTimeOfTheDay() - RateEndTimeFromDB).TotalMinutes;
 											result.setDuration((int)((EachHoursPerDay.getEndTimeOfTheDay() - EachHoursPerDay.getStartTimeOfTheDay()).TotalMinutes - redundantValue));
 
-											if (RateStartTimeFromDB.TimeOfDay.TotalMinutes!=1350&& RateEndTimeFromDB.TimeOfDay.TotalMinutes!=420|| TimeChecker== Totalduration)
+											if (RateStartTimeFromDB.TimeOfDay.TotalMinutes != 1350 && RateEndTimeFromDB.TimeOfDay.TotalMinutes != 420 || TimeChecker == Totalduration)
 											{
 												Price += result.calculatePrice(Convert.ToDouble(CarParkRateList[i].SunPHRate.Trim('$')), Convert.ToDouble(CarParkRateList[i].SunPHMin.Trim('m', 'i', 'n', 's')));
 											}
@@ -1098,11 +1100,11 @@ namespace ParkingSlotAPI.Controllers
 								}
 							}
 						}
-						
+
 
 					}
-				
-						
+
+
 
 				}
 				else
@@ -1119,12 +1121,12 @@ namespace ParkingSlotAPI.Controllers
 
 
 
-			return Ok(new { id, duration, Price, StartTime, EndTime, vehicleType, IsNUll, NonExistenceCarparkRate,InvalidDate });
+			return Ok(new { id, duration, Price, StartTime, EndTime, vehicleType, IsNUll, NonExistenceCarparkRate, InvalidDate });
 
 
-	
-		
-	}
+
+
+		}
 	}
 
 	}
