@@ -22,7 +22,9 @@ export default {
             PageNumber: 1,
             VehType: "",
             AgencyType: "",
-            Radius: 100
+            Range: 100,
+            Latitude: 0,
+            Longitude: 0
         }
     },
     getters: {

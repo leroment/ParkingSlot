@@ -269,21 +269,28 @@ export default {
       this.changeType();
     },
     infiniteHandler($state) {
+      var fields = {
+        Orderby: ascending,
+        IsElectronic: this.filterConfig.IsElectronic,
+        IsCentral: this.filterConfig.IsCentral,
+        PageNumber: this.filterConfig.PageNumber,
+        VehType: this.filterConfig.VehType,
+        AgencyType: this.filterConfig.AgencyType
+      };
       var ascending = "carparkname";
       if (this.filterConfig.IsAscending == false) {
         ascending = "carparkname desc";
       }
+
+      if (this.filterConfig.Latitude != 0 && this.filterConfig.Longitude != 0) {
+        fields.Latitude = this.filterConfig.Latitude;
+        fields.Longitude = this.filterConfig.Longitude;
+        fields.Range = this.filterConfig.Range;
+      }
+
       this.axios
         .get("https://parkingslotapi.azurewebsites.net/api/carpark", {
-          params: {
-            Orderby: ascending,
-            IsElectronic: this.filterConfig.IsElectronic,
-            IsCentral: this.filterConfig.IsCentral,
-            PageNumber: this.filterConfig.PageNumber,
-            VehType: this.filterConfig.VehType,
-            AgencyType: this.filterConfig.AgencyType,
-            Radius: this.filterConfig.Radius
-          }
+          params: fields
         })
         .then(({ data }) => {
           setTimeout(() => {

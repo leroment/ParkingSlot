@@ -42,7 +42,7 @@
               </v-col>
               <v-col col="12" sm="6" md="6">
                 <div class="map-search-input">
-                  <gmap-autocomplete @place_changed="setPlace"></gmap-autocomplete>
+                  <gmap-autocomplete :value="search" @place_changed="setPlace"></gmap-autocomplete>
                 </div>
               </v-col>
               <v-col cols="12" sm="6" md="6">
@@ -57,7 +57,7 @@
                 ></v-select>
               </v-col>
               <v-col col="12" sm="6" md="6">
-                <v-text-field v-model="filterConfig.Radius" label="Range (m)"></v-text-field>
+                <v-text-field v-model="filterConfig.Range" label="Range (m)"></v-text-field>
               </v-col>
             </v-list-item-content>
           </v-list-item>
@@ -72,7 +72,6 @@
   </v-flex>
 </template>
 <script>
-import { filter } from "minimatch";
 export default {
   data() {
     return {
@@ -83,7 +82,9 @@ export default {
       vehType: ["Car", "Motorcycle", "Heavy Vehicle", "All"],
       agencyType: ["HDB", "URA", "LTA", "All"],
       description: "Singapore",
-      latLng: {}
+      longitude: 0,
+      latitude: 0,
+      search: ""
     };
   },
   watch: {
@@ -103,12 +104,15 @@ export default {
     filterCarparks: function() {
       //Update store filter
       //Pass the filter config to the parent component
+      this.filterConfig.Latitude = this.latitude;
+      this.filterConfig.Longitude = this.longitude;
       this.$store.dispatch("UPDATEFILTER", this.filterConfig).then(success => {
         this.$emit("clicked", this.filterConfig);
       });
     },
     clearFilter: function(event) {
       event.stopPropagation();
+      this.search = null
       this.filterConfig = {
         //Set back default values
         IsAscending: true,
@@ -118,11 +122,14 @@ export default {
         PageNumber: 1,
         VehType: "",
         AgencyType: "",
-        Radius: 100
+        Range: 1000,
+        Latitude: 0,
+        Longitude: 0
       };
     },
     setPlace: function(place) {
-      console.log(place);
+      this.latitude = place.geometry.location.lat();
+      this.longitude = place.geometry.location.lng();
     }
   }
 };

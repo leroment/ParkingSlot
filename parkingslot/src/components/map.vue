@@ -58,7 +58,7 @@
         <v-row v-if="markerItem.hvCapacity != '-1'">
           <span class="body-1">Heavy Vehicle Capacity: {{ markerItem.hvCapacity }}</span>
         </v-row>
-      </v-container>-->
+      </v-container>
       <v-btn class="mt-5" color="info" @click="getDirection(markerPos)" type="submit">Directions</v-btn>
     </gmap-info-window>
     <!--<CarparkFilter class="filterBtn" id="filter" @clicked="onFilter"></CarparkFilter>-->
