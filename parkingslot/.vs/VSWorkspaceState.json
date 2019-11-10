@@ -6,8 +6,8 @@
     "\\src\\components",
     "\\src\\components\\admin",
     "\\src\\components\\auth",
-    "\\src\\components\\layouts"
+    "\\src\\stores"
   ],
-  "SelectedNode": "\\src\\components\\map.vue",
+  "SelectedNode": "\\src\\components\\admin\\feedback.vue",
   "PreviewInSolutionExplorer": false
 }
